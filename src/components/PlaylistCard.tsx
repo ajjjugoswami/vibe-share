@@ -1,5 +1,5 @@
 import { Heart, Play, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist } from "@/store/slices/playlistSlice";
@@ -49,6 +49,15 @@ const PlaylistCard = ({
   const [likeCount, setLikeCount] = useState(likes);
   const [isLiking, setIsLiking] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Sync local state with props when they change
+  useEffect(() => {
+    setIsLikedState(isLiked);
+  }, [isLiked]);
+
+  useEffect(() => {
+    setLikeCount(likes);
+  }, [likes]);
 
   // Get first song thumbnail if available
   const firstSongThumbnail = coverImage || songs[0]?.thumbnail;

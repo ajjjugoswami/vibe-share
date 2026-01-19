@@ -4,7 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink, Edit, Link2 } from "lucide-react";
 import { Button, Spin, Typography, Tag, App, Dropdown } from "antd";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { likePlaylist, unlikePlaylist } from "@/store/slices/playlistSlice";
 import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 
 const { Title, Text, Paragraph } = Typography;
@@ -15,6 +16,7 @@ const ViewPlaylist = () => {
   const { getPlaylist, savePlaylist, unsavePlaylist, savedPlaylists } = usePlaylist();
   const { user } = useAppSelector((state) => state.auth);
   const isLoggedIn = !!user;
+  const dispatch = useAppDispatch();
   const { message } = App.useApp();
   
   const [playlist, setPlaylist] = useState<any>(null);
@@ -22,6 +24,13 @@ const ViewPlaylist = () => {
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = savedPlaylists.some(p => p.id === id);
   const isOwn = playlist?.user?._id === user?.id;
+
+  // Sync isLiked state with playlist data
+  useEffect(() => {
+    if (playlist) {
+      setIsLiked(playlist.isLiked || false);
+    }
+  }, [playlist]);
 
   useEffect(() => {
     const fetchPlaylist = async () => {
@@ -43,13 +52,29 @@ const ViewPlaylist = () => {
     window.open(song.url, "_blank", "noopener,noreferrer");
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!isLoggedIn) {
       navigate("/sign-in");
       return;
     }
-    setIsLiked(!isLiked);
-    message.success(isLiked ? "Removed like" : "Liked!");
+
+    if (!playlist?.id) return;
+
+    try {
+      if (isLiked) {
+        await dispatch(unlikePlaylist(playlist.id)).unwrap();
+        setIsLiked(false);
+        setPlaylist(prev => prev ? { ...prev, likesCount: (prev.likesCount || 0) - 1 } : null);
+      } else {
+        await dispatch(likePlaylist(playlist.id)).unwrap();
+        setIsLiked(true);
+        setPlaylist(prev => prev ? { ...prev, likesCount: (prev.likesCount || 0) + 1 } : null);
+      }
+      message.success(isLiked ? "Removed like" : "Liked!");
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      message.error("Failed to update like");
+    }
   };
 
   const handleSave = () => {

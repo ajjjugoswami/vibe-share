@@ -1,5 +1,5 @@
 import { Heart, Share2, Bookmark, MoreHorizontal, Play } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, Typography, Dropdown, App } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -58,6 +58,19 @@ const PlaylistPost = ({
   const [isSaving, setIsSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+
+  // Sync local state with props when they change
+  useEffect(() => {
+    setIsLikedState(isLiked);
+  }, [isLiked]);
+
+  useEffect(() => {
+    setIsSavedState(isSaved);
+  }, [isSaved]);
+
+  useEffect(() => {
+    setLikeCount(likes);
+  }, [likes]);
 
   const firstSongThumbnail = coverImage || songs[0]?.thumbnail;
   const showThumbnail = firstSongThumbnail && !imageError;
