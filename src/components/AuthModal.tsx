@@ -1,40 +1,40 @@
 import { X, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AuthModalProps {
   onClose: () => void;
-  onLogin: () => void;
 }
 
-const AuthModal = ({ onClose, onLogin }: AuthModalProps) => {
+const AuthModal = ({ onClose }: AuthModalProps) => {
+  const { login, signup, isLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (isLogin) {
-      console.log("[USER_LOGIN]", {
-        email,
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      console.log("[USER_SIGNUP]", {
-        username,
-        email,
-        timestamp: new Date().toISOString()
-      });
+    setError("");
+
+    try {
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await signup(email, password, username);
+      }
+      onClose();
+    } catch (err: any) {
+      setError(err.message || "Authentication failed");
     }
-    
-    onLogin();
   };
 
   const handleToggleMode = () => {
     const newMode = !isLogin;
     setIsLogin(newMode);
+    setError("");
     console.log("[AUTH_MODE_TOGGLE]", {
       mode: newMode ? "login" : "signup",
       timestamp: new Date().toISOString()
@@ -77,6 +77,7 @@ const AuthModal = ({ onClose, onLogin }: AuthModalProps) => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full h-11 px-4 rounded-lg bg-secondary border-none text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+              required
             />
           )}
           <input
@@ -85,6 +86,7 @@ const AuthModal = ({ onClose, onLogin }: AuthModalProps) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full h-11 px-4 rounded-lg bg-secondary border-none text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+            required
           />
           <input
             type="password"
@@ -92,10 +94,15 @@ const AuthModal = ({ onClose, onLogin }: AuthModalProps) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full h-11 px-4 rounded-lg bg-secondary border-none text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+            required
           />
+
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
           
-          <Button type="submit" variant="accent" className="w-full">
-            {isLogin ? "Sign in" : "Create account"}
+          <Button type="submit" variant="accent" className="w-full" disabled={isLoading}>
+            {isLoading ? "Loading..." : (isLogin ? "Sign in" : "Create account")}
           </Button>
         </form>
 

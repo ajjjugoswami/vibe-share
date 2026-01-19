@@ -22,13 +22,6 @@ const Feed = () => {
     }
   };
 
-  const handleCreatePlaylist = (playlist: { title: string; description: string; songs: { id: string; title: string; artist: string }[] }) => {
-    console.log("[PLAYLIST_SAVED]", {
-      playlist,
-      timestamp: new Date().toISOString()
-    });
-  };
-
   return (
     <>
       <FeedPage onShareClick={handleShareClick} isLoggedIn={isLoggedIn} />
@@ -36,7 +29,6 @@ const Feed = () => {
       {showCreatePlaylist && (
         <CreatePlaylistModal
           onClose={() => setShowCreatePlaylist(false)}
-          onCreate={handleCreatePlaylist}
         />
       )}
     </>

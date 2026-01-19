@@ -1,7 +1,8 @@
 import { Search } from "lucide-react";
 import PlaylistCard, { PlaylistData } from "./PlaylistCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PlaylistDetail from "./PlaylistDetail";
+import { usePlaylist } from "@/contexts/PlaylistContext";
 
 const categories = [
   { name: "Chill", color: "bg-blue-600" },
@@ -112,8 +113,13 @@ const discoverPlaylists: PlaylistData[] = [
 ];
 
 const ExplorePage = () => {
+  const { discoverPlaylists, isLoading, error, fetchDiscoverPlaylists } = usePlaylist();
   const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetchDiscoverPlaylists({ limit: 20 });
+  }, [fetchDiscoverPlaylists]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,6 +144,24 @@ const ExplorePage = () => {
     });
     setSelectedPlaylist(playlist);
   };
+
+  // Transform context playlists to component format
+  const transformedPlaylists: PlaylistData[] = discoverPlaylists.map(playlist => ({
+    id: playlist.id,
+    username: playlist.user?.username || 'unknown',
+    userAvatar: "from-purple-600 to-pink-600", // Default avatar gradient
+    verified: false, // TODO: Add verified status to user model
+    playlistName: playlist.title,
+    playlistCover: playlist.coverGradient,
+    description: playlist.description,
+    songs: playlist.songs.map(song => ({
+      title: song.title,
+      artist: song.artist
+    })),
+    totalSongs: playlist.songs.length,
+    likes: playlist.likesCount,
+    isLiked: playlist.isLiked
+  }));
 
   return (
     <div className="min-h-screen pb-20 md:pb-8">
@@ -175,15 +199,41 @@ const ExplorePage = () => {
         {/* Discover Playlists */}
         <div>
           <h2 className="font-semibold mb-4">Discover Playlists</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {discoverPlaylists.map((playlist) => (
-              <PlaylistCard 
-                key={playlist.id} 
-                {...playlist} 
-                onClick={() => handlePlaylistClick(playlist)}
-              />
-            ))}
-          </div>
+          
+          {error && (
+            <div className="text-center py-8">
+              <p className="text-red-500 mb-4">{error}</p>
+              <button onClick={() => fetchDiscoverPlaylists({ limit: 20 })} className="text-accent hover:underline">
+                Try Again
+              </button>
+            </div>
+          )}
+          
+          {isLoading && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading playlists...</p>
+            </div>
+          )}
+          
+          {!isLoading && !error && (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {transformedPlaylists.map((playlist) => (
+                  <PlaylistCard 
+                    key={playlist.id} 
+                    {...playlist} 
+                    onClick={() => handlePlaylistClick(playlist)}
+                  />
+                ))}
+              </div>
+              
+              {transformedPlaylists.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No playlists found</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Plus, Link2, Share2, Trash2, GripVertical, ExternalLink, Loader2 } from "lucide-react";
+import { usePlaylist } from "@/contexts/PlaylistContext";
 
 interface SongLink {
   id: string;
@@ -45,10 +46,10 @@ const getYouTubeThumbnail = (url: string): string | null => {
 
 interface CreatePlaylistModalProps {
   onClose: () => void;
-  onCreate: (playlist: { title: string; description: string; songs: SongLink[] }) => void;
 }
 
-const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) => {
+const CreatePlaylistModal = ({ onClose }: CreatePlaylistModalProps) => {
+  const { createPlaylist, addSongToPlaylist, isLoading, error } = usePlaylist();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [songs, setSongs] = useState<SongLink[]>([]);
@@ -108,12 +109,34 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
     console.log("[SONG_LINK_REMOVED]", { songId, timestamp: new Date().toISOString() });
   };
 
-  const handleCreate = () => {
-    if (title.trim()) {
-      const playlist = { title: title.trim(), description: description.trim(), songs };
-      console.log("[PLAYLIST_CREATED]", { playlist, timestamp: new Date().toISOString() });
-      onCreate(playlist);
-      onClose();
+  const handleCreate = async () => {
+    if (title.trim() && songs.length > 0) {
+      try {
+        // Create playlist without songs first
+        const newPlaylist = await createPlaylist({
+          title: title.trim(),
+          description: description.trim(),
+          coverGradient: "from-purple-800 to-pink-900", // Default gradient
+          tags: [],
+          isPublic: true,
+        });
+
+        // Add songs one by one
+        for (const song of songs) {
+          await addSongToPlaylist(newPlaylist.id, {
+            title: song.title,
+            artist: song.artist,
+            url: song.url,
+            platform: song.platform,
+            thumbnail: song.thumbnail
+          });
+        }
+
+        console.log("[PLAYLIST_CREATED]", { title: title.trim(), songCount: songs.length, timestamp: new Date().toISOString() });
+        onClose();
+      } catch (err) {
+        console.error("Failed to create playlist:", err);
+      }
     }
   };
 
@@ -331,6 +354,9 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
         </div>
 
         <div className="flex items-center gap-3 p-4 border-t border-border">
+          {error && (
+            <p className="text-red-500 text-sm flex-1">{error}</p>
+          )}
           <Button
             variant="outline"
             onClick={handleShare}
@@ -342,10 +368,17 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
           </Button>
           <Button
             onClick={handleCreate}
-            disabled={!title.trim()}
+            disabled={!title.trim() || songs.length === 0 || isLoading}
             className="flex-1"
           >
-            Create Playlist
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Playlist"
+            )}
           </Button>
         </div>
       </div>

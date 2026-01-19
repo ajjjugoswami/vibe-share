@@ -1,5 +1,6 @@
 import { Heart, Play } from "lucide-react";
 import { useState } from "react";
+import { usePlaylist } from "../contexts/PlaylistContext";
 
 interface Song {
   title: string;
@@ -17,6 +18,7 @@ export interface PlaylistData {
   songs: Song[];
   totalSongs: number;
   likes: number;
+  isLiked?: boolean;
 }
 
 interface PlaylistCardProps extends PlaylistData {
@@ -31,24 +33,34 @@ const PlaylistCard = ({
   songs,
   totalSongs,
   likes,
+  isLiked = false,
   onClick,
 }: PlaylistCardProps) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const { likePlaylist, unlikePlaylist } = usePlaylist();
+  const [isLikedState, setIsLikedState] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
+  const [isLiking, setIsLiking] = useState(false);
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newLikedState = !isLiked;
-    setIsLiked(newLikedState);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-    
-    console.log("[PLAYLIST_LIKE]", {
-      playlistId: id,
-      playlistName,
-      action: newLikedState ? "liked" : "unliked",
-      newLikeCount: newLikedState ? likeCount + 1 : likeCount - 1,
-      timestamp: new Date().toISOString()
-    });
+    if (isLiking) return;
+
+    setIsLiking(true);
+    try {
+      if (isLikedState) {
+        await unlikePlaylist(id);
+        setIsLikedState(false);
+        setLikeCount(prev => prev - 1);
+      } else {
+        await likePlaylist(id);
+        setIsLikedState(true);
+        setLikeCount(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   const formatNumber = (num: number) => {
@@ -82,11 +94,12 @@ const PlaylistCard = ({
           <span className="text-xs text-muted-foreground">{username}</span>
           <button 
             onClick={handleLike}
+            disabled={isLiking}
             className={`flex items-center gap-1 text-xs transition-colors ${
-              isLiked ? "text-red-500" : "text-muted-foreground hover:text-foreground"
-            }`}
+              isLikedState ? "text-red-500" : "text-muted-foreground hover:text-foreground"
+            } ${isLiking ? "opacity-50" : ""}`}
           >
-            <Heart className={`w-3.5 h-3.5 ${isLiked ? "fill-current" : ""}`} />
+            <Heart className={`w-3.5 h-3.5 ${isLikedState ? "fill-current" : ""}`} />
             <span>{formatNumber(likeCount)}</span>
           </button>
         </div>
