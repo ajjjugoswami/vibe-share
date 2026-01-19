@@ -1,4 +1,4 @@
-import { Home, Compass, User, Music, LogOut, Plus, Users } from "lucide-react";
+import { Home, Compass, User, Music, LogOut, Plus, Search } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,7 @@ const DesktopSidebar = () => {
 
   const navItems = [
     { to: "/", icon: Home, label: "Feed" },
-    { to: "/discover", icon: Users, label: "Discover" },
+    { to: "/search", icon: Search, label: "Search" },
     { to: "/explore", icon: Compass, label: "Explore" },
     { to: "/profile", icon: User, label: "Profile" },
   ];

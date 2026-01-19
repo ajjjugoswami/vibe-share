@@ -10,6 +10,7 @@ import MainLayout from "./components/MainLayout";
 import Feed from "./pages/Feed";
 import Explore from "./pages/Explore";
 import Discover from "./pages/Discover";
+import Search from "./pages/Search";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Auth from "./pages/Auth";
@@ -32,9 +33,10 @@ const App = () => (
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route element={<MainLayout />}>
-                  <Route path="/" element={<Feed />} />
+                <Route path="/" element={<Feed />} />
                   <Route path="/explore" element={<Explore />} />
                   <Route path="/discover" element={<Discover />} />
+                  <Route path="/search" element={<Search />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/user/:username" element={<UserProfile />} />
                   <Route path="/playlist/create" element={<CreatePlaylist />} />

@@ -40,7 +40,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
 
         {/* Actions */}
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => handleNavClick("search")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/search")}>
             <Search className="w-4 h-4" />
           </Button>
           {isLoggedIn ? (
