@@ -1,17 +1,18 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
 import ProfilePage from "@/components/ProfilePage";
 
 const Profile = () => {
-  const { isLoggedIn } = useAuth();
+  const { user, isInitialized } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!user;
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (isInitialized && !isLoggedIn) {
       navigate("/sign-in");
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, isInitialized, navigate]);
 
   if (!isLoggedIn) {
     return null;

@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FeedPage from "@/components/FeedPage";
 import CreatePlaylistModal from "@/components/CreatePlaylistModal";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
 
 const Feed = () => {
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { user } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!user;
   const navigate = useNavigate();
 
   const handleShareClick = () => {

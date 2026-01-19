@@ -2,10 +2,13 @@ import { Home, User, Music, LogOut, Plus, Search } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
 
 const DesktopSidebar = () => {
-  const { isLoggedIn, user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!user;
   const navigate = useNavigate();
 
   const navItems = [
@@ -14,8 +17,8 @@ const DesktopSidebar = () => {
     { to: "/profile", icon: User, label: "Profile" },
   ];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await dispatch(logout());
     navigate("/");
   };
 
