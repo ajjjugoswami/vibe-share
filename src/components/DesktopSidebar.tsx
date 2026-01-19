@@ -45,7 +45,7 @@ const DesktopSidebar = () => {
         <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
           <Music className="w-4 h-4 text-white" />
         </div>
-        <span className="font-semibold text-lg">vibecheck</span>
+        <span className="font-semibold text-lg">Share Vibe</span>
       </div>
 
       {/* Navigation */}
