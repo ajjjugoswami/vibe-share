@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Input, Button, App } from "antd";
 import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, X, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
 import { detectPlatform, getYouTubeThumbnail, getPlatformColor, getPlatformIcon, gradients } from "@/lib/songUtils";
+
+const { TextArea } = Input;
 
 const suggestedTags = [
   "chill", "vibes", "workout", "study", "party", "roadtrip", 
@@ -17,7 +17,9 @@ const suggestedTags = [
 const CreatePlaylist = () => {
   const navigate = useNavigate();
   const { createPlaylist, addSongToPlaylist } = usePlaylist();
-  const { isLoggedIn } = useAuth();
+  const user = useAppSelector((state) => state.auth.user);
+  const isLoggedIn = !!user;
+  const { message } = App.useApp();
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -32,6 +34,7 @@ const CreatePlaylist = () => {
   const [showAddSong, setShowAddSong] = useState(false);
   const [previewThumbnail, setPreviewThumbnail] = useState<string | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -106,6 +109,7 @@ const CreatePlaylist = () => {
 
   const handleCreate = async () => {
     if (title.trim()) {
+      setIsCreating(true);
       try {
         const playlist = await createPlaylist({
           title: title.trim(),
@@ -115,7 +119,6 @@ const CreatePlaylist = () => {
           isPublic: true
         });
 
-        // Add songs
         for (const song of songs) {
           await addSongToPlaylist(playlist.id, {
             title: song.title,
@@ -125,9 +128,13 @@ const CreatePlaylist = () => {
           });
         }
 
+        message.success("Playlist created successfully!");
         navigate(`/playlist/${playlist.id}`);
       } catch (error) {
         console.error('Failed to create playlist:', error);
+        message.error("Failed to create playlist");
+      } finally {
+        setIsCreating(false);
       }
     }
   };
@@ -141,7 +148,14 @@ const CreatePlaylist = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-semibold">Create Playlist</h1>
-          <Button size="sm" onClick={handleCreate} disabled={!title.trim()}>
+          <Button
+            type="primary"
+            size="small"
+            onClick={handleCreate}
+            disabled={!title.trim()}
+            loading={isCreating}
+            className="!bg-accent hover:!bg-accent/90 !border-0"
+          >
             Create
           </Button>
         </div>
@@ -176,17 +190,18 @@ const CreatePlaylist = () => {
               placeholder="My awesome playlist"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-secondary border-border"
+              size="large"
+              className="!bg-secondary !border-border"
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Description</label>
-            <Textarea
+            <TextArea
               placeholder="What's this playlist about?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-secondary border-border resize-none"
+              className="!bg-secondary !border-border !resize-none"
               rows={3}
             />
           </div>
@@ -226,7 +241,7 @@ const CreatePlaylist = () => {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagInputKeyDown}
-              className="bg-secondary border-border"
+              className="!bg-secondary !border-border"
             />
           )}
 
@@ -254,12 +269,12 @@ const CreatePlaylist = () => {
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Song Links ({songs.length})</label>
             <Button
-              variant="ghost"
-              size="sm"
+              type="text"
+              size="small"
               onClick={() => setShowAddSong(!showAddSong)}
-              className="text-accent"
+              className="!text-accent"
+              icon={<Plus className="w-4 h-4" />}
             >
-              <Plus className="w-4 h-4 mr-1" />
               Add Link
             </Button>
           </div>
@@ -270,7 +285,7 @@ const CreatePlaylist = () => {
                 placeholder="Paste YouTube, Spotify, or other link"
                 value={newSongUrl}
                 onChange={(e) => setNewSongUrl(e.target.value)}
-                className="bg-background border-border"
+                className="!bg-background !border-border"
               />
               
               {newSongUrl && (
@@ -306,20 +321,26 @@ const CreatePlaylist = () => {
                 placeholder="Song title"
                 value={newSongTitle}
                 onChange={(e) => setNewSongTitle(e.target.value)}
-                className="bg-background border-border"
+                className="!bg-background !border-border"
               />
               <Input
                 placeholder="Artist name (optional)"
                 value={newSongArtist}
                 onChange={(e) => setNewSongArtist(e.target.value)}
-                className="bg-background border-border"
+                className="!bg-background !border-border"
               />
               
               <div className="flex gap-2">
-                <Button onClick={handleAddSong} size="sm" className="flex-1" disabled={!newSongTitle.trim() || !newSongUrl.trim()}>
+                <Button
+                  type="primary"
+                  onClick={handleAddSong}
+                  disabled={!newSongTitle.trim() || !newSongUrl.trim()}
+                  block
+                  className="!bg-accent hover:!bg-accent/90 !border-0"
+                >
                   Add Song
                 </Button>
-                <Button onClick={() => { setShowAddSong(false); setNewSongUrl(""); setPreviewThumbnail(null); }} variant="ghost" size="sm">
+                <Button onClick={() => { setShowAddSong(false); setNewSongUrl(""); setPreviewThumbnail(null); }}>
                   Cancel
                 </Button>
               </div>
