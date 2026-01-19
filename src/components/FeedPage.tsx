@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchFeedPlaylists, resetFeedPagination } from "@/store/slices/playlistSlice";
 import TopNav from "./TopNav";
-import PlaylistCard, { PlaylistData } from "./PlaylistCard";
+import PlaylistPost, { PlaylistPostData } from "./PlaylistPost";
 
 interface FeedPageProps {
   onShareClick: () => void;
@@ -22,7 +22,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   // Initial load
   useEffect(() => {
     if (feedPlaylists.length === 0) {
-      dispatch(fetchFeedPlaylists({ limit: 20, page: 1 }));
+      dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
     }
   }, [dispatch, feedPlaylists.length]);
 
@@ -30,14 +30,14 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const [entry] = entries;
     if (entry.isIntersecting && hasMoreFeed && !isLoading && !isLoadingMore) {
-      dispatch(fetchFeedPlaylists({ page: feedPage + 1, limit: 20, append: true }));
+      dispatch(fetchFeedPlaylists({ page: feedPage + 1, limit: 10, append: true }));
     }
   }, [dispatch, feedPage, hasMoreFeed, isLoading, isLoadingMore]);
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: "100px",
+      rootMargin: "200px",
       threshold: 0.1,
     });
 
@@ -52,21 +52,19 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
     };
   }, [handleObserver]);
 
-  const handlePlaylistClick = (playlist: PlaylistData) => {
+  const handlePlaylistClick = (playlist: PlaylistPostData) => {
     navigate(`/playlist/${playlist.id}`);
   };
 
   const handleRefresh = () => {
     dispatch(resetFeedPagination());
-    dispatch(fetchFeedPlaylists({ limit: 20, page: 1 }));
+    dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
   };
 
   // Transform Redux state to component format
-  const transformedPlaylists: PlaylistData[] = feedPlaylists.map(playlist => ({
+  const transformedPlaylists: PlaylistPostData[] = feedPlaylists.map(playlist => ({
     id: playlist.id,
     username: playlist.user?.username || 'unknown',
-    userAvatar: "from-purple-600 to-pink-600",
-    verified: false,
     playlistName: playlist.title,
     playlistCover: playlist.coverGradient,
     coverImage: playlist.songs[0]?.thumbnail,
@@ -76,36 +74,29 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       artist: song.artist,
       thumbnail: song.thumbnail
     })),
-    totalSongs: playlist.songCount || 0,
+    totalSongs: playlist.songCount || playlist.songs.length || 0,
     likes: playlist.likesCount,
-    isLiked: playlist.isLiked
+    isLiked: playlist.isLiked,
+    isSaved: playlist.isSaved,
+    createdAt: playlist.createdAt
   }));
 
   return (
-    <div className="min-h-screen pb-20 md:pb-8">
+    <div className="min-h-screen pb-20 md:pb-0">
       <TopNav onShareClick={onShareClick} isLoggedIn={isLoggedIn} />
       
-      <div className="max-w-6xl mx-auto px-4 py-6 animate-fade-in">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gradient">Fresh Playlists</h2>
-            <p className="text-muted-foreground text-sm mt-1">Discover what others are sharing</p>
+      {/* Instagram-style centered feed */}
+      <div className="max-w-[470px] mx-auto">
+        {/* Pull to refresh indicator */}
+        {isLoading && feedPlaylists.length > 0 && (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleRefresh}
-            disabled={isLoading}
-            className="hover:bg-secondary/80"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
+        )}
         
         {error && (
-          <div className="text-center py-12 animate-fade-in">
-            <div className="glass rounded-xl p-6 max-w-md mx-auto">
+          <div className="text-center py-12 px-4 animate-fade-in">
+            <div className="glass rounded-xl p-6">
               <p className="text-destructive mb-4">{error}</p>
               <Button onClick={handleRefresh} variant="outline" className="gap-2">
                 <RefreshCw className="w-4 h-4" />
@@ -118,21 +109,21 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         {isLoading && feedPlaylists.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Loading playlists...</p>
+            <p className="text-muted-foreground">Loading your feed...</p>
           </div>
         )}
         
         {!error && (
           <>
-            {/* Masonry Layout */}
-            <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4">
+            {/* Posts */}
+            <div className="divide-y divide-border">
               {transformedPlaylists.map((playlist, index) => (
                 <div 
                   key={playlist.id} 
-                  className="animate-slide-up break-inside-avoid mb-4"
-                  style={{ animationDelay: `${Math.min(index, 10) * 50}ms` }}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${Math.min(index, 5) * 100}ms` }}
                 >
-                  <PlaylistCard 
+                  <PlaylistPost 
                     {...playlist} 
                     onClick={() => handlePlaylistClick(playlist)}
                   />
@@ -141,8 +132,8 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
             </div>
             
             {transformedPlaylists.length === 0 && !isLoading && (
-              <div className="text-center py-16 animate-fade-in">
-                <div className="glass rounded-xl p-8 max-w-md mx-auto">
+              <div className="text-center py-16 px-4 animate-fade-in">
+                <div className="glass rounded-xl p-8">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Plus className="w-8 h-8 text-primary" />
                   </div>
@@ -161,16 +152,15 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
                 {isLoadingMore && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Loading more...</span>
                   </div>
                 )}
               </div>
             )}
 
-            {/* End of feed indicator */}
+            {/* End of feed */}
             {transformedPlaylists.length > 0 && !hasMoreFeed && (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground text-sm">You've seen all playlists!</p>
+              <div className="text-center py-8 border-t border-border">
+                <p className="text-muted-foreground text-sm">You're all caught up!</p>
               </div>
             )}
           </>
