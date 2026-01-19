@@ -17,10 +17,17 @@ const suggestedTags = [
 const EditPlaylist = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getPlaylist, updatePlaylist, deletePlaylist, addSongToPlaylist } = usePlaylist();
+  const { getPlaylist, updatePlaylist, deletePlaylist, addSongToPlaylist, playlists } = usePlaylist();
   const { isLoggedIn } = useAuth();
   
-  const playlist = id ? getPlaylist(id) : undefined;
+  const [playlist, setPlaylist] = useState<{
+    title: string;
+    description: string;
+    coverGradient: string;
+    songs: SongLink[];
+    tags: string[];
+  } | null>(null);
+  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -38,22 +45,38 @@ const EditPlaylist = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Fetch playlist data
   useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/sign-in");
-      return;
-    }
-    
-    if (playlist) {
-      setTitle(playlist.title);
-      setDescription(playlist.description);
-      setSelectedGradient(playlist.coverGradient);
-      setSongs(playlist.songs);
-      setTags(playlist.tags || []);
-    } else if (id) {
-      navigate("/profile");
-    }
-  }, [isLoggedIn, playlist, id, navigate]);
+    const fetchPlaylist = async () => {
+      if (!isLoggedIn) {
+        navigate("/sign-in");
+        return;
+      }
+      
+      if (!id) {
+        navigate("/profile");
+        return;
+      }
+
+      try {
+        setIsLoadingPlaylist(true);
+        const playlistData = await getPlaylist(id);
+        setPlaylist(playlistData);
+        setTitle(playlistData.title);
+        setDescription(playlistData.description);
+        setSelectedGradient(playlistData.coverGradient);
+        setSongs(playlistData.songs);
+        setTags(playlistData.tags || []);
+      } catch (error) {
+        console.error('Failed to load playlist:', error);
+        navigate("/profile");
+      } finally {
+        setIsLoadingPlaylist(false);
+      }
+    };
+
+    fetchPlaylist();
+  }, [isLoggedIn, id, navigate, getPlaylist]);
 
   useEffect(() => {
     if (playlist) {
@@ -168,6 +191,14 @@ const EditPlaylist = () => {
       navigate("/profile");
     }
   };
+
+  if (isLoadingPlaylist) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!playlist) {
     return (
