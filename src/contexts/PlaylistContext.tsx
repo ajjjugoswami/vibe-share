@@ -322,6 +322,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
         artist: song.artist,
         url: song.url,
         platform: song.platform,
+        thumbnail: song.thumbnail,
       });
 
       // Refresh the playlist to get updated songs
