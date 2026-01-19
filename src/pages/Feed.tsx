@@ -1,31 +1,12 @@
 import { useState } from "react";
 import FeedPage from "@/components/FeedPage";
-import ExplorePage from "@/components/ExplorePage";
-import ProfilePage from "@/components/ProfilePage";
 import AuthModal from "@/components/AuthModal";
-import BottomNav from "@/components/BottomNav";
 import CreatePlaylistModal from "@/components/CreatePlaylistModal";
 
-const Index = () => {
-  const [activeTab, setActiveTab] = useState("home");
+const Feed = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleTabChange = (tab: string) => {
-    console.log("[TAB_CHANGE]", {
-      from: activeTab,
-      to: tab,
-      isLoggedIn,
-      timestamp: new Date().toISOString()
-    });
-
-    if (tab === "profile" && !isLoggedIn) {
-      setShowAuth(true);
-    } else {
-      setActiveTab(tab);
-    }
-  };
 
   const handleShareClick = () => {
     console.log("[SHARE_CLICK]", {
@@ -37,9 +18,6 @@ const Index = () => {
       setShowAuth(true);
     } else {
       setShowCreatePlaylist(true);
-      console.log("[OPEN_CREATE_PLAYLIST]", {
-        timestamp: new Date().toISOString()
-      });
     }
   };
 
@@ -51,13 +29,6 @@ const Index = () => {
     setShowAuth(false);
   };
 
-  const handleCloseAuth = () => {
-    console.log("[AUTH_MODAL_CLOSED]", {
-      timestamp: new Date().toISOString()
-    });
-    setShowAuth(false);
-  };
-
   const handleCreatePlaylist = (playlist: { title: string; description: string; songs: { id: string; title: string; artist: string }[] }) => {
     console.log("[PLAYLIST_SAVED]", {
       playlist,
@@ -66,12 +37,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {activeTab === "home" && <FeedPage onShareClick={handleShareClick} isLoggedIn={isLoggedIn} />}
-      {activeTab === "explore" && <ExplorePage />}
-      {activeTab === "profile" && <ProfilePage />}
+    <>
+      <FeedPage onShareClick={handleShareClick} isLoggedIn={isLoggedIn} />
       
-      {showAuth && <AuthModal onClose={handleCloseAuth} onLogin={handleLogin} />}
+      {showAuth && (
+        <AuthModal 
+          onClose={() => setShowAuth(false)} 
+          onLogin={handleLogin} 
+        />
+      )}
       
       {showCreatePlaylist && (
         <CreatePlaylistModal
@@ -79,10 +53,8 @@ const Index = () => {
           onCreate={handleCreatePlaylist}
         />
       )}
-      
-      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
-    </div>
+    </>
   );
 };
 
-export default Index;
+export default Feed;

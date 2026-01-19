@@ -1,4 +1,4 @@
-import { Music, Bell, Plus, Search } from "lucide-react";
+import { Music, Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TopNavProps {
@@ -21,7 +21,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border md:hidden">
       <div className="flex items-center justify-between px-4 h-14 max-w-5xl mx-auto">
         {/* Logo */}
         <div className="flex items-center gap-2">
@@ -31,34 +31,15 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
           <span className="font-semibold text-lg">vibecheck</span>
         </div>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => handleNavClick("feed")}>
-            Feed
-          </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => handleNavClick("discover")}>
-            Discover
-          </Button>
-        </div>
-
         {/* Actions */}
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => handleNavClick("search")}>
+          <Button variant="ghost" size="icon" onClick={() => handleNavClick("search")}>
             <Search className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="icon" className="relative" onClick={handleNotificationClick}>
             <Bell className="w-4 h-4" />
             <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-accent rounded-full" />
           </Button>
-          <Button variant="accent" size="sm" onClick={onShareClick} className="hidden md:flex">
-            <Plus className="w-4 h-4" />
-            Share
-          </Button>
-          {!isLoggedIn && (
-            <Button variant="ghost" size="sm" onClick={onShareClick} className="hidden md:flex">
-              Sign in
-            </Button>
-          )}
         </div>
       </div>
     </header>
