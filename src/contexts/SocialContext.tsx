@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { usersAPI } from "../lib/api";
-import { useAuth } from "./AuthContext";
+import { createContext, useContext, useState, ReactNode } from "react";
+import { useAppSelector } from "../store/hooks";
 
 export interface UserProfile {
   id: string;
@@ -8,27 +7,14 @@ export interface UserProfile {
   bio: string;
   avatarUrl?: string;
   playlistCount: number;
-  // NOTE: Follow/following features are not needed in v1
-  // followersCount: number;
-  // followingCount: number;
   createdAt: string;
 }
 
 interface SocialContextType {
   users: UserProfile[];
-  // NOTE: Follow/following features are not needed in v1
-  // following: UserProfile[];
-  // followers: UserProfile[];
   isLoading: boolean;
-  // NOTE: Follow/following features are not needed in v1
-  // followUser: (userId: string) => Promise<void>;
-  // unfollowUser: (userId: string) => Promise<void>;
-  // isFollowing: (userId: string) => boolean;
   getUserProfile: (userId: string) => UserProfile | undefined;
   getUserByUsername: (username: string) => UserProfile | undefined;
-  // NOTE: Follow/following features are not needed in v1
-  // getFollowers: (userId: string) => UserProfile[];
-  // getFollowing: (userId: string) => UserProfile[];
   updateUserStats: (userId: string, updates: Partial<UserProfile>) => void;
   refreshSocialData: () => Promise<void>;
 }
@@ -45,11 +31,8 @@ export const useSocial = () => {
 
 export const SocialProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  // NOTE: Follow/following features are not needed in v1
-  // const [following, setFollowing] = useState<UserProfile[]>([]);
-  // const [followers, setFollowers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isLoggedIn } = useAuth();
+  const user = useAppSelector((state) => state.auth.user);
 
   // NOTE: Follow/following features are not needed in v1
   // Fetch social data when user logs in
