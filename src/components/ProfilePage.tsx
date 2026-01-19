@@ -1,131 +1,124 @@
 import { Settings, Grid3X3, Bookmark, Music, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import PlaylistCard, { PlaylistData } from "./PlaylistCard";
+import PlaylistDetail from "./PlaylistDetail";
 
-const playlists = [
-  { cover: "from-purple-900 to-pink-900", name: "late night drives", songs: 24 },
-  { cover: "from-cyan-900 to-blue-900", name: "summer 24", songs: 18 },
-  { cover: "from-orange-900 to-red-900", name: "workout beast", songs: 32 },
-  { cover: "from-green-900 to-teal-900", name: "study sesh", songs: 45 },
-  { cover: "from-pink-900 to-rose-900", name: "feels trip", songs: 21 },
-  { cover: "from-indigo-900 to-purple-900", name: "indie gems", songs: 28 },
+const userPlaylists: PlaylistData[] = [
+  { id: "u1", username: "you", userAvatar: "", verified: false, playlistName: "my favorites", playlistCover: "from-purple-800 to-pink-900", songs: [], totalSongs: 24, likes: 142 },
+  { id: "u2", username: "you", userAvatar: "", verified: false, playlistName: "workout mix", playlistCover: "from-red-800 to-orange-900", songs: [], totalSongs: 18, likes: 89 },
+  { id: "u3", username: "you", userAvatar: "", verified: false, playlistName: "chill vibes", playlistCover: "from-green-800 to-teal-900", songs: [], totalSongs: 32, likes: 256 },
 ];
 
-const savedPlaylists = [
-  { cover: "from-amber-900 to-orange-900", name: "gym vibes", songs: 15 },
-  { cover: "from-teal-900 to-cyan-900", name: "chill beats", songs: 40 },
-  { cover: "from-rose-900 to-pink-900", name: "party mix", songs: 25 },
+const savedPlaylists: PlaylistData[] = [
+  { id: "s1", username: "luna.waves", userAvatar: "", verified: false, playlistName: "late night", playlistCover: "from-indigo-800 to-purple-900", songs: [], totalSongs: 24, likes: 1823 },
+  { id: "s2", username: "chill.hub", userAvatar: "", verified: true, playlistName: "study beats", playlistCover: "from-emerald-800 to-teal-900", songs: [], totalSongs: 45, likes: 5672 },
 ];
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<"playlists" | "saved">("playlists");
+  const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistData | null>(null);
+
+  const currentPlaylists = activeTab === "playlists" ? userPlaylists : savedPlaylists;
 
   return (
-    <div className="pb-24">
+    <div className="min-h-screen pb-20 md:pb-8">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="flex items-center justify-between px-4 h-14">
-          <h1 className="font-display font-semibold text-lg">@yourname</h1>
-          <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-muted rounded-full transition-colors">
-              <Share2 className="w-5 h-5" />
-            </button>
-            <button className="p-2 hover:bg-muted rounded-full transition-colors">
-              <Settings className="w-5 h-5" />
-            </button>
+      <header className="sticky top-0 z-40 bg-background border-b border-border">
+        <div className="flex items-center justify-between px-4 h-14 max-w-4xl mx-auto">
+          <h1 className="font-semibold">@yourname</h1>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon">
+              <Share2 className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Settings className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* Profile Info */}
-      <div className="p-4">
-        <div className="flex items-start gap-5">
-          {/* Avatar */}
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-neon-purple to-neon-pink p-[3px] flex-shrink-0">
-            <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-              <Music className="w-10 h-10 text-muted-foreground" />
-            </div>
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Profile Info */}
+        <div className="flex items-start gap-5 mb-6">
+          <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+            <Music className="w-8 h-8 text-muted-foreground" />
           </div>
 
-          {/* Stats */}
-          <div className="flex-1 pt-2">
-            <div className="flex justify-around">
+          <div className="flex-1">
+            <div className="flex justify-around mb-4">
               <div className="text-center">
-                <div className="font-display font-bold text-xl">6</div>
+                <div className="font-semibold">{userPlaylists.length}</div>
                 <div className="text-xs text-muted-foreground">playlists</div>
               </div>
               <div className="text-center">
-                <div className="font-display font-bold text-xl">1.2K</div>
+                <div className="font-semibold">1.2K</div>
                 <div className="text-xs text-muted-foreground">followers</div>
               </div>
               <div className="text-center">
-                <div className="font-display font-bold text-xl">342</div>
+                <div className="font-semibold">342</div>
                 <div className="text-xs text-muted-foreground">following</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bio */}
-        <div className="mt-4">
+        <div className="mb-6">
           <h2 className="font-semibold">Your Name</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            music is my therapy 🎵 sharing good vibes only ✨
+            Sharing my music taste with the world
           </p>
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 mt-4">
-          <Button variant="outline" className="flex-1">
-            Edit Profile
-          </Button>
-          <Button variant="neon" className="flex-1">
-            Share Profile
-          </Button>
+        <div className="flex gap-3 mb-6">
+          <Button variant="outline" className="flex-1">Edit Profile</Button>
+          <Button variant="secondary" className="flex-1">Share Profile</Button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-border mb-6">
+          <button
+            onClick={() => setActiveTab("playlists")}
+            className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors text-sm ${
+              activeTab === "playlists" 
+                ? "border-foreground text-foreground" 
+                : "border-transparent text-muted-foreground"
+            }`}
+          >
+            <Grid3X3 className="w-4 h-4" />
+            My Playlists
+          </button>
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors text-sm ${
+              activeTab === "saved" 
+                ? "border-foreground text-foreground" 
+                : "border-transparent text-muted-foreground"
+            }`}
+          >
+            <Bookmark className="w-4 h-4" />
+            Saved
+          </button>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {currentPlaylists.map((playlist) => (
+            <PlaylistCard 
+              key={playlist.id} 
+              {...playlist} 
+              onClick={() => setSelectedPlaylist(playlist)}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-border mt-2">
-        <button
-          onClick={() => setActiveTab("playlists")}
-          className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors ${
-            activeTab === "playlists" 
-              ? "border-foreground text-foreground" 
-              : "border-transparent text-muted-foreground"
-          }`}
-        >
-          <Grid3X3 className="w-5 h-5" />
-          <span className="text-sm font-medium">My Playlists</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("saved")}
-          className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors ${
-            activeTab === "saved" 
-              ? "border-foreground text-foreground" 
-              : "border-transparent text-muted-foreground"
-          }`}
-        >
-          <Bookmark className="w-5 h-5" />
-          <span className="text-sm font-medium">Saved</span>
-        </button>
-      </div>
-
-      {/* Grid */}
-      <div className="grid grid-cols-2 gap-4 p-4">
-        {(activeTab === "playlists" ? playlists : savedPlaylists).map((playlist, index) => (
-          <button
-            key={index}
-            className="group text-left"
-          >
-            <div className={`aspect-square bg-gradient-to-br ${playlist.cover} rounded-2xl overflow-hidden relative mb-2`}>
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <p className="text-sm font-medium truncate">{playlist.name}</p>
-            <p className="text-xs text-muted-foreground">{playlist.songs} songs</p>
-          </button>
-        ))}
-      </div>
+      {selectedPlaylist && (
+        <PlaylistDetail 
+          playlist={selectedPlaylist} 
+          onClose={() => setSelectedPlaylist(null)} 
+        />
+      )}
     </div>
   );
 };
