@@ -1,5 +1,5 @@
 // API service for communicating with the backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://be-vibe-share.vercel.app/api';
+const API_BASE_URL = 'https://be-vibe-share.vercel.app/api';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
