@@ -21,6 +21,7 @@ export interface PlaylistData {
   totalSongs: number;
   likes: number;
   isLiked?: boolean;
+  isSaved?: boolean;
 }
 
 interface PlaylistCardProps extends PlaylistData {
