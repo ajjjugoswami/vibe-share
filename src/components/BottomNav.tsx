@@ -1,5 +1,4 @@
 import { Home, Search, PlusSquare, Heart, User } from "lucide-react";
-import { useState } from "react";
 
 interface BottomNavProps {
   activeTab: string;
@@ -16,7 +15,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border safe-area-bottom">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -36,14 +35,17 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
               }`}
             >
               {isCreate ? (
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-purple to-neon-pink flex items-center justify-center shadow-lg">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-neon-purple to-neon-pink flex items-center justify-center shadow-lg glow-purple">
                   <Icon className="w-5 h-5 text-white" />
                 </div>
               ) : (
-                <Icon 
-                  className={`w-6 h-6 transition-all ${isActive ? "scale-110" : ""}`} 
-                  fill={isActive && tab.id !== "explore" ? "currentColor" : "none"}
-                />
+                <>
+                  <Icon 
+                    className={`w-6 h-6 transition-all ${isActive ? "scale-110" : ""}`} 
+                    fill={isActive ? "currentColor" : "none"}
+                  />
+                  <span className="text-[10px] mt-1">{tab.label}</span>
+                </>
               )}
             </button>
           );
