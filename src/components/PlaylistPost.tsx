@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Play } from "lucide-react";
+import { Heart, Share2, Bookmark, MoreHorizontal, Play } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -205,12 +205,6 @@ const PlaylistPost = ({
               <Heart 
                 className={`w-6 h-6 ${isLikedState ? "text-red-500 fill-current" : "hover:text-muted-foreground"}`} 
               />
-            </button>
-            <button 
-              onClick={onClick}
-              className="transition-all duration-200 active:scale-90"
-            >
-              <MessageCircle className="w-6 h-6 hover:text-muted-foreground" />
             </button>
             <button 
               onClick={handleShare}
