@@ -1,5 +1,5 @@
 import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, Tabs, Avatar, Typography, Empty, Spin, App } from "antd";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -7,10 +7,13 @@ import { logout } from "@/store/slices/authSlice";
 import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
 import { Link2 } from "lucide-react";
 
+const { Text, Title } = Typography;
+
 const ProfilePage = () => {
-  const [activeTab, setActiveTab] = useState<"playlists" | "saved">("playlists");
+  const [activeTab, setActiveTab] = useState("playlists");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { message } = App.useApp();
   
   const { user } = useAppSelector((state) => state.auth);
   const { userPlaylists, savedPlaylists, isLoading } = useAppSelector((state) => state.playlists);
@@ -18,7 +21,6 @@ const ProfilePage = () => {
 
   const currentPlaylists = activeTab === "playlists" ? userPlaylists : savedPlaylists;
 
-  // Refresh playlists when component mounts
   useEffect(() => {
     if (isLoggedIn && user) {
       dispatch(fetchUserPlaylists(user.id));
@@ -26,25 +28,27 @@ const ProfilePage = () => {
     }
   }, [isLoggedIn, user, dispatch]);
 
-  const handleTabChange = (tab: "playlists" | "saved") => {
-    setActiveTab(tab);
-    console.log("[PROFILE_TAB_CHANGE]", { tab, timestamp: new Date().toISOString() });
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
   };
 
   const handleEditProfile = () => {
-    console.log("[EDIT_PROFILE_CLICKED]", { timestamp: new Date().toISOString() });
+    message.info("Edit profile coming soon!");
   };
 
   const handleShareProfile = () => {
-    console.log("[SHARE_PROFILE_CLICKED]", { timestamp: new Date().toISOString() });
+    const shareUrl = `${window.location.origin}/user/${user?.username}`;
+    navigator.clipboard.writeText(shareUrl);
+    message.success("Profile link copied!");
   };
 
   const handleSettings = () => {
-    console.log("[SETTINGS_CLICKED]", { timestamp: new Date().toISOString() });
+    message.info("Settings coming soon!");
   };
 
   const handleLogout = async () => {
     await dispatch(logout());
+    message.success("Logged out successfully");
     navigate("/");
   };
 
@@ -67,34 +71,49 @@ const ProfilePage = () => {
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
-        <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center">
+        <Avatar size={80} className="bg-secondary">
           <Music className="w-10 h-10 text-muted-foreground" />
-        </div>
-        <h2 className="text-xl font-semibold">Sign in to see your profile</h2>
-        <p className="text-muted-foreground text-center">Create and manage your playlists</p>
-        <Button variant="accent" onClick={() => navigate("/sign-in")}>
+        </Avatar>
+        <Title level={4}>Sign in to see your profile</Title>
+        <Text type="secondary">Create and manage your playlists</Text>
+        <Button type="primary" size="large" onClick={() => navigate("/sign-in")} className="btn-gradient !border-0">
           Sign In
         </Button>
       </div>
     );
   }
 
+  const tabItems = [
+    {
+      key: "playlists",
+      label: (
+        <span className="flex items-center gap-2">
+          <Grid3X3 className="w-4 h-4" />
+          My Playlists
+        </span>
+      ),
+    },
+    {
+      key: "saved",
+      label: (
+        <span className="flex items-center gap-2">
+          <Bookmark className="w-4 h-4" />
+          Saved
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div className="min-h-screen pb-20 md:pb-8">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="flex items-center justify-between px-4 h-14 max-w-4xl mx-auto">
-          <h1 className="font-semibold">@{user?.username}</h1>
+          <Title level={5} className="!mb-0">@{user?.username}</Title>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={handleShareProfile}>
-              <Share2 className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleSettings}>
-              <Settings className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <Button type="text" shape="circle" onClick={handleShareProfile} icon={<Share2 className="w-4 h-4" />} />
+            <Button type="text" shape="circle" onClick={handleSettings} icon={<Settings className="w-4 h-4" />} />
+            <Button type="text" shape="circle" onClick={handleLogout} icon={<LogOut className="w-4 h-4" />} />
           </div>
         </div>
       </header>
@@ -102,83 +121,61 @@ const ProfilePage = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Profile Info */}
         <div className="flex items-start gap-5 mb-6">
-          <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-2xl font-bold text-accent">
+          <Avatar size={80} className="bg-primary/20 flex-shrink-0">
+            <span className="text-2xl font-bold text-primary">
               {user?.username?.charAt(0).toUpperCase()}
             </span>
-          </div>
+          </Avatar>
 
           <div className="flex-1">
             <div className="flex justify-around mb-4">
               <div className="text-center">
-                <div className="font-semibold">{userPlaylists.length}</div>
-                <div className="text-xs text-muted-foreground">playlists</div>
+                <Text strong className="block">{userPlaylists.length}</Text>
+                <Text type="secondary" className="text-xs">playlists</Text>
               </div>
             </div>
           </div>
         </div>
 
         <div className="mb-6">
-          <h2 className="font-semibold">{user?.username}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Sharing my music taste with the world
-          </p>
+          <Title level={5} className="!mb-1">{user?.username}</Title>
+          <Text type="secondary">Sharing my music taste with the world</Text>
         </div>
 
         <div className="flex gap-3 mb-6">
-          <Button variant="outline" className="flex-1" onClick={handleEditProfile}>
+          <Button block onClick={handleEditProfile}>
             Edit Profile
           </Button>
-          <Button variant="accent" className="flex-1" onClick={handleCreatePlaylist}>
-            <Plus className="w-4 h-4 mr-2" />
+          <Button type="primary" block onClick={handleCreatePlaylist} icon={<Plus className="w-4 h-4" />} className="btn-gradient !border-0">
             Create Playlist
           </Button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-border mb-6">
-          <button
-            onClick={() => handleTabChange("playlists")}
-            className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors text-sm ${
-              activeTab === "playlists" 
-                ? "border-foreground text-foreground" 
-                : "border-transparent text-muted-foreground"
-            }`}
-          >
-            <Grid3X3 className="w-4 h-4" />
-            My Playlists
-          </button>
-          <button
-            onClick={() => handleTabChange("saved")}
-            className={`flex-1 py-3 flex items-center justify-center gap-2 border-b-2 transition-colors text-sm ${
-              activeTab === "saved" 
-                ? "border-foreground text-foreground" 
-                : "border-transparent text-muted-foreground"
-            }`}
-          >
-            <Bookmark className="w-4 h-4" />
-            Saved
-          </button>
-        </div>
+        <Tabs 
+          activeKey={activeTab} 
+          onChange={handleTabChange} 
+          items={tabItems}
+          centered
+          className="!mb-6"
+        />
 
         {/* Grid */}
         {isLoading ? (
-          <div className="py-16 text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="py-16 flex justify-center">
+            <Spin size="large" />
           </div>
         ) : currentPlaylists.length === 0 ? (
-          <div className="py-16 text-center">
-            <Link2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {activeTab === "playlists" ? "No playlists yet" : "No saved playlists"}
-            </p>
+          <Empty
+            image={<Link2 className="w-16 h-16 mx-auto text-muted-foreground" />}
+            description={activeTab === "playlists" ? "No playlists yet" : "No saved playlists"}
+          >
             {activeTab === "playlists" && (
-              <Button variant="outline" className="mt-4" onClick={handleCreatePlaylist}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button onClick={handleCreatePlaylist} icon={<Plus className="w-4 h-4" />}>
                 Create Your First Playlist
               </Button>
             )}
-          </div>
+          </Empty>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {currentPlaylists.map((playlist) => (
@@ -202,10 +199,9 @@ const ProfilePage = () => {
                     </div>
                   )}
                 </div>
-                <p className="text-sm font-medium truncate">{playlist.title}</p>
-                <p className="text-xs text-muted-foreground">{playlist.songs.length} songs</p>
+                <Text strong className="text-sm block truncate">{playlist.title}</Text>
+                <Text type="secondary" className="text-xs">{playlist.songs.length} songs</Text>
                 
-                {/* Edit button for owned playlists in playlists tab */}
                 {activeTab === "playlists" && (
                   <button
                     onClick={(e) => {

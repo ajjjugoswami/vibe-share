@@ -1,15 +1,18 @@
 import { Home, User, Music, LogOut, Plus, Search } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button, Avatar, Typography, App } from "antd";
 import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
+
+const { Text } = Typography;
 
 const DesktopSidebar = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const isLoggedIn = !!user;
   const navigate = useNavigate();
+  const { message } = App.useApp();
 
   const navItems = [
     { to: "/", icon: Home, label: "Feed" },
@@ -19,6 +22,7 @@ const DesktopSidebar = () => {
 
   const handleLogout = async () => {
     await dispatch(logout());
+    message.success("Logged out successfully");
     navigate("/");
   };
 
@@ -73,8 +77,14 @@ const DesktopSidebar = () => {
 
         {/* Create Playlist Button */}
         <div className="mt-6">
-          <Button variant="accent" className="w-full justify-start gap-3" onClick={handleCreatePlaylist}>
-            <Plus className="w-5 h-5" />
+          <Button 
+            type="primary" 
+            block 
+            size="large"
+            onClick={handleCreatePlaylist}
+            className="btn-gradient !border-0 !h-11 flex items-center justify-start gap-3"
+            icon={<Plus className="w-5 h-5" />}
+          >
             Create Playlist
           </Button>
         </div>
@@ -84,21 +94,28 @@ const DesktopSidebar = () => {
       <div className="border-t border-border p-4">
         {isLoggedIn ? (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+            <Avatar 
+              className="bg-accent/20 flex-shrink-0"
+              size={40}
+            >
               <span className="text-sm font-medium text-accent">
                 {user?.username?.charAt(0).toUpperCase()}
               </span>
-            </div>
+            </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{user?.username}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <Text className="font-medium text-sm block truncate">{user?.username}</Text>
+              <Text type="secondary" className="text-xs block truncate">{user?.email}</Text>
             </div>
-            <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <Button 
+              type="text" 
+              shape="circle"
+              onClick={handleLogout} 
+              title="Logout"
+              icon={<LogOut className="w-4 h-4" />}
+            />
           </div>
         ) : (
-          <Button variant="accent" className="w-full" onClick={handleLogin}>
+          <Button type="primary" block onClick={handleLogin} className="btn-gradient !border-0">
             Sign in
           </Button>
         )}

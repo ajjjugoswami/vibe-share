@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { initAuth } from "@/store/slices/authSlice";
+import { Spin } from "antd";
 
 interface AuthInitializerProps {
   children: React.ReactNode;
@@ -16,12 +17,11 @@ const AuthInitializer = ({ children }: AuthInitializerProps) => {
     }
   }, [dispatch, isInitialized]);
 
-  // Show loading state while initializing auth
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <Spin size="large" />
           <p className="text-muted-foreground text-sm">Loading...</p>
         </div>
       </div>

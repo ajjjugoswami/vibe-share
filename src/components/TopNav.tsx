@@ -1,6 +1,6 @@
 import { Music, Bell, Search, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button, Badge } from "antd";
 
 interface TopNavProps {
   onShareClick: () => void;
@@ -9,13 +9,6 @@ interface TopNavProps {
 
 const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   const navigate = useNavigate();
-
-  const handleNavClick = (section: string) => {
-    console.log("[NAV_CLICK]", {
-      section,
-      timestamp: new Date().toISOString()
-    });
-  };
 
   const handleNotificationClick = () => {
     console.log("[NOTIFICATION_CLICK]", {
@@ -40,17 +33,28 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
 
         {/* Actions */}
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/search")}>
-            <Search className="w-4 h-4" />
-          </Button>
+          <Button 
+            type="text" 
+            shape="circle"
+            onClick={() => navigate("/search")}
+            icon={<Search className="w-4 h-4" />}
+          />
           {isLoggedIn ? (
-            <Button variant="ghost" size="icon" className="relative" onClick={handleNotificationClick}>
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-accent rounded-full" />
-            </Button>
+            <Badge dot offset={[-2, 2]} color="#8b5cf6">
+              <Button 
+                type="text" 
+                shape="circle"
+                onClick={handleNotificationClick}
+                icon={<Bell className="w-4 h-4" />}
+              />
+            </Badge>
           ) : (
-            <Button variant="ghost" size="sm" onClick={handleLoginClick}>
-              <LogIn className="w-4 h-4 mr-1" />
+            <Button 
+              type="text" 
+              size="small"
+              onClick={handleLoginClick}
+              icon={<LogIn className="w-4 h-4" />}
+            >
               Login
             </Button>
           )}
