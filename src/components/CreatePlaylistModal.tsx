@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Plus, Link2, Share2, Trash2, GripVertical, ExternalLink } from "lucide-react";
+import { X, Plus, Link2, Share2, Trash2, GripVertical, ExternalLink, Loader2 } from "lucide-react";
 
 interface SongLink {
   id: string;
@@ -10,6 +10,7 @@ interface SongLink {
   artist: string;
   url: string;
   platform: string;
+  thumbnail?: string;
 }
 
 const detectPlatform = (url: string): string => {
@@ -20,6 +21,26 @@ const detectPlatform = (url: string): string => {
   if (url.includes("deezer.com")) return "Deezer";
   if (url.includes("tidal.com")) return "Tidal";
   return "Link";
+};
+
+const extractYouTubeId = (url: string): string | null => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
+
+const getYouTubeThumbnail = (url: string): string | null => {
+  const videoId = extractYouTubeId(url);
+  if (videoId) {
+    return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  }
+  return null;
 };
 
 interface CreatePlaylistModalProps {
@@ -35,20 +56,48 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
   const [newSongArtist, setNewSongArtist] = useState("");
   const [newSongUrl, setNewSongUrl] = useState("");
   const [showAddSong, setShowAddSong] = useState(false);
+  const [previewThumbnail, setPreviewThumbnail] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+  useEffect(() => {
+    if (newSongUrl.trim()) {
+      setIsLoadingPreview(true);
+      const platform = detectPlatform(newSongUrl);
+      
+      if (platform === "YouTube") {
+        const thumbnail = getYouTubeThumbnail(newSongUrl);
+        setPreviewThumbnail(thumbnail);
+      } else {
+        setPreviewThumbnail(null);
+      }
+      setIsLoadingPreview(false);
+    } else {
+      setPreviewThumbnail(null);
+    }
+  }, [newSongUrl]);
 
   const handleAddSong = () => {
     if (newSongTitle.trim() && newSongUrl.trim()) {
+      const platform = detectPlatform(newSongUrl.trim());
+      let thumbnail: string | undefined;
+      
+      if (platform === "YouTube") {
+        thumbnail = getYouTubeThumbnail(newSongUrl.trim()) || undefined;
+      }
+
       const song: SongLink = {
         id: Date.now().toString(),
         title: newSongTitle.trim(),
         artist: newSongArtist.trim() || "Unknown Artist",
         url: newSongUrl.trim(),
-        platform: detectPlatform(newSongUrl.trim()),
+        platform,
+        thumbnail,
       };
       setSongs([...songs, song]);
       setNewSongTitle("");
       setNewSongArtist("");
       setNewSongUrl("");
+      setPreviewThumbnail(null);
       setShowAddSong(false);
       console.log("[SONG_LINK_ADDED]", { song, totalSongs: songs.length + 1, timestamp: new Date().toISOString() });
     }
@@ -95,6 +144,18 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
       case "Deezer": return "bg-purple-500/20 text-purple-400";
       case "Tidal": return "bg-blue-500/20 text-blue-400";
       default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case "YouTube": return "🎬";
+      case "Spotify": return "🎵";
+      case "SoundCloud": return "☁️";
+      case "Apple Music": return "🍎";
+      case "Deezer": return "🎧";
+      case "Tidal": return "🌊";
+      default: return "🔗";
     }
   };
 
@@ -148,6 +209,44 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
 
             {showAddSong && (
               <div className="p-3 bg-secondary rounded-lg space-y-3">
+                {/* URL Input with Preview */}
+                <Input
+                  placeholder="Paste YouTube, Spotify, or other link"
+                  value={newSongUrl}
+                  onChange={(e) => setNewSongUrl(e.target.value)}
+                  className="bg-background border-border"
+                />
+                
+                {/* Link Preview */}
+                {newSongUrl && (
+                  <div className="rounded-lg overflow-hidden bg-background border border-border">
+                    {isLoadingPreview ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : previewThumbnail ? (
+                      <div className="relative">
+                        <img 
+                          src={previewThumbnail} 
+                          alt="Video thumbnail" 
+                          className="w-full h-32 object-cover"
+                          onError={() => setPreviewThumbnail(null)}
+                        />
+                        <div className="absolute top-2 right-2">
+                          <span className={`text-xs px-2 py-1 rounded-full ${getPlatformColor(detectPlatform(newSongUrl))}`}>
+                            {detectPlatform(newSongUrl)}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={`flex items-center justify-center py-6 ${getPlatformColor(detectPlatform(newSongUrl))}`}>
+                        <span className="text-3xl mr-2">{getPlatformIcon(detectPlatform(newSongUrl))}</span>
+                        <span className="text-sm font-medium">{detectPlatform(newSongUrl)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <Input
                   placeholder="Song title"
                   value={newSongTitle}
@@ -160,22 +259,12 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
                   onChange={(e) => setNewSongArtist(e.target.value)}
                   className="bg-background border-border"
                 />
-                <Input
-                  placeholder="Paste YouTube, Spotify, or other link"
-                  value={newSongUrl}
-                  onChange={(e) => setNewSongUrl(e.target.value)}
-                  className="bg-background border-border"
-                />
-                {newSongUrl && (
-                  <p className="text-xs text-muted-foreground">
-                    Detected: <span className="text-foreground">{detectPlatform(newSongUrl)}</span>
-                  </p>
-                )}
+                
                 <div className="flex gap-2">
                   <Button onClick={handleAddSong} size="sm" className="flex-1" disabled={!newSongTitle.trim() || !newSongUrl.trim()}>
                     Add
                   </Button>
-                  <Button onClick={() => setShowAddSong(false)} variant="ghost" size="sm">
+                  <Button onClick={() => { setShowAddSong(false); setPreviewThumbnail(null); setNewSongUrl(""); }} variant="ghost" size="sm">
                     Cancel
                   </Button>
                 </div>
@@ -193,18 +282,31 @@ const CreatePlaylistModal = ({ onClose, onCreate }: CreatePlaylistModalProps) =>
                 {songs.map((song, index) => (
                   <div
                     key={song.id}
-                    className="flex items-center gap-3 p-3 bg-secondary rounded-lg group"
+                    className="flex items-center gap-3 p-2 bg-secondary rounded-lg group"
                   >
-                    <GripVertical className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground w-6">{index + 1}</span>
+                    {/* Thumbnail or Platform Icon */}
+                    {song.thumbnail ? (
+                      <img 
+                        src={song.thumbnail} 
+                        alt={song.title}
+                        className="w-12 h-12 rounded object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className={`w-12 h-12 rounded flex items-center justify-center flex-shrink-0 ${getPlatformColor(song.platform)}`}>
+                        <span className="text-lg">{getPlatformIcon(song.platform)}</span>
+                      </div>
+                    )}
+                    
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium text-foreground truncate">{song.title}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${getPlatformColor(song.platform)}`}>
                           {song.platform}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
                     </div>
                     <a
                       href={song.url}

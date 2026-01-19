@@ -8,6 +8,7 @@ interface SongLink {
   artist: string;
   url: string;
   platform: string;
+  thumbnail?: string;
 }
 
 interface PlaylistDetailProps {
@@ -15,14 +16,34 @@ interface PlaylistDetailProps {
   onClose: () => void;
 }
 
+const extractYouTubeId = (url: string): string | null => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
+
+const getYouTubeThumbnail = (url: string): string | null => {
+  const videoId = extractYouTubeId(url);
+  if (videoId) {
+    return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  }
+  return null;
+};
+
 const allSongs: SongLink[] = [
-  { title: "Die For You", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=mTLQhPFx2nM", platform: "YouTube" },
+  { title: "Die For You", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=mTLQhPFx2nM", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/mTLQhPFx2nM/mqdefault.jpg" },
   { title: "Blinding Lights", artist: "The Weeknd", url: "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b", platform: "Spotify" },
-  { title: "Save Your Tears", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=XXYlFuWEuKI", platform: "YouTube" },
+  { title: "Save Your Tears", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=XXYlFuWEuKI", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/XXYlFuWEuKI/mqdefault.jpg" },
   { title: "After Hours", artist: "The Weeknd", url: "https://open.spotify.com/track/2p8IUWQDrpjuFltbdgLOag", platform: "Spotify" },
-  { title: "Starboy", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=34Na4j8AVgA", platform: "YouTube" },
+  { title: "Starboy", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=34Na4j8AVgA", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/34Na4j8AVgA/mqdefault.jpg" },
   { title: "The Hills", artist: "The Weeknd", url: "https://soundcloud.com/theweeknd/the-hills", platform: "SoundCloud" },
-  { title: "Can't Feel My Face", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=KEI4qSrkPAs", platform: "YouTube" },
+  { title: "Can't Feel My Face", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=KEI4qSrkPAs", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/KEI4qSrkPAs/mqdefault.jpg" },
   { title: "Often", artist: "The Weeknd", url: "https://open.spotify.com/track/4PhsKqMdgMEUSstTDAmMpg", platform: "Spotify" },
 ];
 
@@ -33,6 +54,16 @@ const getPlatformColor = (platform: string) => {
     case "SoundCloud": return "bg-orange-500/20 text-orange-400";
     case "Apple Music": return "bg-pink-500/20 text-pink-400";
     default: return "bg-muted text-muted-foreground";
+  }
+};
+
+const getPlatformIcon = (platform: string) => {
+  switch (platform) {
+    case "YouTube": return "🎬";
+    case "Spotify": return "🎵";
+    case "SoundCloud": return "☁️";
+    case "Apple Music": return "🍎";
+    default: return "🔗";
   }
 };
 
@@ -167,47 +198,42 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
           </div>
 
           {/* Songs List */}
-          <div className="space-y-1">
-            {/* Header */}
-            <div className="hidden md:grid grid-cols-[32px_1fr_120px_100px] gap-4 px-4 py-2 text-xs text-muted-foreground border-b border-border">
-              <span>#</span>
-              <span>Title</span>
-              <span>Platform</span>
-              <span className="text-right">Action</span>
-            </div>
-
-            {/* Songs */}
+          <div className="space-y-2">
             {allSongs.map((song, index) => (
               <div 
                 key={index}
                 onClick={() => handleOpenLink(song, index)}
-                className="grid grid-cols-[32px_1fr_100px] md:grid-cols-[32px_1fr_120px_100px] gap-4 px-4 py-3 rounded-lg cursor-pointer group transition-colors hover:bg-secondary"
+                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group transition-colors hover:bg-secondary"
               >
+                {/* Thumbnail or Platform Icon */}
+                {song.thumbnail ? (
+                  <img 
+                    src={song.thumbnail} 
+                    alt={song.title}
+                    className="w-14 h-14 rounded object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className={`w-14 h-14 rounded flex items-center justify-center flex-shrink-0 ${getPlatformColor(song.platform)}`}>
+                    <span className="text-xl">{getPlatformIcon(song.platform)}</span>
+                  </div>
+                )}
+
                 {/* Number */}
-                <div className="flex items-center justify-center">
-                  <span className="text-sm text-muted-foreground">{index + 1}</span>
-                </div>
+                <span className="text-sm text-muted-foreground w-6 text-center">{index + 1}</span>
 
                 {/* Title & Artist */}
-                <div className="min-w-0">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{song.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                </div>
-
-                {/* Platform - Desktop only */}
-                <div className="hidden md:flex items-center">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
-                    {song.platform}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${getPlatformColor(song.platform)}`}>
+                      {song.platform}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Open Link */}
-                <div className="flex items-center justify-end gap-2">
-                  <span className={`md:hidden text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
-                    {song.platform}
-                  </span>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                </div>
+                <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
               </div>
             ))}
           </div>
