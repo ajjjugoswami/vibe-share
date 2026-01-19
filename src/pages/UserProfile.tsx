@@ -14,16 +14,18 @@ interface UserData {
   bio?: string;
   avatarUrl?: string;
   playlistCount?: number;
-  followersCount?: number;
-  followingCount?: number;
-  isFollowing?: boolean;
+  // NOTE: Follow/following features are not needed in v1
+  // followersCount?: number;
+  // followingCount?: number;
+  // isFollowing?: boolean;
 }
 
 const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { user: currentUser, isLoggedIn } = useAuth();
-  const { isFollowing, followUser, unfollowUser, followers, following } = useSocial();
+  // NOTE: Follow/following features are not needed in v1
+  // const { isFollowing, followUser, unfollowUser, followers, following } = useSocial();
   const { playlists, getUserPlaylists } = usePlaylist();
   
   const [userProfile, setUserProfile] = useState<UserData | null>(null);
@@ -33,7 +35,8 @@ const UserProfile = () => {
   const [error, setError] = useState<string | null>(null);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
-  const isFollowingUser = userProfile ? isFollowing(userProfile.id) : false;
+  // NOTE: Follow/following features are not needed in v1
+  // const isFollowingUser = userProfile ? isFollowing(userProfile.id) : false;
 
   // Fetch user data
   useEffect(() => {
@@ -83,6 +86,8 @@ const UserProfile = () => {
     }
   }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
 
+  // NOTE: Follow/following features are not needed in v1
+  /*
   const handleFollow = () => {
     if (!isLoggedIn) {
       navigate("/sign-in");
@@ -97,6 +102,7 @@ const UserProfile = () => {
       followUser(userProfile.id);
     }
   };
+  */
 
   const handleMessage = () => {
     console.log("[MESSAGE_USER]", { username, timestamp: new Date().toISOString() });
@@ -132,8 +138,9 @@ const UserProfile = () => {
         username: currentUser?.username || "",
         bio: "Sharing my music taste with the world",
         playlistCount: playlists.length,
-        followersCount: followers?.length || 0,
-        followingCount: following?.length || 0,
+        // NOTE: Follow/following features are not needed in v1
+        // followersCount: followers?.length || 0,
+        // followingCount: following?.length || 0,
       }
     : userProfile!;
 
@@ -167,6 +174,8 @@ const UserProfile = () => {
                 <div className="font-semibold">{displayProfile.playlistCount}</div>
                 <div className="text-xs text-muted-foreground">playlists</div>
               </div>
+              {/* NOTE: Follow/following features are not needed in v1 */}
+              {/*
               <button 
                 className="text-center hover:opacity-70 transition-opacity"
                 onClick={() => console.log("Show followers")}
@@ -181,6 +190,7 @@ const UserProfile = () => {
                 <div className="font-semibold">{displayProfile.followingCount.toLocaleString()}</div>
                 <div className="text-xs text-muted-foreground">following</div>
               </button>
+              */}
             </div>
           </div>
         </div>
@@ -194,6 +204,8 @@ const UserProfile = () => {
         {/* Actions */}
         {!isOwnProfile && (
           <div className="flex gap-3 mb-6">
+            {/* NOTE: Follow/following features are not needed in v1 */}
+            {/*
             <Button 
               variant={isFollowingUser ? "outline" : "accent"}
               className="flex-1"
@@ -201,6 +213,7 @@ const UserProfile = () => {
             >
               {isFollowingUser ? "Following" : "Follow"}
             </Button>
+            */}
             <Button variant="outline" className="flex-1" onClick={handleMessage}>
               Message
             </Button>

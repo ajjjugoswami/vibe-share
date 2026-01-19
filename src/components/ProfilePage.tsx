@@ -12,7 +12,8 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, isLoggedIn, logout } = useAuth();
   const { playlists, savedPlaylists, refreshPlaylists, refreshSavedPlaylists } = usePlaylist();
-  const { following, followers } = useSocial();
+  // NOTE: Follow/following features are not needed in v1
+  // const { following, followers } = useSocial();
 
   const currentPlaylists = activeTab === "playlists" ? playlists : savedPlaylists;
 
@@ -108,6 +109,8 @@ const ProfilePage = () => {
                 <div className="font-semibold">{playlists.length}</div>
                 <div className="text-xs text-muted-foreground">playlists</div>
               </div>
+              {/* NOTE: Follow/following features are not needed in v1 */}
+              {/*
               <button 
                 className="text-center hover:opacity-70 transition-opacity"
                 onClick={() => console.log("Show followers modal")}
@@ -122,6 +125,7 @@ const ProfilePage = () => {
                 <div className="font-semibold">{following?.length || 0}</div>
                 <div className="text-xs text-muted-foreground">following</div>
               </button>
+              */}
             </div>
           </div>
         </div>

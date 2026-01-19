@@ -8,23 +8,27 @@ export interface UserProfile {
   bio: string;
   avatarUrl?: string;
   playlistCount: number;
-  followersCount: number;
-  followingCount: number;
+  // NOTE: Follow/following features are not needed in v1
+  // followersCount: number;
+  // followingCount: number;
   createdAt: string;
 }
 
 interface SocialContextType {
   users: UserProfile[];
-  following: UserProfile[];
-  followers: UserProfile[];
+  // NOTE: Follow/following features are not needed in v1
+  // following: UserProfile[];
+  // followers: UserProfile[];
   isLoading: boolean;
-  followUser: (userId: string) => Promise<void>;
-  unfollowUser: (userId: string) => Promise<void>;
-  isFollowing: (userId: string) => boolean;
+  // NOTE: Follow/following features are not needed in v1
+  // followUser: (userId: string) => Promise<void>;
+  // unfollowUser: (userId: string) => Promise<void>;
+  // isFollowing: (userId: string) => boolean;
   getUserProfile: (userId: string) => UserProfile | undefined;
   getUserByUsername: (username: string) => UserProfile | undefined;
-  getFollowers: (userId: string) => UserProfile[];
-  getFollowing: (userId: string) => UserProfile[];
+  // NOTE: Follow/following features are not needed in v1
+  // getFollowers: (userId: string) => UserProfile[];
+  // getFollowing: (userId: string) => UserProfile[];
   updateUserStats: (userId: string, updates: Partial<UserProfile>) => void;
   refreshSocialData: () => Promise<void>;
 }
@@ -41,21 +45,25 @@ export const useSocial = () => {
 
 export const SocialProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [following, setFollowing] = useState<UserProfile[]>([]);
-  const [followers, setFollowers] = useState<UserProfile[]>([]);
+  // NOTE: Follow/following features are not needed in v1
+  // const [following, setFollowing] = useState<UserProfile[]>([]);
+  // const [followers, setFollowers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user, isLoggedIn } = useAuth();
 
+  // NOTE: Follow/following features are not needed in v1
   // Fetch social data when user logs in
-  useEffect(() => {
-    if (isLoggedIn && user) {
-      refreshSocialData();
-    } else {
-      setFollowing([]);
-      setFollowers([]);
-    }
-  }, [isLoggedIn, user]);
+  // useEffect(() => {
+  //   if (isLoggedIn && user) {
+  //     refreshSocialData();
+  //   } else {
+  //     setFollowing([]);
+  //     setFollowers([]);
+  //   }
+  // }, [isLoggedIn, user]);
 
+  // NOTE: Follow/following features are not needed in v1
+  /*
   const refreshSocialData = async () => {
     if (!user) return;
 
@@ -102,14 +110,15 @@ export const SocialProvider = ({ children }: { children: ReactNode }) => {
 
   const isFollowing = (userId: string) => following.some(u => u.id === userId);
 
+  const getFollowers = (userId: string) => followers;
+
+  const getFollowing = (userId: string) => following;
+  */
+
   const getUserProfile = (userId: string) => users.find(u => u.id === userId);
 
   const getUserByUsername = (username: string) => 
     users.find(u => u.username.toLowerCase() === username.toLowerCase());
-
-  const getFollowers = (userId: string) => followers;
-
-  const getFollowing = (userId: string) => following;
 
   const updateUserStats = (userId: string, updates: Partial<UserProfile>) => {
     setUsers(prev => prev.map(u => 
@@ -120,18 +129,21 @@ export const SocialProvider = ({ children }: { children: ReactNode }) => {
   return (
     <SocialContext.Provider value={{
       users,
-      following,
-      followers,
+      // NOTE: Follow/following features are not needed in v1
+      // following: [],
+      // followers: [],
       isLoading,
-      followUser,
-      unfollowUser,
-      isFollowing,
+      // NOTE: Follow/following features are not needed in v1
+      // followUser: () => Promise.resolve(),
+      // unfollowUser: () => Promise.resolve(),
+      // isFollowing: () => false,
       getUserProfile,
       getUserByUsername,
-      getFollowers,
-      getFollowing,
+      // NOTE: Follow/following features are not needed in v1
+      // getFollowers: () => [],
+      // getFollowing: () => [],
       updateUserStats,
-      refreshSocialData,
+      refreshSocialData: () => Promise.resolve(),
     }}>
       {children}
     </SocialContext.Provider>

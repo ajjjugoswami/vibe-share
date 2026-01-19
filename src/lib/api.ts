@@ -113,43 +113,44 @@ export const usersAPI = {
     return handleResponse(response);
   },
 
-  getUserFollowers: async (id: string, params?: { page?: number; limit?: number }) => {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', params.page.toString());
-    if (params?.limit) query.set('limit', params.limit.toString());
+  // NOTE: Follow/following features are not needed in v1
+  // getUserFollowers: async (id: string, params?: { page?: number; limit?: number }) => {
+  //   const query = new URLSearchParams();
+  //   if (params?.page) query.set('page', params.page.toString());
+  //   if (params?.limit) query.set('limit', params.limit.toString());
 
-    const response = await fetch(`${API_BASE_URL}/users/${id}/followers?${query}`, {
-      headers: getAuthHeaders(),
-    });
-    return handleResponse(response);
-  },
+  //   const response = await fetch(`${API_BASE_URL}/users/${id}/followers?${query}`, {
+  //     headers: getAuthHeaders(),
+  //   });
+  //   return handleResponse(response);
+  // },
 
-  getUserFollowing: async (id: string, params?: { page?: number; limit?: number }) => {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', params.page.toString());
-    if (params?.limit) query.set('limit', params.limit.toString());
+  // getUserFollowing: async (id: string, params?: { page?: number; limit?: number }) => {
+  //   const query = new URLSearchParams();
+  //   if (params?.page) query.set('page', params.page.toString());
+  //   if (params?.limit) query.set('limit', params.limit.toString());
 
-    const response = await fetch(`${API_BASE_URL}/users/${id}/following?${query}`, {
-      headers: getAuthHeaders(),
-    });
-    return handleResponse(response);
-  },
+  //   const response = await fetch(`${API_BASE_URL}/users/${id}/following?${query}`, {
+  //     headers: getAuthHeaders(),
+  //   });
+  //   return handleResponse(response);
+  // },
 
-  followUser: async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/users/${id}/follow`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    });
-    return handleResponse(response);
-  },
+  // followUser: async (id: string) => {
+  //   const response = await fetch(`${API_BASE_URL}/users/${id}/follow`, {
+  //     method: 'POST',
+  //     headers: getAuthHeaders(),
+  //   });
+  //   return handleResponse(response);
+  // },
 
-  unfollowUser: async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/users/${id}/follow`, {
-      method: 'DELETE',
-      headers: getAuthHeaders(),
-    });
-    return handleResponse(response);
-  },
+  // unfollowUser: async (id: string) => {
+  //   const response = await fetch(`${API_BASE_URL}/users/${id}/follow`, {
+  //     method: 'DELETE',
+  //     headers: getAuthHeaders(),
+  //   });
+  //   return handleResponse(response);
+  // },
 };
 
 // Playlists API
