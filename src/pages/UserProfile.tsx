@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Avatar, Button, Empty, Spin, Dropdown } from "antd";
+import type { MenuProps } from "antd";
 import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { useSocial } from "@/contexts/SocialContext";
-import { usePlaylist } from "@/contexts/PlaylistContext";
-import { Playlist } from "@/contexts/PlaylistContext";
+import { useAppSelector } from "@/store/hooks";
+import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
 import { usersAPI } from "@/lib/api";
 
 interface UserData {
@@ -14,18 +13,13 @@ interface UserData {
   bio?: string;
   avatarUrl?: string;
   playlistCount?: number;
-  // NOTE: Follow/following features are not needed in v1
-  // followersCount?: number;
-  // followingCount?: number;
-  // isFollowing?: boolean;
 }
 
 const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
-  const { user: currentUser, isLoggedIn } = useAuth();
-  // NOTE: Follow/following features are not needed in v1
-  // const { isFollowing, followUser, unfollowUser, followers, following } = useSocial();
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const isLoggedIn = !!currentUser;
   const { playlists, getUserPlaylists } = usePlaylist();
   
   const [userProfile, setUserProfile] = useState<UserData | null>(null);
@@ -35,10 +29,7 @@ const UserProfile = () => {
   const [error, setError] = useState<string | null>(null);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
-  // NOTE: Follow/following features are not needed in v1
-  // const isFollowingUser = userProfile ? isFollowing(userProfile.id) : false;
 
-  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       if (!username) return;
@@ -59,7 +50,6 @@ const UserProfile = () => {
     fetchUserData();
   }, [username]);
 
-  // Fetch user playlists
   useEffect(() => {
     const fetchUserPlaylists = async () => {
       if (!userProfile) return;
@@ -77,44 +67,28 @@ const UserProfile = () => {
 
     if (userProfile) {
       if (isOwnProfile) {
-        // For own profile, use the playlists from context (which includes private ones)
         setUserPlaylists(playlists);
       } else {
-        // For other users, fetch their public playlists
         fetchUserPlaylists();
       }
     }
   }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
 
-  // NOTE: Follow/following features are not needed in v1
-  /*
-  const handleFollow = () => {
-    if (!isLoggedIn) {
-      navigate("/sign-in");
-      return;
-    }
-    
-    if (!userProfile) return;
-    
-    if (isFollowingUser) {
-      unfollowUser(userProfile.id);
-    } else {
-      followUser(userProfile.id);
-    }
-  };
-  */
-
   const handleMessage = () => {
     console.log("[MESSAGE_USER]", { username, timestamp: new Date().toISOString() });
-    // Future: implement messaging
   };
+
+  const moreMenuItems: MenuProps["items"] = [
+    { key: "share", label: "Share Profile" },
+    { key: "report", label: "Report User" },
+  ];
 
   if (loadingUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
+          <Spin size="large" />
+          <p className="text-muted-foreground mt-4">Loading profile...</p>
         </div>
       </div>
     );
@@ -125,7 +99,7 @@ const UserProfile = () => {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <Users className="w-16 h-16 text-muted-foreground" />
         <p className="text-muted-foreground">{error || "User not found"}</p>
-        <Button variant="outline" onClick={() => navigate("/")}>
+        <Button onClick={() => navigate("/")}>
           Go Home
         </Button>
       </div>
@@ -138,9 +112,6 @@ const UserProfile = () => {
         username: currentUser?.username || "",
         bio: "Sharing my music taste with the world",
         playlistCount: playlists.length,
-        // NOTE: Follow/following features are not needed in v1
-        // followersCount: followers?.length || 0,
-        // followingCount: following?.length || 0,
       }
     : userProfile!;
 
@@ -153,20 +124,25 @@ const UserProfile = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-medium">@{displayProfile.username}</h1>
-          <button className="p-2 -mr-2 hover:bg-secondary rounded-lg transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
+          <Dropdown menu={{ items: moreMenuItems }} trigger={["click"]}>
+            <button className="p-2 -mr-2 hover:bg-secondary rounded-lg transition-colors">
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+          </Dropdown>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Profile Header */}
         <div className="flex items-start gap-5 mb-6">
-          <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-2xl font-bold text-accent">
+          <Avatar
+            size={80}
+            className="!bg-accent/20 !text-accent flex-shrink-0"
+          >
+            <span className="text-2xl font-bold">
               {displayProfile.username.charAt(0).toUpperCase()}
             </span>
-          </div>
+          </Avatar>
 
           <div className="flex-1">
             <div className="flex justify-around mb-4">
@@ -174,23 +150,6 @@ const UserProfile = () => {
                 <div className="font-semibold">{displayProfile.playlistCount}</div>
                 <div className="text-xs text-muted-foreground">playlists</div>
               </div>
-              {/* NOTE: Follow/following features are not needed in v1 */}
-              {/*
-              <button 
-                className="text-center hover:opacity-70 transition-opacity"
-                onClick={() => console.log("Show followers")}
-              >
-                <div className="font-semibold">{displayProfile.followersCount.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">followers</div>
-              </button>
-              <button 
-                className="text-center hover:opacity-70 transition-opacity"
-                onClick={() => console.log("Show following")}
-              >
-                <div className="font-semibold">{displayProfile.followingCount.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">following</div>
-              </button>
-              */}
             </div>
           </div>
         </div>
@@ -204,17 +163,7 @@ const UserProfile = () => {
         {/* Actions */}
         {!isOwnProfile && (
           <div className="flex gap-3 mb-6">
-            {/* NOTE: Follow/following features are not needed in v1 */}
-            {/*
-            <Button 
-              variant={isFollowingUser ? "outline" : "accent"}
-              className="flex-1"
-              onClick={handleFollow}
-            >
-              {isFollowingUser ? "Following" : "Follow"}
-            </Button>
-            */}
-            <Button variant="outline" className="flex-1" onClick={handleMessage}>
+            <Button block onClick={handleMessage}>
               Message
             </Button>
           </div>
@@ -222,10 +171,15 @@ const UserProfile = () => {
 
         {isOwnProfile && (
           <div className="flex gap-3 mb-6">
-            <Button variant="outline" className="flex-1" onClick={() => navigate("/profile")}>
+            <Button block onClick={() => navigate("/profile")}>
               Edit Profile
             </Button>
-            <Button variant="accent" className="flex-1" onClick={() => navigate("/playlist/create")}>
+            <Button
+              type="primary"
+              block
+              onClick={() => navigate("/playlist/create")}
+              className="!bg-accent hover:!bg-accent/90 !border-0"
+            >
               Create Playlist
             </Button>
           </div>
@@ -240,11 +194,16 @@ const UserProfile = () => {
         </div>
 
         {/* Playlists Grid */}
-        {userPlaylists.length === 0 ? (
+        {loadingPlaylists ? (
           <div className="py-16 text-center">
-            <Link2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No playlists yet</p>
+            <Spin />
           </div>
+        ) : userPlaylists.length === 0 ? (
+          <Empty
+            image={<Link2 className="w-16 h-16 mx-auto text-muted-foreground" />}
+            description="No playlists yet"
+            className="py-16"
+          />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {userPlaylists.map((playlist) => (

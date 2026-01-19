@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Input, Button, App } from "antd";
 import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, Save, AlertTriangle, X, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
 import { detectPlatform, getYouTubeThumbnail, getPlatformColor, getPlatformIcon, gradients } from "@/lib/songUtils";
+
+const { TextArea } = Input;
 
 const suggestedTags = [
   "chill", "vibes", "workout", "study", "party", "roadtrip", 
@@ -17,8 +17,10 @@ const suggestedTags = [
 const EditPlaylist = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getPlaylist, updatePlaylist, deletePlaylist, addSongToPlaylist, playlists } = usePlaylist();
-  const { isLoggedIn } = useAuth();
+  const { getPlaylist, updatePlaylist, deletePlaylist, addSongToPlaylist } = usePlaylist();
+  const user = useAppSelector((state) => state.auth.user);
+  const isLoggedIn = !!user;
+  const { message } = App.useApp();
   
   const [playlist, setPlaylist] = useState<{
     title: string;
@@ -44,8 +46,8 @@ const EditPlaylist = () => {
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch playlist data
   useEffect(() => {
     const fetchPlaylist = async () => {
       if (!isLoggedIn) {
@@ -158,8 +160,8 @@ const EditPlaylist = () => {
 
   const handleSave = async () => {
     if (id && title.trim()) {
+      setIsSaving(true);
       try {
-        // Update playlist metadata
         await updatePlaylist(id, {
           title: title.trim(),
           description: description.trim(),
@@ -167,7 +169,6 @@ const EditPlaylist = () => {
           tags,
         });
 
-        // Add new songs
         const newSongs = songs.filter(song => song.id.startsWith('song-'));
         for (const song of newSongs) {
           await addSongToPlaylist(id, {
@@ -178,9 +179,13 @@ const EditPlaylist = () => {
           });
         }
 
+        message.success("Playlist saved successfully!");
         navigate(`/playlist/${id}`);
       } catch (error) {
         console.error('Failed to save playlist:', error);
+        message.error("Failed to save playlist");
+      } finally {
+        setIsSaving(false);
       }
     }
   };
@@ -188,6 +193,7 @@ const EditPlaylist = () => {
   const handleDelete = () => {
     if (id) {
       deletePlaylist(id);
+      message.success("Playlist deleted");
       navigate("/profile");
     }
   };
@@ -217,8 +223,15 @@ const EditPlaylist = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-semibold">Edit Playlist</h1>
-          <Button size="sm" onClick={handleSave} disabled={!title.trim() || !hasChanges}>
-            <Save className="w-4 h-4 mr-1" />
+          <Button
+            type="primary"
+            size="small"
+            onClick={handleSave}
+            disabled={!title.trim() || !hasChanges}
+            loading={isSaving}
+            icon={<Save className="w-4 h-4" />}
+            className="!bg-accent hover:!bg-accent/90 !border-0"
+          >
             Save
           </Button>
         </div>
@@ -252,17 +265,18 @@ const EditPlaylist = () => {
               placeholder="My awesome playlist"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-secondary border-border"
+              size="large"
+              className="!bg-secondary !border-border"
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Description</label>
-            <Textarea
+            <TextArea
               placeholder="What's this playlist about?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-secondary border-border resize-none"
+              className="!bg-secondary !border-border !resize-none"
               rows={3}
             />
           </div>
@@ -300,7 +314,7 @@ const EditPlaylist = () => {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagInputKeyDown}
-              className="bg-secondary border-border"
+              className="!bg-secondary !border-border"
             />
           )}
 
@@ -327,12 +341,12 @@ const EditPlaylist = () => {
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Song Links ({songs.length})</label>
             <Button
-              variant="ghost"
-              size="sm"
+              type="text"
+              size="small"
               onClick={() => setShowAddSong(!showAddSong)}
-              className="text-accent"
+              className="!text-accent"
+              icon={<Plus className="w-4 h-4" />}
             >
-              <Plus className="w-4 h-4 mr-1" />
               Add Link
             </Button>
           </div>
@@ -343,7 +357,7 @@ const EditPlaylist = () => {
                 placeholder="Paste YouTube, Spotify, or other link"
                 value={newSongUrl}
                 onChange={(e) => setNewSongUrl(e.target.value)}
-                className="bg-background border-border"
+                className="!bg-background !border-border"
               />
               
               {newSongUrl && (
@@ -379,20 +393,26 @@ const EditPlaylist = () => {
                 placeholder="Song title"
                 value={newSongTitle}
                 onChange={(e) => setNewSongTitle(e.target.value)}
-                className="bg-background border-border"
+                className="!bg-background !border-border"
               />
               <Input
                 placeholder="Artist name (optional)"
                 value={newSongArtist}
                 onChange={(e) => setNewSongArtist(e.target.value)}
-                className="bg-background border-border"
+                className="!bg-background !border-border"
               />
               
               <div className="flex gap-2">
-                <Button onClick={handleAddSong} size="sm" className="flex-1" disabled={!newSongTitle.trim() || !newSongUrl.trim()}>
+                <Button
+                  type="primary"
+                  onClick={handleAddSong}
+                  disabled={!newSongTitle.trim() || !newSongUrl.trim()}
+                  block
+                  className="!bg-accent hover:!bg-accent/90 !border-0"
+                >
                   Add Song
                 </Button>
-                <Button onClick={() => { setShowAddSong(false); setNewSongUrl(""); setPreviewThumbnail(null); }} variant="ghost" size="sm">
+                <Button onClick={() => { setShowAddSong(false); setNewSongUrl(""); setPreviewThumbnail(null); }}>
                   Cancel
                 </Button>
               </div>
@@ -464,17 +484,22 @@ const EditPlaylist = () => {
               </div>
               <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
               <div className="flex gap-2">
-                <Button variant="destructive" size="sm" onClick={handleDelete} className="flex-1">
+                <Button danger onClick={handleDelete} block>
                   Yes, Delete
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(false)} className="flex-1">
+                <Button onClick={() => setShowDeleteConfirm(false)} block>
                   Cancel
                 </Button>
               </div>
             </div>
           ) : (
-            <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setShowDeleteConfirm(true)}>
-              <Trash2 className="w-4 h-4 mr-2" />
+            <Button
+              danger
+              type="text"
+              onClick={() => setShowDeleteConfirm(true)}
+              block
+              icon={<Trash2 className="w-4 h-4" />}
+            >
               Delete Playlist
             </Button>
           )}
