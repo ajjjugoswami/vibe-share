@@ -90,11 +90,11 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         
         {!isLoading && !error && (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4 space-y-4">
               {transformedPlaylists.map((playlist, index) => (
                 <div 
                   key={playlist.id} 
-                  className="animate-slide-up"
+                  className="animate-slide-up break-inside-avoid"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <PlaylistCard 

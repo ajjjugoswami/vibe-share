@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Music, ArrowLeft, Loader2, Mail, Lock, Sparkles } from "lucide-react";
+import { Music, ArrowLeft, Loader2, Mail, Lock, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,7 +101,7 @@ const SignIn = () => {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <LogIn className="w-4 h-4" />
                   Sign In
                 </>
               )}
