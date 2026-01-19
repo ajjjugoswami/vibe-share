@@ -1,4 +1,4 @@
-import { Heart, Play, Sparkles } from "lucide-react";
+import { Heart, Play, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -114,7 +114,7 @@ const PlaylistCard = ({
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
-              <Sparkles className="w-3 h-3 text-primary" />
+              <User className="w-3 h-3 text-primary" />
             </div>
             <span className="text-xs text-muted-foreground truncate max-w-[80px]">{username}</span>
           </div>

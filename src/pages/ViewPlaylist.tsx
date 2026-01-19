@@ -191,7 +191,7 @@ const ViewPlaylist = () => {
           </div>
         </div>
 
-        {/* Songs List */}
+        {/* Songs Grid - Masonry Layout */}
         {playlist.songs.length === 0 ? (
           <div className="py-16 text-center">
             <Link2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -203,42 +203,43 @@ const ViewPlaylist = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
             {playlist.songs.map((song, index) => (
               <div 
                 key={song.id}
                 onClick={() => handleOpenLink(song, index)}
-                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group transition-colors hover:bg-secondary"
+                className="break-inside-avoid p-4 rounded-xl cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-secondary/50 border border-border/50 hover:border-primary/30"
               >
                 {/* Thumbnail or Platform Icon */}
                 {song.thumbnail ? (
                   <img 
                     src={song.thumbnail} 
                     alt={song.title}
-                    className="w-14 h-14 rounded object-cover flex-shrink-0"
+                    className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
                 ) : (
-                  <div className={`w-14 h-14 rounded flex items-center justify-center flex-shrink-0 ${getPlatformColor(song.platform)}`}>
-                    <span className="text-xl">{getPlatformIcon(song.platform)}</span>
+                  <div className={`w-full aspect-square rounded-lg flex items-center justify-center mb-3 ${getPlatformColor(song.platform)}`}>
+                    <span className="text-4xl">{getPlatformIcon(song.platform)}</span>
                   </div>
                 )}
 
-                {/* Number */}
-                <span className="text-sm text-muted-foreground w-6 text-center">{index + 1}</span>
-
-                {/* Title & Artist */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{song.title}</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                    <span className={`text-xs px-1.5 py-0.5 rounded ${getPlatformColor(song.platform)}`}>
-                      {song.platform}
-                    </span>
-                  </div>
+                {/* Song Number Badge */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-medium text-muted-foreground bg-background/80 px-2 py-0.5 rounded-full">#{index + 1}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
+                    {song.platform}
+                  </span>
                 </div>
 
-                {/* Open Link */}
-                <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                {/* Title & Artist */}
+                <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{song.title}</h3>
+                <p className="text-xs text-muted-foreground mb-3">{song.artist}</p>
+
+                {/* Open Link Button */}
+                <div className="flex items-center gap-1 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ExternalLink className="w-3 h-3" />
+                  <span>Open Link</span>
+                </div>
               </div>
             ))}
           </div>
