@@ -8,7 +8,6 @@ import { PlaylistProvider } from "./contexts/PlaylistContext";
 import { SocialProvider } from "./contexts/SocialContext";
 import MainLayout from "./components/MainLayout";
 import Feed from "./pages/Feed";
-import Explore from "./pages/Explore";
 import Discover from "./pages/Discover";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
@@ -36,7 +35,6 @@ const App = () => (
                 <Route path="/sign-up" element={<SignUp />} />
                 <Route element={<MainLayout />}>
                 <Route path="/" element={<Feed />} />
-                  <Route path="/explore" element={<Explore />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/profile" element={<Profile />} />

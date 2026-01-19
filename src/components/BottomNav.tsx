@@ -1,4 +1,4 @@
-import { Home, Compass, User, Search } from "lucide-react";
+import { Home, User, Search } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +8,6 @@ const BottomNav = () => {
   const tabs = [
     { to: "/", icon: Home, label: "Feed" },
     { to: "/search", icon: Search, label: "Search" },
-    { to: "/explore", icon: Compass, label: "Explore" },
     { to: "/profile", icon: User, label: "You" },
   ];
 
