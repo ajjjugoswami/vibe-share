@@ -42,7 +42,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       title: song.title,
       artist: song.artist
     })),
-    totalSongs: playlist.songs.length,
+    totalSongs: playlist.songCount || 0,
     likes: playlist.likesCount,
     isLiked: playlist.isLiked
   }));

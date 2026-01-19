@@ -20,6 +20,7 @@ export interface Playlist {
   songs: SongLink[];
   tags: string[];
   likesCount: number;
+  songCount?: number;
   createdAt: string;
   updatedAt: string;
   isPublic: boolean;
@@ -161,6 +162,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     songs: playlist.songs || [],
     tags: playlist.tags || [],
     likesCount: playlist.likesCount || playlist.likes || 0,
+    songCount: playlist.songCount || 0,
     createdAt: playlist.createdAt,
     updatedAt: playlist.updatedAt,
     isPublic: playlist.isPublic !== false,
