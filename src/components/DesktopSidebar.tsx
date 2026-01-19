@@ -16,11 +16,19 @@ const DesktopSidebar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/auth");
+    navigate("/");
   };
 
   const handleLogin = () => {
     navigate("/auth");
+  };
+
+  const handleCreatePlaylist = () => {
+    if (isLoggedIn) {
+      navigate("/playlist/create");
+    } else {
+      navigate("/auth");
+    }
   };
 
   return (
@@ -61,14 +69,12 @@ const DesktopSidebar = () => {
         </ul>
 
         {/* Create Playlist Button */}
-        {isLoggedIn && (
-          <div className="mt-6">
-            <Button variant="accent" className="w-full justify-start gap-3">
-              <Plus className="w-5 h-5" />
-              Create Playlist
-            </Button>
-          </div>
-        )}
+        <div className="mt-6">
+          <Button variant="accent" className="w-full justify-start gap-3" onClick={handleCreatePlaylist}>
+            <Plus className="w-5 h-5" />
+            Create Playlist
+          </Button>
+        </div>
       </nav>
 
       {/* Auth Section */}
