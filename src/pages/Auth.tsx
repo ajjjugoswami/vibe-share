@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Music } from "lucide-react";
+import { Music, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -48,16 +48,34 @@ const Auth = () => {
     });
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-            <Music className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-background flex flex-col p-4">
+      {/* Back Button */}
+      <div className="w-full max-w-md mx-auto">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleBack}
+          className="mb-4 -ml-2"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
+              <Music className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-2xl">vibecheck</span>
           </div>
-          <span className="font-bold text-2xl">vibecheck</span>
-        </div>
 
         {/* Card */}
         <div className="bg-card rounded-2xl p-6 border border-border">
@@ -119,6 +137,7 @@ const Auth = () => {
               {isLogin ? "Sign up" : "Sign in"}
             </button>
           </p>
+        </div>
         </div>
       </div>
     </div>

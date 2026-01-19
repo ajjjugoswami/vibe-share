@@ -1,4 +1,5 @@
-import { Music, Bell, Search } from "lucide-react";
+import { Music, Bell, Search, LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 interface TopNavProps {
@@ -7,6 +8,8 @@ interface TopNavProps {
 }
 
 const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
+  const navigate = useNavigate();
+
   const handleNavClick = (section: string) => {
     console.log("[NAV_CLICK]", {
       section,
@@ -18,6 +21,10 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
     console.log("[NOTIFICATION_CLICK]", {
       timestamp: new Date().toISOString()
     });
+  };
+
+  const handleLoginClick = () => {
+    navigate("/auth");
   };
 
   return (
@@ -36,10 +43,17 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
           <Button variant="ghost" size="icon" onClick={() => handleNavClick("search")}>
             <Search className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="relative" onClick={handleNotificationClick}>
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-accent rounded-full" />
-          </Button>
+          {isLoggedIn ? (
+            <Button variant="ghost" size="icon" className="relative" onClick={handleNotificationClick}>
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-accent rounded-full" />
+            </Button>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={handleLoginClick}>
+              <LogIn className="w-4 h-4 mr-1" />
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </header>
