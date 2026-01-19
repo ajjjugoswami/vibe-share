@@ -1,4 +1,4 @@
-import { Play, TrendingUp, Flame } from "lucide-react";
+import { Play, TrendingUp } from "lucide-react";
 
 interface SongCardProps {
   title: string;
@@ -10,18 +10,18 @@ interface SongCardProps {
 
 const SongCard = ({ title, artist, cover, addedBy, rank }: SongCardProps) => {
   return (
-    <div className="glass-card p-3 flex items-center gap-3 hover:bg-white/5 transition-colors cursor-pointer group">
+    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary transition-colors cursor-pointer group">
       {rank && (
-        <div className={`w-6 text-center font-display font-bold ${
-          rank === 1 ? "neon-text-pink" : rank === 2 ? "neon-text-cyan" : "text-muted-foreground"
+        <span className={`w-5 text-center text-sm font-medium ${
+          rank <= 2 ? "text-accent" : "text-muted-foreground"
         }`}>
           {rank}
-        </div>
+        </span>
       )}
       
-      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${cover} flex-shrink-0 relative overflow-hidden`}>
+      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${cover} flex-shrink-0 relative overflow-hidden`}>
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <Play className="w-4 h-4 text-white" fill="currentColor" />
+          <Play className="w-3 h-3 text-white" fill="currentColor" />
         </div>
       </div>
       
@@ -30,10 +30,9 @@ const SongCard = ({ title, artist, cover, addedBy, rank }: SongCardProps) => {
         <p className="text-xs text-muted-foreground truncate">{artist}</p>
       </div>
       
-      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-        <Flame className="w-3 h-3 text-neon-pink" />
-        <span>{addedBy >= 1000 ? (addedBy / 1000).toFixed(1) + "K" : addedBy}</span>
-      </div>
+      <span className="text-xs text-muted-foreground">
+        {addedBy >= 1000 ? (addedBy / 1000).toFixed(1) + "K" : addedBy} adds
+      </span>
     </div>
   );
 };
