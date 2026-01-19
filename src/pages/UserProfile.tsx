@@ -33,7 +33,7 @@ const UserProfile = () => {
   const [error, setError] = useState<string | null>(null);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
-  const following = userProfile ? isFollowing(userProfile.id) : false;
+  const isFollowingUser = userProfile ? isFollowing(userProfile.id) : false;
 
   // Fetch user data
   useEffect(() => {
@@ -91,7 +91,7 @@ const UserProfile = () => {
     
     if (!userProfile) return;
     
-    if (following) {
+    if (isFollowingUser) {
       unfollowUser(userProfile.id);
     } else {
       followUser(userProfile.id);
@@ -132,8 +132,8 @@ const UserProfile = () => {
         username: currentUser?.username || "",
         bio: "Sharing my music taste with the world",
         playlistCount: playlists.length,
-        followersCount: followers.length,
-        followingCount: following.length,
+        followersCount: followers?.length || 0,
+        followingCount: following?.length || 0,
       }
     : userProfile!;
 
@@ -195,11 +195,11 @@ const UserProfile = () => {
         {!isOwnProfile && (
           <div className="flex gap-3 mb-6">
             <Button 
-              variant={following ? "outline" : "accent"}
+              variant={isFollowingUser ? "outline" : "accent"}
               className="flex-1"
               onClick={handleFollow}
             >
-              {following ? "Following" : "Follow"}
+              {isFollowingUser ? "Following" : "Follow"}
             </Button>
             <Button variant="outline" className="flex-1" onClick={handleMessage}>
               Message

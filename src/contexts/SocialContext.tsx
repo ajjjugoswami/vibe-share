@@ -66,8 +66,11 @@ export const SocialProvider = ({ children }: { children: ReactNode }) => {
         usersAPI.getUserFollowers(user.id)
       ]);
 
-      setFollowing(followingRes.data.users);
-      setFollowers(followersRes.data.users);
+      const followingUsers = followingRes.data && Array.isArray(followingRes.data.users) ? followingRes.data.users : [];
+      const followersUsers = followersRes.data && Array.isArray(followersRes.data.users) ? followersRes.data.users : [];
+      
+      setFollowing(followingUsers);
+      setFollowers(followersUsers);
     } catch (error) {
       console.error('Failed to load social data:', error);
     } finally {

@@ -112,14 +112,14 @@ const ProfilePage = () => {
                 className="text-center hover:opacity-70 transition-opacity"
                 onClick={() => console.log("Show followers modal")}
               >
-                <div className="font-semibold">{followers.length}</div>
+                <div className="font-semibold">{followers?.length || 0}</div>
                 <div className="text-xs text-muted-foreground">followers</div>
               </button>
               <button 
                 className="text-center hover:opacity-70 transition-opacity"
                 onClick={() => console.log("Show following modal")}
               >
-                <div className="font-semibold">{following.length}</div>
+                <div className="font-semibold">{following?.length || 0}</div>
                 <div className="text-xs text-muted-foreground">following</div>
               </button>
             </div>
