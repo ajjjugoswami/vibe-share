@@ -1,9 +1,13 @@
-import { Home, Compass, User, Music, Settings, LogOut, Plus } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Home, Compass, User, Music, LogOut, Plus } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DesktopSidebar = () => {
+  const { isLoggedIn, user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const navItems = [
     { to: "/", icon: Home, label: "Feed" },
     { to: "/explore", icon: Compass, label: "Discover" },
@@ -11,15 +15,12 @@ const DesktopSidebar = () => {
   ];
 
   const handleLogout = () => {
-    console.log("[LOGOUT_CLICKED]", {
-      timestamp: new Date().toISOString()
-    });
+    logout();
+    navigate("/auth");
   };
 
-  const handleSettings = () => {
-    console.log("[SETTINGS_CLICKED]", {
-      timestamp: new Date().toISOString()
-    });
+  const handleLogin = () => {
+    navigate("/auth");
   };
 
   return (
@@ -60,52 +61,38 @@ const DesktopSidebar = () => {
         </ul>
 
         {/* Create Playlist Button */}
-        <div className="mt-6">
-          <Button variant="accent" className="w-full justify-start gap-3">
-            <Plus className="w-5 h-5" />
-            Create Playlist
-          </Button>
-        </div>
+        {isLoggedIn && (
+          <div className="mt-6">
+            <Button variant="accent" className="w-full justify-start gap-3">
+              <Plus className="w-5 h-5" />
+              Create Playlist
+            </Button>
+          </div>
+        )}
       </nav>
 
-      {/* User Profile Section */}
+      {/* Auth Section */}
       <div className="border-t border-border p-4">
-        <div className="flex items-center gap-3 mb-4 p-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-            <Music className="w-4 h-4 text-muted-foreground" />
+        {isLoggedIn ? (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-medium text-accent">
+                {user?.username?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{user?.username}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            </div>
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm truncate">Your Name</p>
-            <p className="text-xs text-muted-foreground truncate">@yourname</p>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="flex justify-around text-center mb-4 py-2">
-          <div>
-            <div className="font-semibold text-sm">4</div>
-            <div className="text-[10px] text-muted-foreground">playlists</div>
-          </div>
-          <div>
-            <div className="font-semibold text-sm">1.2K</div>
-            <div className="text-[10px] text-muted-foreground">followers</div>
-          </div>
-          <div>
-            <div className="font-semibold text-sm">342</div>
-            <div className="text-[10px] text-muted-foreground">following</div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1" onClick={handleSettings}>
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
+        ) : (
+          <Button variant="accent" className="w-full" onClick={handleLogin}>
+            Sign in
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
-            <LogOut className="w-4 h-4" />
-          </Button>
-        </div>
+        )}
       </div>
     </aside>
   );
