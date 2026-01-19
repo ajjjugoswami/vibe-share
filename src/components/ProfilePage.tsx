@@ -59,6 +59,10 @@ const ProfilePage = () => {
     }
   };
 
+  const handleEditPlaylist = (playlistId: string) => {
+    navigate(`/playlist/${playlistId}/edit`);
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
@@ -192,14 +196,29 @@ const ProfilePage = () => {
             {currentPlaylists.map((playlist) => (
               <div 
                 key={playlist.id}
-                onClick={() => handlePlaylistClick(playlist)}
-                className="cursor-pointer group"
+                className="cursor-pointer group relative"
               >
-                <div className={`aspect-square rounded-xl bg-gradient-to-br ${playlist.coverGradient} mb-2 flex items-center justify-center transition-transform group-hover:scale-[1.02]`}>
+                <div 
+                  onClick={() => handlePlaylistClick(playlist)}
+                  className={`aspect-square rounded-xl bg-gradient-to-br ${playlist.coverGradient} mb-2 flex items-center justify-center transition-transform group-hover:scale-[1.02]`}
+                >
                   <Link2 className="w-8 h-8 text-white/30" />
                 </div>
                 <p className="text-sm font-medium truncate">{playlist.title}</p>
                 <p className="text-xs text-muted-foreground">{playlist.songs.length} songs</p>
+                
+                {/* Edit button for owned playlists in playlists tab */}
+                {activeTab === "playlists" && playlist.user?.id === user?.id && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditPlaylist(playlist.id);
+                    }}
+                    className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             ))}
           </div>

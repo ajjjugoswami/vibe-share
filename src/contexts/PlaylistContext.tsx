@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { playlistsAPI, feedAPI, discoverAPI } from "../lib/api";
 import { useAuth } from "./AuthContext";
@@ -119,11 +120,11 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return;
 
     try {
-      // For now, we'll load trending playlists as "saved" until we implement saved playlists properly
-      const response = await playlistsAPI.getPlaylists({ limit: 10 });
+      const response = await playlistsAPI.getSavedPlaylists({ limit: 50 });
       setSavedPlaylists(response.data.playlists.map(transformPlaylist));
     } catch (err) {
       console.error('Failed to load saved playlists:', err);
+      setSavedPlaylists([]);
     }
   }, [user]);
 

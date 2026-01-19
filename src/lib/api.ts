@@ -240,6 +240,17 @@ export const playlistsAPI = {
     return handleResponse(response);
   },
 
+  getSavedPlaylists: async (params?: { page?: number; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', params.page.toString());
+    if (params?.limit) query.set('limit', params.limit.toString());
+
+    const response = await fetch(`${API_BASE_URL}/playlists/saved?${query}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  },
+
   getPlaylistSongs: async (id: string) => {
     const response = await fetch(`${API_BASE_URL}/playlists/${id}/songs`, {
       headers: getAuthHeaders(),
