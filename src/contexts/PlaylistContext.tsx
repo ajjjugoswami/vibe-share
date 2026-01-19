@@ -15,6 +15,7 @@ export interface Playlist {
   description: string;
   coverGradient: string;
   songs: SongLink[];
+  tags: string[];
   likes: number;
   createdAt: string;
   updatedAt: string;
@@ -67,6 +68,7 @@ const initialPlaylists: Playlist[] = [
       { id: "s1", title: "Blinding Lights", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=4NRXx6U8ABQ", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/4NRXx6U8ABQ/mqdefault.jpg" },
       { id: "s2", title: "Save Your Tears", artist: "The Weeknd", url: "https://open.spotify.com/track/5QO79kh1waicV47BqGRL3g", platform: "Spotify" },
     ],
+    tags: ["vibes", "weeknd"],
     likes: 142,
     createdAt: "2024-01-15",
     updatedAt: "2024-01-20",
@@ -80,6 +82,7 @@ const initialPlaylists: Playlist[] = [
     songs: [
       { id: "s3", title: "Lose Yourself", artist: "Eminem", url: "https://www.youtube.com/watch?v=_Yhyp-_hX2s", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/_Yhyp-_hX2s/mqdefault.jpg" },
     ],
+    tags: ["gym", "motivation", "hiphop"],
     likes: 89,
     createdAt: "2024-01-10",
     updatedAt: "2024-01-18",
@@ -96,6 +99,7 @@ const initialSavedPlaylists: Playlist[] = [
     songs: [
       { id: "ss1", title: "Die For You", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=mTLQhPFx2nM", platform: "YouTube", thumbnail: "https://img.youtube.com/vi/mTLQhPFx2nM/mqdefault.jpg" },
     ],
+    tags: ["chill", "driving", "night"],
     likes: 1823,
     createdAt: "2024-01-05",
     updatedAt: "2024-01-12",

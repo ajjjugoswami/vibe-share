@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, X, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { detectPlatform, getYouTubeThumbnail, getPlatformColor, getPlatformIcon, gradients } from "@/lib/songUtils";
+
+const suggestedTags = [
+  "chill", "vibes", "workout", "study", "party", "roadtrip", 
+  "lofi", "hiphop", "indie", "electronic", "rnb", "pop", 
+  "rock", "jazz", "classical", "motivation", "sleep", "focus"
+];
 
 const CreatePlaylist = () => {
   const navigate = useNavigate();
@@ -17,6 +23,8 @@ const CreatePlaylist = () => {
   const [description, setDescription] = useState("");
   const [selectedGradient, setSelectedGradient] = useState(gradients[0]);
   const [songs, setSongs] = useState<Omit<SongLink, "id">[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   
   const [newSongTitle, setNewSongTitle] = useState("");
   const [newSongArtist, setNewSongArtist] = useState("");
@@ -47,6 +55,25 @@ const CreatePlaylist = () => {
       setPreviewThumbnail(null);
     }
   }, [newSongUrl]);
+
+  const handleAddTag = (tag: string) => {
+    const normalizedTag = tag.toLowerCase().trim();
+    if (normalizedTag && !tags.includes(normalizedTag) && tags.length < 5) {
+      setTags([...tags, normalizedTag]);
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(t => t !== tagToRemove));
+  };
+
+  const handleTagInputKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      handleAddTag(tagInput);
+    }
+  };
 
   const handleAddSong = () => {
     if (newSongTitle.trim() && newSongUrl.trim()) {
@@ -84,6 +111,7 @@ const CreatePlaylist = () => {
         description: description.trim(),
         coverGradient: selectedGradient,
         songs: songs.map((s, i) => ({ ...s, id: `song-${i}` })),
+        tags,
       });
       navigate(`/playlist/${playlist.id}`);
     }
@@ -147,6 +175,63 @@ const CreatePlaylist = () => {
               rows={3}
             />
           </div>
+        </div>
+
+        {/* Tags Section */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Tag className="w-4 h-4 text-muted-foreground" />
+            <label className="text-sm font-medium">Tags ({tags.length}/5)</label>
+          </div>
+
+          {/* Selected Tags */}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-accent/20 text-accent rounded-full text-sm"
+                >
+                  #{tag}
+                  <button
+                    onClick={() => handleRemoveTag(tag)}
+                    className="ml-1 hover:text-accent/70"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Tag Input */}
+          {tags.length < 5 && (
+            <Input
+              placeholder="Add a tag (press Enter)"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagInputKeyDown}
+              className="bg-secondary border-border"
+            />
+          )}
+
+          {/* Suggested Tags */}
+          {tags.length < 5 && (
+            <div className="flex flex-wrap gap-2">
+              {suggestedTags
+                .filter(t => !tags.includes(t))
+                .slice(0, 8)
+                .map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => handleAddTag(tag)}
+                    className="px-3 py-1 bg-secondary hover:bg-secondary/80 rounded-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    #{tag}
+                  </button>
+                ))}
+            </div>
+          )}
         </div>
 
         {/* Songs Section */}
