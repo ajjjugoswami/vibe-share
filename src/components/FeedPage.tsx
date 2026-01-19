@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import TopNav from "./TopNav";
 import PlaylistCard, { PlaylistData } from "./PlaylistCard";
-import PlaylistDetail from "./PlaylistDetail";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePlaylist } from "@/contexts/PlaylistContext";
@@ -12,8 +12,8 @@ interface FeedPageProps {
 }
 
 const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
+  const navigate = useNavigate();
   const { feedPlaylists, isLoading, error, fetchFeedPlaylists } = usePlaylist();
-  const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistData | null>(null);
 
   useEffect(() => {
     fetchFeedPlaylists({ limit: 20 });
@@ -26,7 +26,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       username: playlist.username,
       timestamp: new Date().toISOString() 
     });
-    setSelectedPlaylist(playlist);
+    navigate(`/playlist/${playlist.id}`);
   };
 
   // Transform context playlists to component format
@@ -105,13 +105,6 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       >
         <Plus className="w-5 h-5 text-white" />
       </button>
-
-      {selectedPlaylist && (
-        <PlaylistDetail 
-          playlist={selectedPlaylist} 
-          onClose={() => setSelectedPlaylist(null)} 
-        />
-      )}
     </div>
   );
 };

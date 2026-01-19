@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import PlaylistCard, { PlaylistData } from "./PlaylistCard";
 import { useState, useEffect } from "react";
 import PlaylistDetail from "./PlaylistDetail";
+import { useNavigate } from "react-router-dom";
 import { usePlaylist } from "@/contexts/PlaylistContext";
 
 const categories = [
@@ -113,8 +114,8 @@ const discoverPlaylists: PlaylistData[] = [
 ];
 
 const ExplorePage = () => {
+  const navigate = useNavigate();
   const { discoverPlaylists, isLoading, error, fetchDiscoverPlaylists } = usePlaylist();
-  const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -142,7 +143,7 @@ const ExplorePage = () => {
       playlistName: playlist.playlistName,
       timestamp: new Date().toISOString()
     });
-    setSelectedPlaylist(playlist);
+    navigate(`/playlist/${playlist.id}`);
   };
 
   // Transform context playlists to component format
@@ -236,13 +237,6 @@ const ExplorePage = () => {
           )}
         </div>
       </div>
-
-      {selectedPlaylist && (
-        <PlaylistDetail 
-          playlist={selectedPlaylist} 
-          onClose={() => setSelectedPlaylist(null)} 
-        />
-      )}
     </div>
   );
 };
