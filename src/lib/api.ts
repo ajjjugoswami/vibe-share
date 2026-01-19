@@ -258,7 +258,7 @@ export const playlistsAPI = {
     return handleResponse(response);
   },
 
-  addSong: async (playlistId: string, data: { title: string; artist: string; url: string; platform?: string }) => {
+  addSong: async (playlistId: string, data: { title: string; artist: string; url: string; platform?: string; thumbnail?: string }) => {
     const response = await fetch(`${API_BASE_URL}/playlists/${playlistId}/songs`, {
       method: 'POST',
       headers: {
