@@ -1,6 +1,8 @@
 import { Heart, Play } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePlaylist } from "../contexts/PlaylistContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface Song {
   title: string;
@@ -37,6 +39,8 @@ const PlaylistCard = ({
   onClick,
 }: PlaylistCardProps) => {
   const { likePlaylist, unlikePlaylist } = usePlaylist();
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
   const [isLikedState, setIsLikedState] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
   const [isLiking, setIsLiking] = useState(false);
@@ -44,6 +48,11 @@ const PlaylistCard = ({
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isLiking) return;
+
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+      return;
+    }
 
     setIsLiking(true);
     try {

@@ -1,7 +1,10 @@
 import { X, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlaylistData } from "./PlaylistCard";
+import { usePlaylist } from "../contexts/PlaylistContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface SongLink {
   title: string;
@@ -68,8 +71,13 @@ const getPlatformIcon = (platform: string) => {
 };
 
 const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const { likePlaylist, unlikePlaylist, savePlaylist, unsavePlaylist } = usePlaylist();
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const [isLiked, setIsLiked] = useState(playlist.isLiked || false);
+  const [isSaved, setIsSaved] = useState(playlist.isSaved || false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleOpenLink = (song: SongLink, index: number) => {
     console.log("[SONG_LINK_OPENED]", {
@@ -85,26 +93,52 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
     window.open(song.url, "_blank", "noopener,noreferrer");
   };
 
-  const handleLike = () => {
-    const newState = !isLiked;
-    setIsLiked(newState);
-    console.log("[PLAYLIST_LIKE_DETAIL]", {
-      playlistId: playlist.id,
-      playlistName: playlist.playlistName,
-      action: newState ? "liked" : "unliked",
-      timestamp: new Date().toISOString()
-    });
+  const handleLike = async () => {
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+      return;
+    }
+
+    if (isLiking) return;
+    setIsLiking(true);
+
+    try {
+      if (isLiked) {
+        await unlikePlaylist(playlist.id);
+        setIsLiked(false);
+      } else {
+        await likePlaylist(playlist.id);
+        setIsLiked(true);
+      }
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+    } finally {
+      setIsLiking(false);
+    }
   };
 
-  const handleSave = () => {
-    const newState = !isSaved;
-    setIsSaved(newState);
-    console.log("[PLAYLIST_SAVE]", {
-      playlistId: playlist.id,
-      playlistName: playlist.playlistName,
-      action: newState ? "saved" : "unsaved",
-      timestamp: new Date().toISOString()
-    });
+  const handleSave = async () => {
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+      return;
+    }
+
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      if (isSaved) {
+        await unsavePlaylist(playlist.id);
+        setIsSaved(false);
+      } else {
+        await savePlaylist(playlist.id);
+        setIsSaved(true);
+      }
+    } catch (error) {
+      console.error("Failed to toggle save:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleShare = () => {
@@ -178,6 +212,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
                   variant="outline" 
                   size="icon"
                   onClick={handleLike}
+                  disabled={isLiking}
                   className={isLiked ? "text-red-500 border-red-500/50" : ""}
                 >
                   <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
@@ -186,6 +221,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
                   variant="outline" 
                   size="icon"
                   onClick={handleSave}
+                  disabled={isSaving}
                   className={isSaved ? "text-foreground" : ""}
                 >
                   <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
