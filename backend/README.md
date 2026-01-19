@@ -143,8 +143,44 @@ PUT    /api/playlists/:id/songs/reorder - Reorder songs
 GET    /api/feed                     - Get personalized feed
 GET    /api/discover/users           - Suggested users to follow
 GET    /api/discover/playlists       - Trending playlists
-GET    /api/search?q=                - Search users and playlists
 GET    /api/tags/:tag                - Get playlists by tag
+```
+
+### Search
+```
+GET    /api/search                   - Universal search (users, playlists, tags)
+       ?q=<query>                    - Search query (required, min 2 chars)
+       ?type=all|users|playlists|tags - Filter by type (default: all)
+       ?limit=<number>               - Results per type (default: 10)
+       ?offset=<number>              - Pagination offset (default: 0)
+
+GET    /api/search/users             - Search only users
+       ?q=<query>                    - Search in username and bio
+       ?limit=<number>               - Results limit (default: 20)
+       ?offset=<number>              - Pagination offset
+
+GET    /api/search/playlists         - Search only playlists
+       ?q=<query>                    - Search in title, description, tags
+       ?limit=<number>               - Results limit (default: 20)
+       ?offset=<number>              - Pagination offset
+       ?sort=recent|popular          - Sort order (default: relevant)
+
+GET    /api/search/tags              - Search tags
+       ?q=<query>                    - Tag prefix search
+       ?limit=<number>               - Results limit (default: 20)
+
+GET    /api/search/suggestions       - Get search suggestions
+       ?q=<query>                    - Partial query for autocomplete
+
+GET    /api/search/trending          - Get trending searches
+       ?limit=<number>               - Number of trends (default: 10)
+
+GET    /api/search/recent            - Get user's recent searches (auth required)
+       ?limit=<number>               - Number of recent searches (default: 10)
+
+DELETE /api/search/recent            - Clear user's recent searches (auth required)
+
+DELETE /api/search/recent/:id        - Remove specific recent search (auth required)
 ```
 
 ## Request/Response Examples
@@ -231,6 +267,179 @@ GET    /api/tags/:tag                - Get playlists by tag
     "artist": "The Weeknd",
     "thumbnail": "https://img.youtube.com/vi/4NRXx6U8ABQ/mqdefault.jpg",
     "position": 1
+  }
+}
+```
+
+### Search (Universal)
+```javascript
+// GET /api/search?q=chill&type=all&limit=5
+
+// Response
+{
+  "success": true,
+  "data": {
+    "users": [
+      {
+        "id": "uuid",
+        "username": "chill.hub",
+        "bio": "Sharing chill vibes only",
+        "avatarUrl": "https://...",
+        "followersCount": 1234,
+        "isFollowing": false
+      }
+    ],
+    "playlists": [
+      {
+        "id": "uuid",
+        "title": "chill vibes only",
+        "description": "Perfect background music",
+        "coverGradient": "from-purple-800 to-pink-900",
+        "tags": ["chill", "lofi"],
+        "likesCount": 567,
+        "songsCount": 24,
+        "user": {
+          "id": "uuid",
+          "username": "luna.waves"
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "chill",
+        "playlistCount": 145
+      },
+      {
+        "name": "chillhop",
+        "playlistCount": 89
+      }
+    ],
+    "meta": {
+      "query": "chill",
+      "totalUsers": 15,
+      "totalPlaylists": 42,
+      "totalTags": 3
+    }
+  }
+}
+```
+
+### Search Users Only
+```javascript
+// GET /api/search/users?q=music&limit=10
+
+// Response
+{
+  "success": true,
+  "data": {
+    "users": [
+      {
+        "id": "uuid",
+        "username": "musiclover",
+        "bio": "Music is my life",
+        "avatarUrl": "https://...",
+        "followersCount": 5678,
+        "playlistCount": 12,
+        "isFollowing": true
+      }
+    ],
+    "meta": {
+      "total": 25,
+      "limit": 10,
+      "offset": 0,
+      "hasMore": true
+    }
+  }
+}
+```
+
+### Search Playlists Only
+```javascript
+// GET /api/search/playlists?q=workout&sort=popular&limit=10
+
+// Response
+{
+  "success": true,
+  "data": {
+    "playlists": [
+      {
+        "id": "uuid",
+        "title": "Ultimate Workout",
+        "description": "Get pumped!",
+        "coverGradient": "from-red-800 to-orange-900",
+        "tags": ["workout", "gym", "motivation"],
+        "likesCount": 3421,
+        "songsCount": 32,
+        "createdAt": "2024-01-15T...",
+        "user": {
+          "id": "uuid",
+          "username": "beatdropper",
+          "verified": true
+        }
+      }
+    ],
+    "meta": {
+      "total": 89,
+      "limit": 10,
+      "offset": 0,
+      "hasMore": true,
+      "sort": "popular"
+    }
+  }
+}
+```
+
+### Search Suggestions (Autocomplete)
+```javascript
+// GET /api/search/suggestions?q=chi
+
+// Response
+{
+  "success": true,
+  "data": {
+    "suggestions": [
+      { "type": "tag", "text": "chill", "count": 145 },
+      { "type": "user", "text": "chill.hub", "id": "uuid" },
+      { "type": "playlist", "text": "chill vibes only", "id": "uuid" },
+      { "type": "tag", "text": "chillhop", "count": 89 }
+    ]
+  }
+}
+```
+
+### Trending Searches
+```javascript
+// GET /api/search/trending?limit=10
+
+// Response
+{
+  "success": true,
+  "data": {
+    "trending": [
+      { "query": "lofi", "searchCount": 12453 },
+      { "query": "workout", "searchCount": 9876 },
+      { "query": "chill", "searchCount": 8543 },
+      { "query": "indie", "searchCount": 7234 },
+      { "query": "roadtrip", "searchCount": 6123 }
+    ]
+  }
+}
+```
+
+### Recent Searches (Auth Required)
+```javascript
+// GET /api/search/recent?limit=5
+// Headers: Authorization: Bearer <token>
+
+// Response
+{
+  "success": true,
+  "data": {
+    "recentSearches": [
+      { "id": "uuid", "query": "summer vibes", "searchedAt": "2024-01-20T..." },
+      { "id": "uuid", "query": "lofi beats", "searchedAt": "2024-01-19T..." },
+      { "id": "uuid", "query": "workout mix", "searchedAt": "2024-01-18T..." }
+    ]
   }
 }
 ```
