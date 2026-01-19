@@ -7,6 +7,7 @@ import { likePlaylist, unlikePlaylist } from "@/store/slices/playlistSlice";
 interface Song {
   title: string;
   artist: string;
+  thumbnail?: string;
 }
 
 export interface PlaylistData {
@@ -16,6 +17,7 @@ export interface PlaylistData {
   verified: boolean;
   playlistName: string;
   playlistCover: string;
+  coverImage?: string;
   description?: string;
   songs: Song[];
   totalSongs: number;
@@ -33,6 +35,7 @@ const PlaylistCard = ({
   username,
   playlistName,
   playlistCover,
+  coverImage,
   songs,
   totalSongs,
   likes,
@@ -45,6 +48,11 @@ const PlaylistCard = ({
   const [isLikedState, setIsLikedState] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(likes);
   const [isLiking, setIsLiking] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Get first song thumbnail if available
+  const firstSongThumbnail = coverImage || songs[0]?.thumbnail;
+  const showThumbnail = firstSongThumbnail && !imageError;
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -83,8 +91,19 @@ const PlaylistCard = ({
       onClick={onClick}
       className="card-elevated overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
     >
-      {/* Cover */}
-      <div className={`aspect-square bg-gradient-to-br ${playlistCover} relative overflow-hidden`}>
+      {/* Cover - Show thumbnail if available, otherwise gradient */}
+      <div className="aspect-square relative overflow-hidden">
+        {showThumbnail ? (
+          <img 
+            src={firstSongThumbnail}
+            alt={playlistName}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${playlistCover}`} />
+        )}
+        
         {/* Shine effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
         
