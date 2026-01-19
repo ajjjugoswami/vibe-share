@@ -24,6 +24,7 @@ interface PlaylistCardProps extends PlaylistData {
 }
 
 const PlaylistCard = ({
+  id,
   username,
   playlistName,
   playlistCover,
@@ -37,8 +38,17 @@ const PlaylistCard = ({
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsLiked(!isLiked);
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    
+    console.log("[PLAYLIST_LIKE]", {
+      playlistId: id,
+      playlistName,
+      action: newLikedState ? "liked" : "unliked",
+      newLikeCount: newLikedState ? likeCount + 1 : likeCount - 1,
+      timestamp: new Date().toISOString()
+    });
   };
 
   const formatNumber = (num: number) => {

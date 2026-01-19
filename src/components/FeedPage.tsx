@@ -2,8 +2,7 @@ import { useState } from "react";
 import TopNav from "./TopNav";
 import PlaylistCard, { PlaylistData } from "./PlaylistCard";
 import PlaylistDetail from "./PlaylistDetail";
-import SongCard from "./SongCard";
-import { Plus, TrendingUp } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FeedPageProps {
@@ -108,73 +107,74 @@ const playlists: PlaylistData[] = [
     totalSongs: 42,
     likes: 1892,
   },
-];
-
-const trendingSongs = [
-  { title: "Espresso", artist: "Sabrina Carpenter", cover: "from-amber-700 to-orange-800", addedBy: 12400, rank: 1 },
-  { title: "Not Like Us", artist: "Kendrick Lamar", cover: "from-gray-700 to-zinc-800", addedBy: 9800, rank: 2 },
-  { title: "Please Please Please", artist: "Sabrina Carpenter", cover: "from-rose-700 to-pink-800", addedBy: 8200, rank: 3 },
-  { title: "Lunch", artist: "Billie Eilish", cover: "from-blue-700 to-cyan-800", addedBy: 6500, rank: 4 },
-  { title: "Birds of a Feather", artist: "Billie Eilish", cover: "from-teal-700 to-green-800", addedBy: 5100, rank: 5 },
+  {
+    id: "7",
+    username: "acoustic.daily",
+    userAvatar: "from-amber-600 to-yellow-600",
+    verified: false,
+    playlistName: "acoustic covers",
+    playlistCover: "from-amber-700 to-yellow-900",
+    description: "Stripped down versions of your favorites",
+    songs: [
+      { title: "Creep", artist: "Radiohead" },
+      { title: "Hallelujah", artist: "Jeff Buckley" },
+      { title: "Fast Car", artist: "Tracy Chapman" },
+    ],
+    totalSongs: 30,
+    likes: 2156,
+  },
+  {
+    id: "8",
+    username: "edm.nation",
+    userAvatar: "from-violet-600 to-blue-600",
+    verified: true,
+    playlistName: "festival bangers",
+    playlistCover: "from-violet-800 to-blue-900",
+    description: "Drop the bass",
+    songs: [
+      { title: "Titanium", artist: "David Guetta" },
+      { title: "Levels", artist: "Avicii" },
+      { title: "Clarity", artist: "Zedd" },
+    ],
+    totalSongs: 55,
+    likes: 6789,
+  },
 ];
 
 const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistData | null>(null);
 
+  const handlePlaylistClick = (playlist: PlaylistData) => {
+    console.log("[PLAYLIST_OPENED]", { 
+      playlistId: playlist.id, 
+      playlistName: playlist.playlistName,
+      username: playlist.username,
+      timestamp: new Date().toISOString() 
+    });
+    setSelectedPlaylist(playlist);
+  };
+
   return (
     <div className="min-h-screen pb-20 md:pb-8">
       <TopNav onShareClick={onShareClick} isLoggedIn={isLoggedIn} />
       
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Main Feed */}
-          <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold mb-4">Fresh Playlists</h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {playlists.map((playlist) => (
-                <PlaylistCard 
-                  key={playlist.id} 
-                  {...playlist} 
-                  onClick={() => setSelectedPlaylist(playlist)}
-                />
-              ))}
-            </div>
-            
-            <div className="flex justify-center mt-8">
-              <Button variant="outline">
-                Load more
-              </Button>
-            </div>
-          </div>
-          
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-20">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-4 h-4 text-accent" />
-                <h2 className="font-semibold">Trending Songs</h2>
-              </div>
-              
-              <div className="bg-card rounded-xl p-2">
-                {trendingSongs.map((song, index) => (
-                  <SongCard key={index} {...song} />
-                ))}
-              </div>
-              
-              {/* Share CTA */}
-              <div className="bg-card rounded-xl p-4 mt-4 text-center">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Share your playlist with the community
-                </p>
-                <Button variant="accent" size="sm" onClick={onShareClick} className="w-full">
-                  <Plus className="w-4 h-4" />
-                  Share Playlist
-                </Button>
-              </div>
-            </div>
-          </div>
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        <h2 className="text-lg font-semibold mb-4">Fresh Playlists</h2>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {playlists.map((playlist) => (
+            <PlaylistCard 
+              key={playlist.id} 
+              {...playlist} 
+              onClick={() => handlePlaylistClick(playlist)}
+            />
+          ))}
+        </div>
+        
+        <div className="flex justify-center mt-8">
+          <Button variant="outline" onClick={() => console.log("[LOAD_MORE_CLICKED]", { timestamp: new Date().toISOString() })}>
+            Load more
+          </Button>
         </div>
       </div>
 
@@ -186,7 +186,6 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         <Plus className="w-5 h-5 text-white" />
       </button>
 
-      {/* Playlist Detail Modal */}
       {selectedPlaylist && (
         <PlaylistDetail 
           playlist={selectedPlaylist} 

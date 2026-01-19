@@ -15,8 +15,30 @@ const AuthModal = ({ onClose, onLogin }: AuthModalProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(isLogin ? "LOGIN" : "SIGNUP", { email, password, username });
+    
+    if (isLogin) {
+      console.log("[USER_LOGIN]", {
+        email,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.log("[USER_SIGNUP]", {
+        username,
+        email,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     onLogin();
+  };
+
+  const handleToggleMode = () => {
+    const newMode = !isLogin;
+    setIsLogin(newMode);
+    console.log("[AUTH_MODE_TOGGLE]", {
+      mode: newMode ? "login" : "signup",
+      timestamp: new Date().toISOString()
+    });
   };
 
   return (
@@ -81,7 +103,7 @@ const AuthModal = ({ onClose, onLogin }: AuthModalProps) => {
         <p className="text-center text-sm text-muted-foreground mt-6">
           {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
           <button 
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={handleToggleMode}
             className="text-accent font-medium hover:underline"
           >
             {isLogin ? "Sign up" : "Sign in"}
