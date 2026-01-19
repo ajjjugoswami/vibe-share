@@ -11,10 +11,16 @@ const Index = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleTabChange = (tab: string) => {
-    if ((tab === "create" || tab === "profile") && !isLoggedIn) {
+    if (tab === "profile" && !isLoggedIn) {
       setShowAuth(true);
     } else {
       setActiveTab(tab);
+    }
+  };
+
+  const handleShareClick = () => {
+    if (!isLoggedIn) {
+      setShowAuth(true);
     }
   };
 
@@ -25,9 +31,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {activeTab === "home" && <FeedPage onShareClick={() => !isLoggedIn && setShowAuth(true)} isLoggedIn={isLoggedIn} />}
+      {activeTab === "home" && <FeedPage onShareClick={handleShareClick} isLoggedIn={isLoggedIn} />}
       {activeTab === "explore" && <ExplorePage />}
-      {activeTab === "activity" && <FeedPage onShareClick={() => !isLoggedIn && setShowAuth(true)} isLoggedIn={isLoggedIn} />}
       {activeTab === "profile" && <ProfilePage />}
       
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} onLogin={handleLogin} />}
