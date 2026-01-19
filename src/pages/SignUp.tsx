@@ -1,34 +1,36 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Music, ArrowLeft, Loader2, Mail, Lock, User, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Form, Input, Button, Typography, App } from "antd";
+import { Music, ArrowLeft, Mail, Lock, User, UserPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { signup, clearError } from "@/store/slices/authSlice";
+
+const { Title, Text } = Typography;
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const { message } = App.useApp();
 
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     dispatch(clearError());
 
     if (!username.trim()) {
+      message.warning("Please enter a username");
       return;
     }
 
     try {
       await dispatch(signup({ email, password, username })).unwrap();
+      message.success("Welcome to VibeShare!");
       navigate("/");
     } catch (err) {
-      // Error handled by Redux
+      message.error(error || "Signup failed");
     }
   };
 
@@ -41,6 +43,16 @@ const SignUp = () => {
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-slide-up">
+        {/* Back button */}
+        <Button 
+          type="text" 
+          onClick={() => navigate("/")}
+          className="!text-muted-foreground hover:!text-foreground mb-6 !pl-0"
+          icon={<ArrowLeft className="w-4 h-4" />}
+        >
+          Back
+        </Button>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
@@ -48,103 +60,77 @@ const SignUp = () => {
               <Music className="w-7 h-7 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gradient mb-2">VibeShare</h1>
-          <h2 className="text-xl font-semibold text-foreground mb-1">Join the community</h2>
-          <p className="text-muted-foreground">Create your account to start sharing music</p>
+          <Title level={2} className="!text-gradient !mb-2">VibeShare</Title>
+          <Title level={4} className="!text-foreground !mb-1 !font-semibold">Join the community</Title>
+          <Text type="secondary">Create your account to start sharing music</Text>
         </div>
 
         {/* Form */}
         <div className="glass-strong rounded-2xl p-6 shadow-xl">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-foreground flex items-center gap-2">
-                <User className="w-4 h-4 text-muted-foreground" />
-                Username
-              </Label>
+          <Form layout="vertical" onFinish={handleSubmit}>
+            <Form.Item label={<span className="flex items-center gap-2"><User className="w-4 h-4" /> Username</span>}>
               <Input
-                id="username"
-                type="text"
+                size="large"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Choose a username"
                 required
-                className="input-modern"
+                className="!bg-secondary/50"
               />
-            </div>
+            </Form.Item>
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground flex items-center gap-2">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                Email
-              </Label>
+            <Form.Item label={<span className="flex items-center gap-2"><Mail className="w-4 h-4" /> Email</span>}>
               <Input
-                id="email"
+                size="large"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                className="input-modern"
+                className="!bg-secondary/50"
               />
-            </div>
+            </Form.Item>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground flex items-center gap-2">
-                <Lock className="w-4 h-4 text-muted-foreground" />
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
+            <Form.Item label={<span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Password</span>}>
+              <Input.Password
+                size="large"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
                 required
-                className="input-modern"
+                className="!bg-secondary/50"
               />
-            </div>
+            </Form.Item>
 
             {error && (
-              <div className="text-destructive text-sm text-center bg-destructive/10 rounded-lg p-3 animate-fade-in">
-                {error}
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 mb-4">
+                <Text type="danger" className="text-sm">{error}</Text>
               </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full btn-gradient h-11 text-base gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-4 h-4" />
-                  Sign Up
-                </>
-              )}
-            </Button>
-          </form>
+            <Form.Item className="!mb-0">
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                loading={isLoading}
+                block
+                className="!h-12 btn-gradient !border-0"
+                icon={!isLoading && <UserPlus className="w-4 h-4" />}
+              >
+                {isLoading ? "Creating account..." : "Sign Up"}
+              </Button>
+            </Form.Item>
+          </Form>
 
           <div className="mt-6 text-center">
-            <p className="text-muted-foreground">
+            <Text type="secondary">
               Already have an account?{" "}
-              <Link to="/sign-in" className="text-primary font-semibold hover:underline">
+              <Link to="/sign-in" className="text-primary hover:underline font-medium">
                 Sign in
               </Link>
-            </p>
+            </Text>
           </div>
-        </div>
-
-        {/* Back to home */}
-        <div className="mt-6 text-center">
-          <Link to="/" className="text-muted-foreground hover:text-foreground flex items-center justify-center gap-2 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to home
-          </Link>
         </div>
       </div>
     </div>

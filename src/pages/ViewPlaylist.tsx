@@ -2,16 +2,20 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink, Edit, Link2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, Spin, Typography, Tag, App, Dropdown } from "antd";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
 import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
+
+const { Title, Text, Paragraph } = Typography;
 
 const ViewPlaylist = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getPlaylist, savePlaylist, unsavePlaylist, savedPlaylists } = usePlaylist();
-  const { isLoggedIn, user } = useAuth();
+  const { user } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!user;
+  const { message } = App.useApp();
   
   const [playlist, setPlaylist] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -36,50 +40,45 @@ const ViewPlaylist = () => {
   }, [id, getPlaylist]);
 
   const handleOpenLink = (song: SongLink, index: number) => {
-    console.log("[SONG_LINK_OPENED]", {
-      playlistId: playlist?.id,
-      playlistName: playlist?.title,
-      songIndex: index,
-      songTitle: song.title,
-      url: song.url,
-      timestamp: new Date().toISOString()
-    });
     window.open(song.url, "_blank", "noopener,noreferrer");
   };
 
   const handleLike = () => {
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+      return;
+    }
     setIsLiked(!isLiked);
-    console.log("[PLAYLIST_LIKE]", {
-      playlistId: playlist?.id,
-      action: !isLiked ? "liked" : "unliked",
-      timestamp: new Date().toISOString()
-    });
+    message.success(isLiked ? "Removed like" : "Liked!");
   };
 
   const handleSave = () => {
     if (!playlist || !playlist.id) return;
     
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+      return;
+    }
+    
     if (isSaved) {
       unsavePlaylist(playlist.id);
+      message.success("Removed from saved");
     } else {
       savePlaylist(playlist.id);
+      message.success("Saved to collection");
     }
   };
 
   const handleShare = () => {
     if (!playlist) return;
     
-    const shareText = `Check out "${playlist.title}"\n\nSongs:\n${playlist.songs.map((s, i) => `${i + 1}. ${s.title} - ${s.artist}: ${s.url}`).join("\n")}`;
+    const shareUrl = `${window.location.origin}/playlist/${id}`;
     
-    console.log("[PLAYLIST_SHARE]", {
-      playlistId: playlist.id,
-      timestamp: new Date().toISOString()
-    });
-
     if (navigator.share) {
-      navigator.share({ title: playlist.title, text: shareText });
+      navigator.share({ title: playlist.title, url: shareUrl });
     } else {
-      navigator.clipboard.writeText(shareText);
+      navigator.clipboard.writeText(shareUrl);
+      message.success("Link copied to clipboard");
     }
   };
 
@@ -90,7 +89,7 @@ const ViewPlaylist = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+        <Spin size="large" />
       </div>
     );
   }
@@ -99,26 +98,27 @@ const ViewPlaylist = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <Link2 className="w-16 h-16 text-muted-foreground" />
-        <p className="text-muted-foreground">Playlist not found</p>
-        <Button variant="outline" onClick={() => navigate("/")}>
-          Go Home
-        </Button>
+        <Text type="secondary">Playlist not found</Text>
+        <Button onClick={() => navigate("/")}>Go Home</Button>
       </div>
     );
   }
+
+  const menuItems = [
+    { key: 'report', label: 'Report' },
+    { key: 'copyLink', label: 'Copy Link' },
+  ];
 
   return (
     <div className="min-h-screen pb-20 md:pb-8">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between px-4 h-14 max-w-4xl mx-auto">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-secondary rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="font-medium">Playlist</h1>
-          <button className="p-2 -mr-2 hover:bg-secondary rounded-lg transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
+          <Button type="text" onClick={() => navigate(-1)} icon={<ArrowLeft className="w-5 h-5" />} />
+          <Text strong>Playlist</Text>
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<MoreHorizontal className="w-5 h-5" />} />
+          </Dropdown>
         </div>
       </header>
 
@@ -126,67 +126,57 @@ const ViewPlaylist = () => {
         {/* Playlist Header */}
         <div className="flex flex-col md:flex-row gap-6 mb-8">
           {/* Cover */}
-          <div className={`w-full md:w-48 aspect-square rounded-xl bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center flex-shrink-0`}>
-            <Link2 className="w-16 h-16 text-white/30" />
+          <div className={`w-full md:w-48 aspect-square rounded-xl bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+            {playlist.songs[0]?.thumbnail ? (
+              <img src={playlist.songs[0].thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
+            ) : (
+              <Link2 className="w-16 h-16 text-white/30" />
+            )}
           </div>
           
           {/* Info */}
           <div className="flex-1">
-            <p className="text-sm text-muted-foreground mb-1">Playlist</p>
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">{playlist.title}</h1>
-            <p className="text-muted-foreground text-sm mb-3">
+            <Text type="secondary" className="text-sm">Playlist</Text>
+            <Title level={3} className="!mb-2">{playlist.title}</Title>
+            <Paragraph type="secondary" className="!mb-3">
               {playlist.description || "A curated collection of song links"}
-            </p>
+            </Paragraph>
 
-            {/* Tags */}
             {playlist.tags && playlist.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
-                {playlist.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-0.5 bg-accent/20 text-accent rounded-full text-xs"
-                  >
-                    #{tag}
-                  </span>
+                {playlist.tags.map((tag: string) => (
+                  <Tag key={tag} color="purple">#{tag}</Tag>
                 ))}
               </div>
             )}
             
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-              <span>{playlist.songs.length} songs</span>
-              <span>•</span>
-              <span>{playlist.likesCount.toLocaleString()} likes</span>
+            <div className="flex items-center gap-2 text-sm mb-6">
+              <Text type="secondary">{playlist.songs.length} songs</Text>
+              <Text type="secondary">•</Text>
+              <Text type="secondary">{playlist.likesCount?.toLocaleString() || 0} likes</Text>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2 flex-wrap">
               {isOwn && (
-                <Button variant="accent" size="sm" onClick={handleEdit}>
-                  <Edit className="w-4 h-4 mr-1" />
+                <Button type="primary" onClick={handleEdit} icon={<Edit className="w-4 h-4" />} className="btn-gradient !border-0">
                   Edit
                 </Button>
               )}
               <Button 
-                variant="outline" 
-                size="icon"
+                shape="circle"
                 onClick={handleLike}
-                className={isLiked ? "text-red-500 border-red-500/50" : ""}
-              >
-                <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-              </Button>
+                className={isLiked ? "!text-red-500 !border-red-500/50" : ""}
+                icon={<Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />}
+              />
               {!isOwn && (
                 <Button 
-                  variant="outline" 
-                  size="icon"
+                  shape="circle"
                   onClick={handleSave}
-                  className={isSaved ? "text-foreground" : ""}
-                >
-                  <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-                </Button>
+                  icon={<Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />}
+                />
               )}
-              <Button variant="outline" size="icon" onClick={handleShare}>
-                <Share2 className="w-4 h-4" />
-              </Button>
+              <Button shape="circle" onClick={handleShare} icon={<Share2 className="w-4 h-4" />} />
             </div>
           </div>
         </div>
@@ -195,22 +185,21 @@ const ViewPlaylist = () => {
         {playlist.songs.length === 0 ? (
           <div className="py-16 text-center">
             <Link2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No songs in this playlist yet</p>
-            {playlist.isOwn && (
-              <Button variant="outline" className="mt-4" onClick={handleEdit}>
+            <Text type="secondary">No songs in this playlist yet</Text>
+            {isOwn && (
+              <Button className="mt-4" onClick={handleEdit}>
                 Add Songs
               </Button>
             )}
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
-            {playlist.songs.map((song, index) => (
+            {playlist.songs.map((song: SongLink, index: number) => (
               <div 
                 key={song.id}
                 onClick={() => handleOpenLink(song, index)}
-                className="break-inside-avoid p-4 rounded-xl cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-secondary/50 border border-border/50 hover:border-primary/30"
+                className="break-inside-avoid p-4 rounded-xl cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-card border border-border hover:border-primary/30"
               >
-                {/* Thumbnail or Platform Icon */}
                 {song.thumbnail ? (
                   <img 
                     src={song.thumbnail} 
@@ -223,19 +212,14 @@ const ViewPlaylist = () => {
                   </div>
                 )}
 
-                {/* Song Number Badge */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-medium text-muted-foreground bg-background/80 px-2 py-0.5 rounded-full">#{index + 1}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
-                    {song.platform}
-                  </span>
+                  <Tag className="!text-xs"># {index + 1}</Tag>
+                  <Tag color="purple" className="!text-xs">{song.platform}</Tag>
                 </div>
 
-                {/* Title & Artist */}
-                <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{song.title}</h3>
-                <p className="text-xs text-muted-foreground mb-3">{song.artist}</p>
+                <Text strong className="text-sm block mb-1 group-hover:text-primary transition-colors">{song.title}</Text>
+                <Text type="secondary" className="text-xs block mb-3">{song.artist}</Text>
 
-                {/* Open Link Button */}
                 <div className="flex items-center gap-1 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                   <ExternalLink className="w-3 h-3" />
                   <span>Open Link</span>

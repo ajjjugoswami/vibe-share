@@ -26,7 +26,7 @@ const BottomNav = () => {
               to={tab.to}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full transition-colors",
-                isActive ? "text-foreground" : "text-muted-foreground"
+                isActive ? "text-primary" : "text-muted-foreground"
               )}
             >
               <Icon className="w-5 h-5" />

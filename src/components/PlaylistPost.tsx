@@ -1,9 +1,11 @@
 import { Heart, Share2, Bookmark, MoreHorizontal, Play } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Avatar, Typography, Dropdown, App } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist, savePlaylist, unsavePlaylist } from "@/store/slices/playlistSlice";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+const { Text } = Typography;
 
 interface Song {
   title: string;
@@ -48,6 +50,7 @@ const PlaylistPost = ({
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
+  const { message } = App.useApp();
   const [isLikedState, setIsLikedState] = useState(isLiked);
   const [isSavedState, setIsSavedState] = useState(isSaved);
   const [likeCount, setLikeCount] = useState(likes);
@@ -100,9 +103,11 @@ const PlaylistPost = ({
       if (isSavedState) {
         await dispatch(unsavePlaylist(id)).unwrap();
         setIsSavedState(false);
+        message.success("Removed from saved");
       } else {
         await dispatch(savePlaylist(id)).unwrap();
         setIsSavedState(true);
+        message.success("Saved to collection");
       }
     } catch (error) {
       console.error("Failed to toggle save:", error);
@@ -124,6 +129,7 @@ const PlaylistPost = ({
       }
     } else {
       navigator.clipboard.writeText(shareUrl);
+      message.success("Link copied to clipboard");
     }
   };
 
@@ -137,6 +143,11 @@ const PlaylistPost = ({
     ? description.slice(0, 100) + "..." 
     : description;
 
+  const menuItems = [
+    { key: 'report', label: 'Report' },
+    { key: 'copyLink', label: 'Copy Link' },
+  ];
+
   return (
     <article className="bg-background border-b border-border">
       {/* Header - User Info */}
@@ -145,16 +156,19 @@ const PlaylistPost = ({
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate(`/user/${username}`)}
         >
-          <Avatar className="w-8 h-8 ring-2 ring-primary/20">
-            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/50 text-white text-xs font-semibold">
-              {username.charAt(0).toUpperCase()}
-            </AvatarFallback>
+          <Avatar 
+            size={32} 
+            className="bg-gradient-to-br from-primary to-primary/50"
+          >
+            {username.charAt(0).toUpperCase()}
           </Avatar>
-          <span className="font-semibold text-sm">{username}</span>
+          <Text strong className="text-sm">{username}</Text>
         </div>
-        <button className="p-1 hover:bg-secondary rounded-full transition-colors">
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
+        <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+          <button className="p-1 hover:bg-secondary rounded-full transition-colors">
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+        </Dropdown>
       </div>
 
       {/* Content - Playlist Cover */}
@@ -225,14 +239,14 @@ const PlaylistPost = ({
         </div>
 
         {/* Like count */}
-        <p className="font-semibold text-sm mb-1">
+        <Text strong className="text-sm mb-1 block">
           {formatNumber(likeCount)} likes
-        </p>
+        </Text>
 
         {/* Caption */}
         <div className="text-sm">
-          <span className="font-semibold mr-2">{username}</span>
-          <span className="text-foreground">
+          <Text strong className="mr-2">{username}</Text>
+          <Text>
             {playlistName}
             {description && (
               <>
@@ -248,7 +262,7 @@ const PlaylistPost = ({
                 )}
               </>
             )}
-          </span>
+          </Text>
         </div>
 
         {/* Songs preview */}
