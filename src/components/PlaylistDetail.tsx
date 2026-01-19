@@ -1,52 +1,57 @@
-import { X, Play, Pause, Heart, Share2, Clock, MoreHorizontal, Bookmark } from "lucide-react";
+import { X, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { PlaylistData } from "./PlaylistCard";
+
+interface SongLink {
+  title: string;
+  artist: string;
+  url: string;
+  platform: string;
+}
 
 interface PlaylistDetailProps {
   playlist: PlaylistData;
   onClose: () => void;
 }
 
-const allSongs = [
-  { title: "Die For You", artist: "The Weeknd", duration: "3:52", album: "Starboy" },
-  { title: "Blinding Lights", artist: "The Weeknd", duration: "3:20", album: "After Hours" },
-  { title: "Save Your Tears", artist: "The Weeknd", duration: "3:35", album: "After Hours" },
-  { title: "After Hours", artist: "The Weeknd", duration: "6:01", album: "After Hours" },
-  { title: "Starboy", artist: "The Weeknd", duration: "3:50", album: "Starboy" },
-  { title: "The Hills", artist: "The Weeknd", duration: "4:02", album: "Beauty Behind the Madness" },
-  { title: "Can't Feel My Face", artist: "The Weeknd", duration: "3:33", album: "Beauty Behind the Madness" },
-  { title: "Often", artist: "The Weeknd", duration: "4:09", album: "Beauty Behind the Madness" },
+const allSongs: SongLink[] = [
+  { title: "Die For You", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=mTLQhPFx2nM", platform: "YouTube" },
+  { title: "Blinding Lights", artist: "The Weeknd", url: "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b", platform: "Spotify" },
+  { title: "Save Your Tears", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=XXYlFuWEuKI", platform: "YouTube" },
+  { title: "After Hours", artist: "The Weeknd", url: "https://open.spotify.com/track/2p8IUWQDrpjuFltbdgLOag", platform: "Spotify" },
+  { title: "Starboy", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=34Na4j8AVgA", platform: "YouTube" },
+  { title: "The Hills", artist: "The Weeknd", url: "https://soundcloud.com/theweeknd/the-hills", platform: "SoundCloud" },
+  { title: "Can't Feel My Face", artist: "The Weeknd", url: "https://www.youtube.com/watch?v=KEI4qSrkPAs", platform: "YouTube" },
+  { title: "Often", artist: "The Weeknd", url: "https://open.spotify.com/track/4PhsKqMdgMEUSstTDAmMpg", platform: "Spotify" },
 ];
+
+const getPlatformColor = (platform: string) => {
+  switch (platform) {
+    case "YouTube": return "bg-red-500/20 text-red-400";
+    case "Spotify": return "bg-green-500/20 text-green-400";
+    case "SoundCloud": return "bg-orange-500/20 text-orange-400";
+    case "Apple Music": return "bg-pink-500/20 text-pink-400";
+    default: return "bg-muted text-muted-foreground";
+  }
+};
 
 const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
 
-  const handlePlaySong = (index: number, song: typeof allSongs[0]) => {
-    const isNowPlaying = playingIndex !== index;
-    setPlayingIndex(isNowPlaying ? index : null);
-    
-    console.log("[SONG_PLAY]", {
+  const handleOpenLink = (song: SongLink, index: number) => {
+    console.log("[SONG_LINK_OPENED]", {
       playlistId: playlist.id,
       playlistName: playlist.playlistName,
       songIndex: index,
       songTitle: song.title,
       songArtist: song.artist,
-      action: isNowPlaying ? "play" : "pause",
+      platform: song.platform,
+      url: song.url,
       timestamp: new Date().toISOString()
     });
-  };
-
-  const handlePlayAll = () => {
-    console.log("[PLAYLIST_PLAY_ALL]", {
-      playlistId: playlist.id,
-      playlistName: playlist.playlistName,
-      totalSongs: allSongs.length,
-      timestamp: new Date().toISOString()
-    });
-    setPlayingIndex(0);
+    window.open(song.url, "_blank", "noopener,noreferrer");
   };
 
   const handleLike = () => {
@@ -72,12 +77,21 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
   };
 
   const handleShare = () => {
+    const shareText = `Check out "${playlist.playlistName}" by ${playlist.username}\n\nSongs:\n${allSongs.map((s, i) => `${i + 1}. ${s.title} - ${s.artist}: ${s.url}`).join("\n")}`;
+    
     console.log("[PLAYLIST_SHARE]", {
       playlistId: playlist.id,
       playlistName: playlist.playlistName,
       username: playlist.username,
       timestamp: new Date().toISOString()
     });
+
+    if (navigator.share) {
+      navigator.share({ title: playlist.playlistName, text: shareText });
+    } else {
+      navigator.clipboard.writeText(shareText);
+      console.log("[SHARE_COPIED_TO_CLIPBOARD]", { timestamp: new Date().toISOString() });
+    }
   };
 
   const handleClose = () => {
@@ -116,7 +130,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
               <p className="text-sm text-muted-foreground mb-1">Playlist</p>
               <h1 className="text-2xl md:text-3xl font-bold mb-2">{playlist.playlistName}</h1>
               <p className="text-muted-foreground text-sm mb-4">
-                {playlist.description || "A curated collection of songs"}
+                {playlist.description || "A curated collection of song links"}
               </p>
               
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -129,10 +143,6 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
 
               {/* Actions */}
               <div className="flex items-center gap-2">
-                <Button variant="accent" onClick={handlePlayAll}>
-                  <Play className="w-4 h-4" fill="currentColor" />
-                  Play All
-                </Button>
                 <Button 
                   variant="outline" 
                   size="icon"
@@ -159,53 +169,45 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
           {/* Songs List */}
           <div className="space-y-1">
             {/* Header */}
-            <div className="hidden md:grid grid-cols-[32px_1fr_1fr_80px] gap-4 px-4 py-2 text-xs text-muted-foreground border-b border-border">
+            <div className="hidden md:grid grid-cols-[32px_1fr_120px_100px] gap-4 px-4 py-2 text-xs text-muted-foreground border-b border-border">
               <span>#</span>
               <span>Title</span>
-              <span>Album</span>
-              <span className="text-right">
-                <Clock className="w-4 h-4 inline" />
-              </span>
+              <span>Platform</span>
+              <span className="text-right">Action</span>
             </div>
 
             {/* Songs */}
             {allSongs.map((song, index) => (
               <div 
                 key={index}
-                onClick={() => handlePlaySong(index, song)}
-                className={`grid grid-cols-[32px_1fr_80px] md:grid-cols-[32px_1fr_1fr_80px] gap-4 px-4 py-3 rounded-lg cursor-pointer group transition-colors ${
-                  playingIndex === index ? "bg-accent/10" : "hover:bg-secondary"
-                }`}
+                onClick={() => handleOpenLink(song, index)}
+                className="grid grid-cols-[32px_1fr_100px] md:grid-cols-[32px_1fr_120px_100px] gap-4 px-4 py-3 rounded-lg cursor-pointer group transition-colors hover:bg-secondary"
               >
-                {/* Number / Play */}
+                {/* Number */}
                 <div className="flex items-center justify-center">
-                  {playingIndex === index ? (
-                    <Pause className="w-4 h-4 text-accent" />
-                  ) : (
-                    <>
-                      <span className="text-sm text-muted-foreground group-hover:hidden">{index + 1}</span>
-                      <Play className="w-4 h-4 hidden group-hover:block" />
-                    </>
-                  )}
+                  <span className="text-sm text-muted-foreground">{index + 1}</span>
                 </div>
 
                 {/* Title & Artist */}
                 <div className="min-w-0">
-                  <p className={`text-sm font-medium truncate ${playingIndex === index ? "text-accent" : ""}`}>
-                    {song.title}
-                  </p>
+                  <p className="text-sm font-medium truncate">{song.title}</p>
                   <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
                 </div>
 
-                {/* Album - Desktop only */}
-                <p className="hidden md:block text-sm text-muted-foreground truncate self-center">
-                  {song.album}
-                </p>
+                {/* Platform - Desktop only */}
+                <div className="hidden md:flex items-center">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
+                    {song.platform}
+                  </span>
+                </div>
 
-                {/* Duration */}
-                <p className="text-sm text-muted-foreground text-right self-center">
-                  {song.duration}
-                </p>
+                {/* Open Link */}
+                <div className="flex items-center justify-end gap-2">
+                  <span className={`md:hidden text-xs px-2 py-0.5 rounded-full ${getPlatformColor(song.platform)}`}>
+                    {song.platform}
+                  </span>
+                  <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </div>
               </div>
             ))}
           </div>
