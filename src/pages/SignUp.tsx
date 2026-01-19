@@ -1,60 +1,66 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Music, ArrowLeft } from "lucide-react";
+import { Music, ArrowLeft, Loader2, Mail, Lock, User, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { signup, clearError } from "@/store/slices/authSlice";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const { signup } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isLoading, error } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    dispatch(clearError());
+
+    if (!username.trim()) {
+      return;
+    }
 
     try {
-      if (!username.trim()) {
-        setError("Username is required");
-        setLoading(false);
-        return;
-      }
-
-      await signup(email, password, username);
+      await dispatch(signup({ email, password, username })).unwrap();
       navigate("/");
     } catch (err) {
-      setError("Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
+      // Error handled by Redux
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 -right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-slow" />
+        <div className="absolute bottom-1/4 -left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="w-full max-w-md relative z-10 animate-slide-up">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Music className="w-12 h-12 text-white mr-3" />
-            <h1 className="text-3xl font-bold text-white">VibeShare</h1>
+            <div className="w-14 h-14 rounded-2xl btn-gradient flex items-center justify-center glow">
+              <Music className="w-7 h-7 text-white" />
+            </div>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">Join VibeShare</h2>
-          <p className="text-gray-300">Create your account to start sharing music</p>
+          <h1 className="text-3xl font-bold text-gradient mb-2">VibeShare</h1>
+          <h2 className="text-xl font-semibold text-foreground mb-1">Join the community</h2>
+          <p className="text-muted-foreground">Create your account to start sharing music</p>
         </div>
 
         {/* Form */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="username" className="text-white">Username</Label>
+        <div className="glass-strong rounded-2xl p-6 shadow-xl">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-foreground flex items-center gap-2">
+                <User className="w-4 h-4 text-muted-foreground" />
+                Username
+              </Label>
               <Input
                 id="username"
                 type="text"
@@ -62,12 +68,15 @@ const SignUp = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Choose a username"
                 required
-                className="mt-1 bg-white/20 border-white/30 text-white placeholder:text-white/60"
+                className="input-modern"
               />
             </div>
 
-            <div>
-              <Label htmlFor="email" className="text-white">Email</Label>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground flex items-center gap-2">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -75,12 +84,15 @@ const SignUp = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                className="mt-1 bg-white/20 border-white/30 text-white placeholder:text-white/60"
+                className="input-modern"
               />
             </div>
 
-            <div>
-              <Label htmlFor="password" className="text-white">Password</Label>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-foreground flex items-center gap-2">
+                <Lock className="w-4 h-4 text-muted-foreground" />
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -88,29 +100,39 @@ const SignUp = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
                 required
-                className="mt-1 bg-white/20 border-white/30 text-white placeholder:text-white/60"
+                className="input-modern"
               />
             </div>
 
             {error && (
-              <div className="text-red-400 text-sm text-center bg-red-500/20 rounded-lg p-3">
+              <div className="text-destructive text-sm text-center bg-destructive/10 rounded-lg p-3 animate-fade-in">
                 {error}
               </div>
             )}
 
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-white text-purple-900 hover:bg-gray-100 font-semibold py-3"
+              disabled={isLoading}
+              className="w-full btn-gradient h-11 text-base gap-2"
             >
-              {loading ? "Creating account..." : "Sign Up"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Sign Up
+                </>
+              )}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-300">
+            <p className="text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/sign-in" className="text-white font-semibold hover:underline">
+              <Link to="/sign-in" className="text-primary font-semibold hover:underline">
                 Sign in
               </Link>
             </p>
@@ -119,7 +141,7 @@ const SignUp = () => {
 
         {/* Back to home */}
         <div className="mt-6 text-center">
-          <Link to="/" className="text-gray-300 hover:text-white flex items-center justify-center gap-2">
+          <Link to="/" className="text-muted-foreground hover:text-foreground flex items-center justify-center gap-2 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back to home
           </Link>
