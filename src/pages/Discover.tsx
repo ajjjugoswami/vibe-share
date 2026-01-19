@@ -121,7 +121,7 @@ const Discover = () => {
                       <Link2 className="w-8 h-8 text-white/30" />
                     </div>
                     <p className="text-sm font-medium truncate">{playlist.title}</p>
-                    <p className="text-xs text-muted-foreground">{playlist.songs.length} songs • {playlist.likes} likes</p>
+                    <p className="text-xs text-muted-foreground">{playlist.songs.length} songs • {playlist.likesCount} likes</p>
                     {playlist.tags.length > 0 && (
                       <p className="text-xs text-accent mt-1">#{playlist.tags[0]}</p>
                     )}

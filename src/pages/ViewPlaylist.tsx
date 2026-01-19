@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink, Edit, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,9 +13,27 @@ const ViewPlaylist = () => {
   const { getPlaylist, savePlaylist, unsavePlaylist, savedPlaylists } = usePlaylist();
   const { isLoggedIn, user } = useAuth();
   
-  const playlist = id ? getPlaylist(id) : undefined;
+  const [playlist, setPlaylist] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = savedPlaylists.some(p => p.id === id);
+  const isOwn = playlist?.user?.id === user?.id;
+
+  useEffect(() => {
+    const fetchPlaylist = async () => {
+      if (id) {
+        try {
+          const fetchedPlaylist = await getPlaylist(id);
+          setPlaylist(fetchedPlaylist);
+        } catch (error) {
+          console.error('Failed to fetch playlist:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchPlaylist();
+  }, [id, getPlaylist]);
 
   const handleOpenLink = (song: SongLink, index: number) => {
     console.log("[SONG_LINK_OPENED]", {
@@ -38,12 +57,12 @@ const ViewPlaylist = () => {
   };
 
   const handleSave = () => {
-    if (!playlist) return;
+    if (!playlist || !playlist.id) return;
     
     if (isSaved) {
       unsavePlaylist(playlist.id);
     } else {
-      savePlaylist(playlist);
+      savePlaylist(playlist.id);
     }
   };
 
@@ -67,6 +86,14 @@ const ViewPlaylist = () => {
   const handleEdit = () => {
     navigate(`/playlist/${id}/edit`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
 
   if (!playlist) {
     return (
@@ -128,12 +155,12 @@ const ViewPlaylist = () => {
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
               <span>{playlist.songs.length} songs</span>
               <span>•</span>
-              <span>{playlist.likes.toLocaleString()} likes</span>
+              <span>{playlist.likesCount.toLocaleString()} likes</span>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2 flex-wrap">
-              {playlist.isOwn && (
+              {isOwn && (
                 <Button variant="accent" size="sm" onClick={handleEdit}>
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
@@ -147,7 +174,7 @@ const ViewPlaylist = () => {
               >
                 <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
               </Button>
-              {!playlist.isOwn && (
+              {!isOwn && (
                 <Button 
                   variant="outline" 
                   size="icon"

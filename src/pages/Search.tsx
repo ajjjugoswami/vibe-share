@@ -292,7 +292,7 @@ const Search = () => {
                           </div>
                           <p className="text-sm font-medium truncate">{playlist.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {playlist.songs.length} songs • {playlist.likes} likes
+                            {playlist.songs.length} songs • {playlist.likesCount} likes
                           </p>
                           {playlist.tags.length > 0 && (
                             <p className="text-xs text-accent mt-1">#{playlist.tags[0]}</p>

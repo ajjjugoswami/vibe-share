@@ -17,7 +17,7 @@ const suggestedTags = [
 const EditPlaylist = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getPlaylist, updatePlaylist, deletePlaylist } = usePlaylist();
+  const { getPlaylist, updatePlaylist, deletePlaylist, addSongToPlaylist } = usePlaylist();
   const { isLoggedIn } = useAuth();
   
   const playlist = id ? getPlaylist(id) : undefined;
@@ -133,16 +133,32 @@ const EditPlaylist = () => {
     setSongs(songs.filter(s => s.id !== songId));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (id && title.trim()) {
-      updatePlaylist(id, {
-        title: title.trim(),
-        description: description.trim(),
-        coverGradient: selectedGradient,
-        songs,
-        tags,
-      });
-      navigate(`/playlist/${id}`);
+      try {
+        // Update playlist metadata
+        await updatePlaylist(id, {
+          title: title.trim(),
+          description: description.trim(),
+          coverGradient: selectedGradient,
+          tags,
+        });
+
+        // Add new songs
+        const newSongs = songs.filter(song => song.id.startsWith('song-'));
+        for (const song of newSongs) {
+          await addSongToPlaylist(id, {
+            title: song.title,
+            artist: song.artist,
+            url: song.url,
+            platform: song.platform,
+          });
+        }
+
+        navigate(`/playlist/${id}`);
+      } catch (error) {
+        console.error('Failed to save playlist:', error);
+      }
     }
   };
 

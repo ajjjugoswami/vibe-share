@@ -16,7 +16,7 @@ const suggestedTags = [
 
 const CreatePlaylist = () => {
   const navigate = useNavigate();
-  const { createPlaylist } = usePlaylist();
+  const { createPlaylist, addSongToPlaylist } = usePlaylist();
   const { isLoggedIn } = useAuth();
   
   const [title, setTitle] = useState("");
@@ -104,16 +104,31 @@ const CreatePlaylist = () => {
     setSongs(songs.filter((_, i) => i !== index));
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (title.trim()) {
-      const playlist = createPlaylist({
-        title: title.trim(),
-        description: description.trim(),
-        coverGradient: selectedGradient,
-        songs: songs.map((s, i) => ({ ...s, id: `song-${i}` })),
-        tags,
-      });
-      navigate(`/playlist/${playlist.id}`);
+      try {
+        const playlist = await createPlaylist({
+          title: title.trim(),
+          description: description.trim(),
+          coverGradient: selectedGradient,
+          tags, 
+          isPublic: true
+        });
+
+        // Add songs
+        for (const song of songs) {
+          await addSongToPlaylist(playlist.id, {
+            title: song.title,
+            artist: song.artist,
+            url: song.url,
+            platform: song.platform,
+          });
+        }
+
+        navigate(`/playlist/${playlist.id}`);
+      } catch (error) {
+        console.error('Failed to create playlist:', error);
+      }
     }
   };
 
