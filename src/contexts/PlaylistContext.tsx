@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { playlistsAPI, feedAPI, discoverAPI } from "../lib/api";
-import { useAuth } from "./AuthContext";
+import { useAppSelector } from "../store/hooks";
 
 export interface SongLink {
   id: string;
@@ -87,7 +87,8 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
   const [discoverPlaylists, setDiscoverPlaylists] = useState<Playlist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user, isLoggedIn } = useAuth();
+  const { user } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!user;
 
   // Load user's playlists when logged in
   useEffect(() => {

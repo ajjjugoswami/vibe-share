@@ -3,9 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
 import { PlaylistProvider } from "./contexts/PlaylistContext";
 import { SocialProvider } from "./contexts/SocialContext";
+import AuthInitializer from "./components/AuthInitializer";
 import MainLayout from "./components/MainLayout";
 import Feed from "./pages/Feed";
 import Discover from "./pages/Discover";
@@ -27,14 +27,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
+        <AuthInitializer>
           <PlaylistProvider>
             <SocialProvider>
               <Routes>
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/sign-up" element={<SignUp />} />
                 <Route element={<MainLayout />}>
-                <Route path="/" element={<Feed />} />
+                  <Route path="/" element={<Feed />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/profile" element={<Profile />} />
@@ -48,7 +48,7 @@ const App = () => (
               </Routes>
             </SocialProvider>
           </PlaylistProvider>
-        </AuthProvider>
+        </AuthInitializer>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,29 +1,30 @@
-import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus, Users } from "lucide-react";
+import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
-import { useSocial } from "@/contexts/SocialContext";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
+import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
 import { Link2 } from "lucide-react";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<"playlists" | "saved">("playlists");
   const navigate = useNavigate();
-  const { user, isLoggedIn, logout } = useAuth();
-  const { playlists, savedPlaylists, refreshPlaylists, refreshSavedPlaylists } = usePlaylist();
-  // NOTE: Follow/following features are not needed in v1
-  // const { following, followers } = useSocial();
+  const dispatch = useAppDispatch();
+  
+  const { user } = useAppSelector((state) => state.auth);
+  const { userPlaylists, savedPlaylists, isLoading } = useAppSelector((state) => state.playlists);
+  const isLoggedIn = !!user;
 
-  const currentPlaylists = activeTab === "playlists" ? playlists : savedPlaylists;
+  const currentPlaylists = activeTab === "playlists" ? userPlaylists : savedPlaylists;
 
   // Refresh playlists when component mounts
   useEffect(() => {
     if (isLoggedIn && user) {
-      refreshPlaylists();
-      refreshSavedPlaylists();
+      dispatch(fetchUserPlaylists(user.id));
+      dispatch(fetchSavedPlaylists());
     }
-  }, [isLoggedIn, user, refreshPlaylists, refreshSavedPlaylists]);
+  }, [isLoggedIn, user, dispatch]);
 
   const handleTabChange = (tab: "playlists" | "saved") => {
     setActiveTab(tab);
@@ -42,13 +43,13 @@ const ProfilePage = () => {
     console.log("[SETTINGS_CLICKED]", { timestamp: new Date().toISOString() });
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await dispatch(logout());
     navigate("/");
   };
 
-  const handlePlaylistClick = (playlist: Playlist) => {
-    navigate(`/playlist/${playlist.id}`);
+  const handlePlaylistClick = (playlistId: string) => {
+    navigate(`/playlist/${playlistId}`);
   };
 
   const handleCreatePlaylist = () => {
@@ -110,26 +111,9 @@ const ProfilePage = () => {
           <div className="flex-1">
             <div className="flex justify-around mb-4">
               <div className="text-center">
-                <div className="font-semibold">{playlists.length}</div>
+                <div className="font-semibold">{userPlaylists.length}</div>
                 <div className="text-xs text-muted-foreground">playlists</div>
               </div>
-              {/* NOTE: Follow/following features are not needed in v1 */}
-              {/*
-              <button 
-                className="text-center hover:opacity-70 transition-opacity"
-                onClick={() => console.log("Show followers modal")}
-              >
-                <div className="font-semibold">{followers?.length || 0}</div>
-                <div className="text-xs text-muted-foreground">followers</div>
-              </button>
-              <button 
-                className="text-center hover:opacity-70 transition-opacity"
-                onClick={() => console.log("Show following modal")}
-              >
-                <div className="font-semibold">{following?.length || 0}</div>
-                <div className="text-xs text-muted-foreground">following</div>
-              </button>
-              */}
             </div>
           </div>
         </div>
@@ -178,7 +162,11 @@ const ProfilePage = () => {
         </div>
 
         {/* Grid */}
-        {currentPlaylists.length === 0 ? (
+        {isLoading ? (
+          <div className="py-16 text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          </div>
+        ) : currentPlaylists.length === 0 ? (
           <div className="py-16 text-center">
             <Link2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
@@ -199,16 +187,26 @@ const ProfilePage = () => {
                 className="cursor-pointer group relative"
               >
                 <div 
-                  onClick={() => handlePlaylistClick(playlist)}
-                  className={`aspect-square rounded-xl bg-gradient-to-br ${playlist.coverGradient} mb-2 flex items-center justify-center transition-transform group-hover:scale-[1.02]`}
+                  onClick={() => handlePlaylistClick(playlist.id)}
+                  className="aspect-square rounded-xl mb-2 flex items-center justify-center transition-transform group-hover:scale-[1.02] overflow-hidden"
                 >
-                  <Link2 className="w-8 h-8 text-white/30" />
+                  {playlist.songs[0]?.thumbnail ? (
+                    <img 
+                      src={playlist.songs[0].thumbnail} 
+                      alt={playlist.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className={`w-full h-full bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center`}>
+                      <Link2 className="w-8 h-8 text-white/30" />
+                    </div>
+                  )}
                 </div>
                 <p className="text-sm font-medium truncate">{playlist.title}</p>
                 <p className="text-xs text-muted-foreground">{playlist.songs.length} songs</p>
                 
                 {/* Edit button for owned playlists in playlists tab */}
-                {activeTab === "playlists" && playlist.user?.id === user?.id && (
+                {activeTab === "playlists" && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
