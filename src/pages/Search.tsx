@@ -6,11 +6,19 @@ import { usePlaylist } from "@/contexts/PlaylistContext";
 import UserCard from "@/components/UserCard";
 import { useNavigate } from "react-router-dom";
 import { Link2 } from "lucide-react";
+import { searchAPI } from "@/lib/api";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "users" | "playlists" | "tags">("all");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchResults, setSearchResults] = useState({
+    users: [],
+    playlists: [],
+    tags: []
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { users } = useSocial();
   const { playlists, savedPlaylists } = usePlaylist();
   const navigate = useNavigate();
@@ -22,6 +30,68 @@ const Search = () => {
       setRecentSearches(JSON.parse(saved));
     }
   }, []);
+
+  // Perform search when query or filter changes
+  useEffect(() => {
+    const performSearch = async () => {
+      if (!searchQuery.trim() || searchQuery.length < 2) {
+        setSearchResults({ users: [], playlists: [], tags: [] });
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        if (activeFilter === "all") {
+          const response = await searchAPI.universalSearch({
+            q: searchQuery,
+            limit: 20
+          });
+          setSearchResults(response.data);
+        } else if (activeFilter === "users") {
+          const response = await searchAPI.searchUsers({
+            q: searchQuery,
+            limit: 20
+          });
+          setSearchResults({
+            users: response.data.users,
+            playlists: [],
+            tags: []
+          });
+        } else if (activeFilter === "playlists") {
+          const response = await searchAPI.searchPlaylists({
+            q: searchQuery,
+            limit: 20
+          });
+          setSearchResults({
+            users: [],
+            playlists: response.data.playlists,
+            tags: []
+          });
+        } else if (activeFilter === "tags") {
+          const response = await searchAPI.searchTags({
+            q: searchQuery,
+            limit: 20
+          });
+          setSearchResults({
+            users: [],
+            playlists: [],
+            tags: response.data.tags
+          });
+        }
+      } catch (err) {
+        console.error("Search error:", err);
+        setError("Failed to perform search");
+        setSearchResults({ users: [], playlists: [], tags: [] });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(performSearch, 300); // Debounce search
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, activeFilter]);
 
   // Save search to recent
   const saveSearch = (query: string) => {
@@ -48,26 +118,10 @@ const Search = () => {
   // Get all unique tags
   const allTags = Array.from(new Set(allPlaylists.flatMap(p => p.tags)));
 
-  // Filter results based on query and filter
-  const filteredUsers = users.filter(user =>
-    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.bio.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredPlaylists = allPlaylists.filter(playlist =>
-    playlist.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    playlist.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    playlist.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  const filteredTags = allTags.filter(tag =>
-    tag.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   // Trending tags (mock data)
   const trendingTags = ["chill", "vibes", "workout", "lofi", "indie", "roadtrip"];
 
-  const hasResults = searchQuery && (filteredUsers.length > 0 || filteredPlaylists.length > 0 || filteredTags.length > 0);
+  const hasResults = searchQuery && (searchResults.users.length > 0 || searchResults.playlists.length > 0 || searchResults.tags.length > 0);
   const isSearching = searchQuery.length > 0;
 
   const handleSearch = (query: string) => {
@@ -87,9 +141,9 @@ const Search = () => {
       console.log("[SEARCH_SUBMITTED]", {
         query: searchQuery,
         resultsCount: {
-          users: filteredUsers.length,
-          playlists: filteredPlaylists.length,
-          tags: filteredTags.length
+          users: searchResults.users.length,
+          playlists: searchResults.playlists.length,
+          tags: searchResults.tags.length
         },
         timestamp: new Date().toISOString()
       });
@@ -237,7 +291,17 @@ const Search = () => {
         ) : (
           <>
             {/* Search Results */}
-            {!hasResults ? (
+            {isLoading ? (
+              <div className="py-16 text-center">
+                <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-muted-foreground">Searching...</p>
+              </div>
+            ) : error ? (
+              <div className="py-16 text-center">
+                <p className="text-red-500 mb-2">Search failed</p>
+                <p className="text-muted-foreground text-sm">{error}</p>
+              </div>
+            ) : !hasResults ? (
               <div className="py-16 text-center">
                 <SearchIcon className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="text-lg font-medium mb-1">No results found</p>
@@ -248,37 +312,37 @@ const Search = () => {
             ) : (
               <div className="space-y-6">
                 {/* Users Results */}
-                {(activeFilter === "all" || activeFilter === "users") && filteredUsers.length > 0 && (
+                {(activeFilter === "all" || activeFilter === "users") && searchResults.users.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <Users className="w-4 h-4 text-accent" />
-                      <h2 className="text-sm font-semibold">Users ({filteredUsers.length})</h2>
+                      <h2 className="text-sm font-semibold">Users ({searchResults.users.length})</h2>
                     </div>
                     <div className="space-y-1">
-                      {filteredUsers.slice(0, activeFilter === "users" ? undefined : 3).map((user) => (
+                      {searchResults.users.slice(0, activeFilter === "users" ? undefined : 3).map((user) => (
                         <UserCard key={user.id} user={user} />
                       ))}
                     </div>
-                    {activeFilter === "all" && filteredUsers.length > 3 && (
+                    {activeFilter === "all" && searchResults.users.length > 3 && (
                       <button
                         onClick={() => setActiveFilter("users")}
                         className="mt-2 text-sm text-accent hover:underline"
                       >
-                        View all {filteredUsers.length} users
+                        View all {searchResults.users.length} users
                       </button>
                     )}
                   </div>
                 )}
 
                 {/* Playlists Results */}
-                {(activeFilter === "all" || activeFilter === "playlists") && filteredPlaylists.length > 0 && (
+                {(activeFilter === "all" || activeFilter === "playlists") && searchResults.playlists.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <Music2 className="w-4 h-4 text-accent" />
-                      <h2 className="text-sm font-semibold">Playlists ({filteredPlaylists.length})</h2>
+                      <h2 className="text-sm font-semibold">Playlists ({searchResults.playlists.length})</h2>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                      {filteredPlaylists.slice(0, activeFilter === "playlists" ? undefined : 4).map((playlist) => (
+                      {searchResults.playlists.slice(0, activeFilter === "playlists" ? undefined : 4).map((playlist) => (
                         <div
                           key={playlist.id}
                           onClick={() => {
@@ -292,46 +356,43 @@ const Search = () => {
                           </div>
                           <p className="text-sm font-medium truncate">{playlist.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {playlist.songCount || playlist.songs.length} songs • {playlist.likesCount} likes
+                            {playlist.songCount || playlist.songs?.length || 0} songs • {playlist.likesCount || 0} likes
                           </p>
-                          {playlist.tags.length > 0 && (
+                          {playlist.tags?.length > 0 && (
                             <p className="text-xs text-accent mt-1">#{playlist.tags[0]}</p>
                           )}
                         </div>
                       ))}
                     </div>
-                    {activeFilter === "all" && filteredPlaylists.length > 4 && (
+                    {activeFilter === "all" && searchResults.playlists.length > 4 && (
                       <button
                         onClick={() => setActiveFilter("playlists")}
                         className="mt-3 text-sm text-accent hover:underline"
                       >
-                        View all {filteredPlaylists.length} playlists
+                        View all {searchResults.playlists.length} playlists
                       </button>
                     )}
                   </div>
                 )}
 
                 {/* Tags Results */}
-                {(activeFilter === "all" || activeFilter === "tags") && filteredTags.length > 0 && (
+                {(activeFilter === "all" || activeFilter === "tags") && searchResults.tags.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <TrendingUp className="w-4 h-4 text-accent" />
-                      <h2 className="text-sm font-semibold">Tags ({filteredTags.length})</h2>
+                      <h2 className="text-sm font-semibold">Tags ({searchResults.tags.length})</h2>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {filteredTags.map((tag) => {
-                        const playlistCount = allPlaylists.filter(p => p.tags.includes(tag)).length;
-                        return (
-                          <button
-                            key={tag}
-                            onClick={() => handleTagClick(tag)}
-                            className="bg-accent/10 text-accent px-3 py-2 rounded-lg text-sm hover:bg-accent/20 transition-colors flex flex-col items-start"
-                          >
-                            <span>#{tag}</span>
-                            <span className="text-xs text-muted-foreground">{playlistCount} playlists</span>
-                          </button>
-                        );
-                      })}
+                      {searchResults.tags.map((tag) => (
+                        <button
+                          key={tag.name || tag}
+                          onClick={() => handleTagClick(tag.name || tag)}
+                          className="bg-accent/10 text-accent px-3 py-2 rounded-lg text-sm hover:bg-accent/20 transition-colors flex flex-col items-start"
+                        >
+                          <span>#{tag.name || tag}</span>
+                          <span className="text-xs text-muted-foreground">{tag.playlistCount || tag.count || 0} playlists</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
