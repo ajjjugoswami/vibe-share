@@ -107,9 +107,23 @@ const ViewPlaylist = () => {
           <div className="flex-1">
             <p className="text-sm text-muted-foreground mb-1">Playlist</p>
             <h1 className="text-2xl md:text-3xl font-bold mb-2">{playlist.title}</h1>
-            <p className="text-muted-foreground text-sm mb-4">
+            <p className="text-muted-foreground text-sm mb-3">
               {playlist.description || "A curated collection of song links"}
             </p>
+
+            {/* Tags */}
+            {playlist.tags && playlist.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {playlist.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-0.5 bg-accent/20 text-accent rounded-full text-xs"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
             
             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
               <span>{playlist.songs.length} songs</span>
