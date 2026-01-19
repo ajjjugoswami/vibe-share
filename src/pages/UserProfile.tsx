@@ -1,26 +1,87 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSocial } from "@/contexts/SocialContext";
 import { usePlaylist } from "@/contexts/PlaylistContext";
+import { Playlist } from "@/contexts/PlaylistContext";
+import { usersAPI } from "@/lib/api";
+
+interface UserData {
+  id: string;
+  username: string;
+  bio?: string;
+  avatarUrl?: string;
+  playlistCount?: number;
+  followersCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
+}
 
 const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { user: currentUser, isLoggedIn } = useAuth();
-  const { getUserByUsername, isFollowing, followUser, unfollowUser } = useSocial();
-  const { playlists, savedPlaylists } = usePlaylist();
+  const { isFollowing, followUser, unfollowUser } = useSocial();
+  const { playlists, getUserPlaylists } = usePlaylist();
   
-  const userProfile = username ? getUserByUsername(username) : undefined;
+  const [userProfile, setUserProfile] = useState<UserData | null>(null);
+  const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
+  const [loadingUser, setLoadingUser] = useState(false);
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
   const following = userProfile ? isFollowing(userProfile.id) : false;
 
-  // Mock user playlists (in real app, fetch from API)
-  const userPlaylists = isOwnProfile 
-    ? playlists 
-    : playlists.filter((_, i) => i < 2); // Mock: show some playlists for other users
+  // Fetch user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!username) return;
+      
+      setLoadingUser(true);
+      setError(null);
+      try {
+        const response = await usersAPI.getUserByUsername(username);
+        setUserProfile(response.data.user);
+      } catch (err) {
+        console.error('Failed to fetch user:', err);
+        setError('User not found');
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [username]);
+
+  // Fetch user playlists
+  useEffect(() => {
+    const fetchUserPlaylists = async () => {
+      if (!userProfile) return;
+      
+      setLoadingPlaylists(true);
+      try {
+        const fetchedPlaylists = await getUserPlaylists(userProfile.id, { limit: 20 });
+        setUserPlaylists(fetchedPlaylists);
+      } catch (error) {
+        console.error('Failed to fetch user playlists:', error);
+      } finally {
+        setLoadingPlaylists(false);
+      }
+    };
+
+    if (userProfile) {
+      if (isOwnProfile) {
+        // For own profile, use the playlists from context (which includes private ones)
+        setUserPlaylists(playlists);
+      } else {
+        // For other users, fetch their public playlists
+        fetchUserPlaylists();
+      }
+    }
+  }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
 
   const handleFollow = () => {
     if (!isLoggedIn) {
@@ -42,11 +103,22 @@ const UserProfile = () => {
     // Future: implement messaging
   };
 
-  if (!userProfile && !isOwnProfile) {
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || (!userProfile && !isOwnProfile)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <Users className="w-16 h-16 text-muted-foreground" />
-        <p className="text-muted-foreground">User not found</p>
+        <p className="text-muted-foreground">{error || "User not found"}</p>
         <Button variant="outline" onClick={() => navigate("/")}>
           Go Home
         </Button>

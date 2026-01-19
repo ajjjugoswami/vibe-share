@@ -55,6 +55,7 @@ interface PlaylistContextType {
   refreshSavedPlaylists: () => Promise<void>;
   fetchFeedPlaylists: (params?: { page?: number; limit?: number }) => Promise<void>;
   fetchDiscoverPlaylists: (params?: { page?: number; limit?: number }) => Promise<void>;
+  getUserPlaylists: (userId: string, params?: { page?: number; limit?: number }) => Promise<Playlist[]>;
 }
 
 const PlaylistContext = createContext<PlaylistContextType | undefined>(undefined);
@@ -149,6 +150,21 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error('Failed to load discover playlists:', err);
       setError('Failed to load discover playlists');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const getUserPlaylists = useCallback(async (userId: string, params?: { page?: number; limit?: number }) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await playlistsAPI.getPlaylists({ user: userId, ...params });
+      return response.data.playlists.map(transformPlaylist);
+    } catch (err) {
+      console.error('Failed to load user playlists:', err);
+      setError('Failed to load user playlists');
+      return [];
     } finally {
       setIsLoading(false);
     }
@@ -383,7 +399,8 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
       refreshPlaylists,
       refreshSavedPlaylists,
       fetchFeedPlaylists,
-      fetchDiscoverPlaylists
+      fetchDiscoverPlaylists,
+      getUserPlaylists
     }}>
       {children}
     </PlaylistContext.Provider>
