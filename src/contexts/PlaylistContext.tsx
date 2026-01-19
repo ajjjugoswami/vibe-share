@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { playlistsAPI, feedAPI, discoverAPI } from "../lib/api";
 import { useAuth } from "./AuthContext";
 
@@ -97,7 +97,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isLoggedIn, user]);
 
-  const refreshPlaylists = async () => {
+  const refreshPlaylists = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -111,9 +111,9 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
-  const refreshSavedPlaylists = async () => {
+  const refreshSavedPlaylists = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -123,9 +123,9 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error('Failed to load saved playlists:', err);
     }
-  };
+  }, [user]);
 
-  const fetchFeedPlaylists = async (params?: { page?: number; limit?: number }) => {
+  const fetchFeedPlaylists = useCallback(async (params?: { page?: number; limit?: number }) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -137,9 +137,9 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchDiscoverPlaylists = async (params?: { page?: number; limit?: number }) => {
+  const fetchDiscoverPlaylists = useCallback(async (params?: { page?: number; limit?: number }) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -151,7 +151,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const transformPlaylist = (playlist: any): Playlist => ({
     id: playlist.id || playlist._id,
