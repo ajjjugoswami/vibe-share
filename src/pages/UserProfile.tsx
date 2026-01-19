@@ -23,7 +23,7 @@ const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { user: currentUser, isLoggedIn } = useAuth();
-  const { isFollowing, followUser, unfollowUser } = useSocial();
+  const { isFollowing, followUser, unfollowUser, followers, following } = useSocial();
   const { playlists, getUserPlaylists } = usePlaylist();
   
   const [userProfile, setUserProfile] = useState<UserData | null>(null);
@@ -132,8 +132,8 @@ const UserProfile = () => {
         username: currentUser?.username || "",
         bio: "Sharing my music taste with the world",
         playlistCount: playlists.length,
-        followersCount: 0,
-        followingCount: 0,
+        followersCount: followers.length,
+        followingCount: following.length,
       }
     : userProfile!;
 

@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { usersAPI } from "../lib/api";
+import { useAuth } from "./AuthContext";
 
 export interface UserProfile {
   id: string;
@@ -13,16 +15,18 @@ export interface UserProfile {
 
 interface SocialContextType {
   users: UserProfile[];
-  following: string[]; // User IDs the current user follows
-  followers: string[]; // User IDs that follow the current user
-  followUser: (userId: string) => void;
-  unfollowUser: (userId: string) => void;
+  following: UserProfile[];
+  followers: UserProfile[];
+  isLoading: boolean;
+  followUser: (userId: string) => Promise<void>;
+  unfollowUser: (userId: string) => Promise<void>;
   isFollowing: (userId: string) => boolean;
   getUserProfile: (userId: string) => UserProfile | undefined;
   getUserByUsername: (username: string) => UserProfile | undefined;
   getFollowers: (userId: string) => UserProfile[];
   getFollowing: (userId: string) => UserProfile[];
   updateUserStats: (userId: string, updates: Partial<UserProfile>) => void;
+  refreshSocialData: () => Promise<void>;
 }
 
 const SocialContext = createContext<SocialContextType | undefined>(undefined);
@@ -35,100 +39,74 @@ export const useSocial = () => {
   return context;
 };
 
-// Mock users data
-const initialUsers: UserProfile[] = [
-  {
-    id: "1",
-    username: "musiclover",
-    bio: "Sharing my music taste with the world 🎵",
-    playlistCount: 5,
-    followersCount: 1234,
-    followingCount: 89,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "2",
-    username: "djmax",
-    bio: "DJ | Producer | Music Curator 🎧",
-    playlistCount: 12,
-    followersCount: 5432,
-    followingCount: 234,
-    createdAt: "2023-12-15",
-  },
-  {
-    id: "3",
-    username: "indievibes",
-    bio: "Discovering indie gems since 2020 ✨",
-    playlistCount: 8,
-    followersCount: 876,
-    followingCount: 156,
-    createdAt: "2024-01-10",
-  },
-  {
-    id: "4",
-    username: "hiphophead",
-    bio: "Hip-hop culture enthusiast 🔥",
-    playlistCount: 15,
-    followersCount: 2341,
-    followingCount: 312,
-    createdAt: "2023-11-20",
-  },
-  {
-    id: "5",
-    username: "chillbeats",
-    bio: "Lo-fi & chill vibes only 🌙",
-    playlistCount: 6,
-    followersCount: 3456,
-    followingCount: 78,
-    createdAt: "2024-02-01",
-  },
-];
-
-// Mock relationships
-const initialFollowing: string[] = ["2", "3"];
-const initialFollowers: string[] = ["4", "5"];
-
 export const SocialProvider = ({ children }: { children: ReactNode }) => {
-  const [users, setUsers] = useState<UserProfile[]>(initialUsers);
-  const [following, setFollowing] = useState<string[]>(initialFollowing);
-  const [followers] = useState<string[]>(initialFollowers);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [following, setFollowing] = useState<UserProfile[]>([]);
+  const [followers, setFollowers] = useState<UserProfile[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user, isLoggedIn } = useAuth();
 
-  const followUser = (userId: string) => {
-    if (!following.includes(userId)) {
-      setFollowing(prev => [...prev, userId]);
-      // Update follower count for target user
-      setUsers(prev => prev.map(u => 
-        u.id === userId 
-          ? { ...u, followersCount: u.followersCount + 1 }
-          : u
-      ));
-      console.log("[USER_FOLLOWED]", { userId, timestamp: new Date().toISOString() });
+  // Fetch social data when user logs in
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      refreshSocialData();
+    } else {
+      setFollowing([]);
+      setFollowers([]);
+    }
+  }, [isLoggedIn, user]);
+
+  const refreshSocialData = async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+      const [followingRes, followersRes] = await Promise.all([
+        usersAPI.getUserFollowing(user.id),
+        usersAPI.getUserFollowers(user.id)
+      ]);
+
+      setFollowing(followingRes.data.users);
+      setFollowers(followersRes.data.users);
+    } catch (error) {
+      console.error('Failed to load social data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const unfollowUser = (userId: string) => {
-    setFollowing(prev => prev.filter(id => id !== userId));
-    // Update follower count for target user
-    setUsers(prev => prev.map(u => 
-      u.id === userId 
-        ? { ...u, followersCount: Math.max(0, u.followersCount - 1) }
-        : u
-    ));
-    console.log("[USER_UNFOLLOWED]", { userId, timestamp: new Date().toISOString() });
+  const followUser = async (userId: string) => {
+    try {
+      await usersAPI.followUser(userId);
+      // Refresh data to get updated counts
+      await refreshSocialData();
+      console.log("[USER_FOLLOWED]", { userId, timestamp: new Date().toISOString() });
+    } catch (error) {
+      console.error('Failed to follow user:', error);
+    }
   };
 
-  const isFollowing = (userId: string) => following.includes(userId);
+  const unfollowUser = async (userId: string) => {
+    try {
+      await usersAPI.unfollowUser(userId);
+      // Refresh data to get updated counts
+      await refreshSocialData();
+      console.log("[USER_UNFOLLOWED]", { userId, timestamp: new Date().toISOString() });
+    } catch (error) {
+      console.error('Failed to unfollow user:', error);
+    }
+  };
+
+  const isFollowing = (userId: string) => following.some(u => u.id === userId);
 
   const getUserProfile = (userId: string) => users.find(u => u.id === userId);
 
   const getUserByUsername = (username: string) => 
     users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
-  const getFollowers = (userId: string) => 
-    users.filter(u => following.includes(u.id)); // Simplified mock
+  const getFollowers = (userId: string) => followers;
 
-  const getFollowing = (userId: string) => 
-    users.filter(u => following.includes(u.id));
+  const getFollowing = (userId: string) => following;
 
   const updateUserStats = (userId: string, updates: Partial<UserProfile>) => {
     setUsers(prev => prev.map(u => 
@@ -141,6 +119,7 @@ export const SocialProvider = ({ children }: { children: ReactNode }) => {
       users,
       following,
       followers,
+      isLoading,
       followUser,
       unfollowUser,
       isFollowing,
@@ -149,6 +128,7 @@ export const SocialProvider = ({ children }: { children: ReactNode }) => {
       getFollowers,
       getFollowing,
       updateUserStats,
+      refreshSocialData,
     }}>
       {children}
     </SocialContext.Provider>
