@@ -85,7 +85,7 @@ const UserProfile = () => {
 
   const handleFollow = () => {
     if (!isLoggedIn) {
-      navigate("/auth");
+      navigate("/sign-in");
       return;
     }
     

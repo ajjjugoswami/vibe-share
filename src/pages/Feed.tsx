@@ -16,7 +16,7 @@ const Feed = () => {
     });
 
     if (!isLoggedIn) {
-      navigate("/auth");
+      navigate("/sign-in");
     } else {
       setShowCreatePlaylist(true);
     }

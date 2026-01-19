@@ -39,14 +39,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Check for existing session on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('vibe_token');
       if (token) {
         try {
           const response = await authAPI.getMe();
           setUser(response.data.user);
         } catch (error) {
           console.error('Failed to get user:', error);
-          localStorage.removeItem('accessToken');
+          localStorage.removeItem('vibe_token');
           localStorage.removeItem('refreshToken');
         }
       }
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authAPI.login({ email, password });
       const { user: userData, accessToken, refreshToken } = response.data;
 
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('vibe_token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       setUser(userData);
 
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authAPI.register({ email, username, password });
       const { user: userData, accessToken, refreshToken } = response.data;
 
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('vibe_token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       setUser(userData);
 
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       timestamp: new Date().toISOString()
     });
 
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem('vibe_token');
     localStorage.removeItem('refreshToken');
     setUser(null);
   };

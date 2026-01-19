@@ -24,7 +24,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   };
 
   const handleLoginClick = () => {
-    navigate("/auth");
+    navigate("/sign-in");
   };
 
   return (

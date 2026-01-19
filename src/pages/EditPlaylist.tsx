@@ -40,7 +40,7 @@ const EditPlaylist = () => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate("/auth");
+      navigate("/sign-in");
       return;
     }
     

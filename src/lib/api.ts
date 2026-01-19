@@ -1,5 +1,6 @@
-// API service for communicating with the backend
-const API_BASE_URL = 'https://be-vibe-share.vercel.app/api';
+const API_BASE_URL = import.meta.env.PROD
+  ? 'https://be-vibe-share.vercel.app/api'
+  : 'http://localhost:3000/api';
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
@@ -12,7 +13,7 @@ const handleResponse = async (response: Response) => {
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('vibe_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

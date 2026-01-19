@@ -13,7 +13,8 @@ import Discover from "./pages/Discover";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
-import Auth from "./pages/Auth";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import CreatePlaylist from "./pages/CreatePlaylist";
 import EditPlaylist from "./pages/EditPlaylist";
 import ViewPlaylist from "./pages/ViewPlaylist";
@@ -31,7 +32,8 @@ const App = () => (
           <PlaylistProvider>
             <SocialProvider>
               <Routes>
-                <Route path="/auth" element={<Auth />} />
+                <Route path="/sign-in" element={<SignIn />} />
+                <Route path="/sign-up" element={<SignUp />} />
                 <Route element={<MainLayout />}>
                 <Route path="/" element={<Feed />} />
                   <Route path="/explore" element={<Explore />} />

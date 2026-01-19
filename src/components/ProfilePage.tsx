@@ -1,6 +1,6 @@
 import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
@@ -11,10 +11,18 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<"playlists" | "saved">("playlists");
   const navigate = useNavigate();
   const { user, isLoggedIn, logout } = useAuth();
-  const { playlists, savedPlaylists } = usePlaylist();
+  const { playlists, savedPlaylists, refreshPlaylists, refreshSavedPlaylists } = usePlaylist();
   const { following, followers } = useSocial();
 
   const currentPlaylists = activeTab === "playlists" ? playlists : savedPlaylists;
+
+  // Refresh playlists when component mounts
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      refreshPlaylists();
+      refreshSavedPlaylists();
+    }
+  }, [isLoggedIn, user, refreshPlaylists, refreshSavedPlaylists]);
 
   const handleTabChange = (tab: "playlists" | "saved") => {
     setActiveTab(tab);
@@ -44,7 +52,7 @@ const ProfilePage = () => {
 
   const handleCreatePlaylist = () => {
     if (!isLoggedIn) {
-      navigate("/auth");
+      navigate("/sign-in");
     } else {
       navigate("/playlist/create");
     }
@@ -58,7 +66,7 @@ const ProfilePage = () => {
         </div>
         <h2 className="text-xl font-semibold">Sign in to see your profile</h2>
         <p className="text-muted-foreground text-center">Create and manage your playlists</p>
-        <Button variant="accent" onClick={() => navigate("/auth")}>
+        <Button variant="accent" onClick={() => navigate("/sign-in")}>
           Sign In
         </Button>
       </div>

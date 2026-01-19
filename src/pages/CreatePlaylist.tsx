@@ -35,7 +35,7 @@ const CreatePlaylist = () => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate("/auth");
+      navigate("/sign-in");
     }
   }, [isLoggedIn, navigate]);
 

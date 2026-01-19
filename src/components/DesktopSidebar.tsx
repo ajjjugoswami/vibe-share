@@ -21,14 +21,14 @@ const DesktopSidebar = () => {
   };
 
   const handleLogin = () => {
-    navigate("/auth");
+    navigate("/sign-in");
   };
 
   const handleCreatePlaylist = () => {
     if (isLoggedIn) {
       navigate("/playlist/create");
     } else {
-      navigate("/auth");
+      navigate("/sign-in");
     }
   };
 

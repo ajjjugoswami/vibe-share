@@ -20,7 +20,7 @@ const UserCard = ({ user, showFollowButton = true }: UserCardProps) => {
     e.stopPropagation();
     
     if (!isLoggedIn) {
-      navigate("/auth");
+      navigate("/sign-in");
       return;
     }
     
