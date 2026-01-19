@@ -17,7 +17,7 @@ const ViewPlaylist = () => {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = savedPlaylists.some(p => p.id === id);
-  const isOwn = playlist?.user?.id === user?.id;
+  const isOwn = playlist?.user?._id === user?.id;
 
   useEffect(() => {
     const fetchPlaylist = async () => {
