@@ -1,4 +1,4 @@
-import { X, Play, Pause, Heart, Share2, Clock, MoreHorizontal } from "lucide-react";
+import { X, Play, Pause, Heart, Share2, Clock, MoreHorizontal, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { PlaylistData } from "./PlaylistCard";
@@ -21,19 +21,81 @@ const allSongs = [
 
 const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
 
-  const handlePlaySong = (index: number) => {
-    setPlayingIndex(playingIndex === index ? null : index);
+  const handlePlaySong = (index: number, song: typeof allSongs[0]) => {
+    const isNowPlaying = playingIndex !== index;
+    setPlayingIndex(isNowPlaying ? index : null);
+    
+    console.log("[SONG_PLAY]", {
+      playlistId: playlist.id,
+      playlistName: playlist.playlistName,
+      songIndex: index,
+      songTitle: song.title,
+      songArtist: song.artist,
+      action: isNowPlaying ? "play" : "pause",
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handlePlayAll = () => {
+    console.log("[PLAYLIST_PLAY_ALL]", {
+      playlistId: playlist.id,
+      playlistName: playlist.playlistName,
+      totalSongs: allSongs.length,
+      timestamp: new Date().toISOString()
+    });
+    setPlayingIndex(0);
+  };
+
+  const handleLike = () => {
+    const newState = !isLiked;
+    setIsLiked(newState);
+    console.log("[PLAYLIST_LIKE_DETAIL]", {
+      playlistId: playlist.id,
+      playlistName: playlist.playlistName,
+      action: newState ? "liked" : "unliked",
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handleSave = () => {
+    const newState = !isSaved;
+    setIsSaved(newState);
+    console.log("[PLAYLIST_SAVE]", {
+      playlistId: playlist.id,
+      playlistName: playlist.playlistName,
+      action: newState ? "saved" : "unsaved",
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handleShare = () => {
+    console.log("[PLAYLIST_SHARE]", {
+      playlistId: playlist.id,
+      playlistName: playlist.playlistName,
+      username: playlist.username,
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handleClose = () => {
+    console.log("[PLAYLIST_CLOSED]", {
+      playlistId: playlist.id,
+      playlistName: playlist.playlistName,
+      timestamp: new Date().toISOString()
+    });
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-background animate-fade-in">
       <div className="h-full overflow-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="flex items-center justify-between px-4 h-14 max-w-4xl mx-auto">
-            <button onClick={onClose} className="p-2 -ml-2 hover:bg-secondary rounded-lg transition-colors">
+            <button onClick={handleClose} className="p-2 -ml-2 hover:bg-secondary rounded-lg transition-colors">
               <X className="w-5 h-5" />
             </button>
             <h1 className="font-medium">Playlist</h1>
@@ -47,7 +109,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
           {/* Playlist Header */}
           <div className="flex flex-col md:flex-row gap-6 mb-8">
             {/* Cover */}
-            <div className={`w-full md:w-56 aspect-square rounded-xl bg-gradient-to-br ${playlist.playlistCover} flex-shrink-0`} />
+            <div className={`w-full md:w-48 aspect-square rounded-xl bg-gradient-to-br ${playlist.playlistCover} flex-shrink-0`} />
             
             {/* Info */}
             <div className="flex-1">
@@ -66,20 +128,28 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-3">
-                <Button variant="accent" className="rounded-full px-6">
-                  <Play className="w-4 h-4 mr-1" fill="currentColor" />
+              <div className="flex items-center gap-2">
+                <Button variant="accent" onClick={handlePlayAll}>
+                  <Play className="w-4 h-4" fill="currentColor" />
                   Play All
                 </Button>
                 <Button 
                   variant="outline" 
                   size="icon"
-                  onClick={() => setIsLiked(!isLiked)}
+                  onClick={handleLike}
                   className={isLiked ? "text-red-500 border-red-500/50" : ""}
                 >
                   <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleSave}
+                  className={isSaved ? "text-foreground" : ""}
+                >
+                  <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+                </Button>
+                <Button variant="outline" size="icon" onClick={handleShare}>
                   <Share2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -102,7 +172,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
             {allSongs.map((song, index) => (
               <div 
                 key={index}
-                onClick={() => handlePlaySong(index)}
+                onClick={() => handlePlaySong(index, song)}
                 className={`grid grid-cols-[32px_1fr_80px] md:grid-cols-[32px_1fr_1fr_80px] gap-4 px-4 py-3 rounded-lg cursor-pointer group transition-colors ${
                   playingIndex === index ? "bg-accent/10" : "hover:bg-secondary"
                 }`}
