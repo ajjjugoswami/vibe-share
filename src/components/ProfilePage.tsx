@@ -1,9 +1,10 @@
-import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus } from "lucide-react";
+import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
+import { useSocial } from "@/contexts/SocialContext";
 import { Link2 } from "lucide-react";
 
 const ProfilePage = () => {
@@ -11,6 +12,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, isLoggedIn, logout } = useAuth();
   const { playlists, savedPlaylists } = usePlaylist();
+  const { following, followers } = useSocial();
 
   const currentPlaylists = activeTab === "playlists" ? playlists : savedPlaylists;
 
@@ -98,14 +100,20 @@ const ProfilePage = () => {
                 <div className="font-semibold">{playlists.length}</div>
                 <div className="text-xs text-muted-foreground">playlists</div>
               </div>
-              <div className="text-center">
-                <div className="font-semibold">0</div>
+              <button 
+                className="text-center hover:opacity-70 transition-opacity"
+                onClick={() => console.log("Show followers modal")}
+              >
+                <div className="font-semibold">{followers.length}</div>
                 <div className="text-xs text-muted-foreground">followers</div>
-              </div>
-              <div className="text-center">
-                <div className="font-semibold">0</div>
+              </button>
+              <button 
+                className="text-center hover:opacity-70 transition-opacity"
+                onClick={() => console.log("Show following modal")}
+              >
+                <div className="font-semibold">{following.length}</div>
                 <div className="text-xs text-muted-foreground">following</div>
-              </div>
+              </button>
             </div>
           </div>
         </div>

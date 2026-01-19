@@ -1,147 +1,299 @@
 # vibecheck Backend API
 
-A Supabase-powered backend for the vibecheck music playlist sharing platform.
+A Node.js-powered backend for the vibecheck music playlist sharing platform.
 
 ## Tech Stack
 
-- **Backend**: Supabase (Lovable Cloud)
-- **Database**: PostgreSQL
-- **Authentication**: Supabase Auth (Email/Password)
-- **Storage**: Supabase Storage (for future profile images)
-- **Edge Functions**: Deno-based serverless functions
+- **Backend**: Node.js + Express.js
+- **Database**: PostgreSQL (or MongoDB)
+- **Authentication**: JWT (JSON Web Tokens)
+- **ORM**: Prisma / Sequelize / Mongoose
+- **Caching**: Redis (optional)
+- **File Storage**: AWS S3 / Cloudinary
 
 ## Database Schema
 
-### Users (via Supabase Auth)
-Managed by Supabase Auth with additional profile data:
+### Users
 ```sql
-profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id),
-  username TEXT UNIQUE NOT NULL,
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
   bio TEXT,
   avatar_url TEXT,
+  followers_count INTEGER DEFAULT 0,
+  following_count INTEGER DEFAULT 0,
+  playlist_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
-)
+);
 ```
 
 ### Playlists
 ```sql
-playlists (
+CREATE TABLE playlists (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
   description TEXT,
-  cover_gradient TEXT DEFAULT 'from-purple-800 to-pink-900',
+  cover_gradient VARCHAR(100) DEFAULT 'from-purple-800 to-pink-900',
   tags TEXT[] DEFAULT '{}',
   likes_count INTEGER DEFAULT 0,
   is_public BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
-)
+);
 ```
 
 ### Songs (Song Links)
 ```sql
-songs (
+CREATE TABLE songs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  artist TEXT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  artist VARCHAR(255) NOT NULL,
   url TEXT NOT NULL,
-  platform TEXT NOT NULL,
+  platform VARCHAR(50) NOT NULL,
   thumbnail TEXT,
   position INTEGER NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
-)
-```
-
-### Playlist Likes
-```sql
-playlist_likes (
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (user_id, playlist_id)
-)
-```
-
-### Saved Playlists
-```sql
-saved_playlists (
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (user_id, playlist_id)
-)
+);
 ```
 
 ### User Follows
 ```sql
-user_follows (
-  follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+CREATE TABLE user_follows (
+  follower_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  following_id UUID REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY (follower_id, following_id)
-)
+);
+```
+
+### Playlist Likes
+```sql
+CREATE TABLE playlist_likes (
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id, playlist_id)
+);
+```
+
+### Saved Playlists
+```sql
+CREATE TABLE saved_playlists (
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id, playlist_id)
+);
 ```
 
 ## API Endpoints
 
-### Authentication (Supabase Auth)
-- `supabase.auth.signUp()` - Create new user
-- `supabase.auth.signInWithPassword()` - User login
-- `supabase.auth.signOut()` - User logout
-- `supabase.auth.getUser()` - Get current user
-
-### Playlists (via Supabase Client)
-```typescript
-// Get all public playlists
-supabase.from('playlists').select('*').eq('is_public', true)
-
-// Get user's playlists
-supabase.from('playlists').select('*').eq('user_id', userId)
-
-// Create playlist
-supabase.from('playlists').insert({ title, description, tags, ... })
-
-// Update playlist
-supabase.from('playlists').update({ title, ... }).eq('id', playlistId)
-
-// Delete playlist
-supabase.from('playlists').delete().eq('id', playlistId)
+### Authentication
+```
+POST   /api/auth/register     - Register new user
+POST   /api/auth/login        - User login (returns JWT)
+POST   /api/auth/logout       - Invalidate token
+POST   /api/auth/refresh      - Refresh access token
+GET    /api/auth/me           - Get current user
 ```
 
-### Songs (via Supabase Client)
-```typescript
-// Get songs for playlist
-supabase.from('songs').select('*').eq('playlist_id', playlistId).order('position')
-
-// Add song to playlist
-supabase.from('songs').insert({ playlist_id, title, artist, url, platform, ... })
-
-// Remove song
-supabase.from('songs').delete().eq('id', songId)
-
-// Reorder songs
-supabase.from('songs').update({ position: newPosition }).eq('id', songId)
+### Users
 ```
-
-## Row Level Security (RLS)
+GET    /api/users                    - List users (with pagination)
+GET    /api/users/:username          - Get user profile by username
+GET    /api/users/:id                - Get user profile by ID
+PUT    /api/users/:id                - Update user profile
+DELETE /api/users/:id                - Delete user account
+GET    /api/users/:id/playlists      - Get user's playlists
+GET    /api/users/:id/followers      - Get user's followers
+GET    /api/users/:id/following      - Get users that user follows
+POST   /api/users/:id/follow         - Follow a user
+DELETE /api/users/:id/follow         - Unfollow a user
+```
 
 ### Playlists
-- SELECT: Public playlists visible to all, private only to owner
-- INSERT: Authenticated users can create their own playlists
-- UPDATE: Only playlist owner can update
-- DELETE: Only playlist owner can delete
+```
+GET    /api/playlists                - List public playlists (with filters)
+POST   /api/playlists                - Create new playlist
+GET    /api/playlists/:id            - Get playlist details with songs
+PUT    /api/playlists/:id            - Update playlist
+DELETE /api/playlists/:id            - Delete playlist
+POST   /api/playlists/:id/like       - Like a playlist
+DELETE /api/playlists/:id/like       - Unlike a playlist
+POST   /api/playlists/:id/save       - Save playlist to library
+DELETE /api/playlists/:id/save       - Remove from saved
+```
 
 ### Songs
-- SELECT: Inherits from playlist visibility
-- INSERT/UPDATE/DELETE: Only playlist owner
+```
+GET    /api/playlists/:id/songs      - Get all songs in playlist
+POST   /api/playlists/:id/songs      - Add song to playlist
+PUT    /api/songs/:id                - Update song details
+DELETE /api/songs/:id                - Remove song from playlist
+PUT    /api/playlists/:id/songs/reorder - Reorder songs
+```
 
-### Likes & Saves
-- SELECT: Users can see their own likes/saves
-- INSERT/DELETE: Users can like/save any public playlist
+### Discover/Feed
+```
+GET    /api/feed                     - Get personalized feed
+GET    /api/discover/users           - Suggested users to follow
+GET    /api/discover/playlists       - Trending playlists
+GET    /api/search?q=                - Search users and playlists
+GET    /api/tags/:tag                - Get playlists by tag
+```
+
+## Request/Response Examples
+
+### Register User
+```javascript
+// POST /api/auth/register
+{
+  "email": "user@example.com",
+  "username": "musiclover",
+  "password": "securepassword123"
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "uuid",
+      "email": "user@example.com",
+      "username": "musiclover"
+    },
+    "accessToken": "jwt_token",
+    "refreshToken": "refresh_token"
+  }
+}
+```
+
+### Follow User
+```javascript
+// POST /api/users/:id/follow
+// Headers: Authorization: Bearer <token>
+
+// Response
+{
+  "success": true,
+  "message": "Successfully followed user",
+  "data": {
+    "followersCount": 1235
+  }
+}
+```
+
+### Create Playlist
+```javascript
+// POST /api/playlists
+{
+  "title": "my favorites",
+  "description": "Songs I love",
+  "tags": ["vibes", "chill"],
+  "coverGradient": "from-purple-800 to-pink-900",
+  "isPublic": true
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "title": "my favorites",
+    "songs": [],
+    "likesCount": 0,
+    "createdAt": "2024-01-20T..."
+  }
+}
+```
+
+### Add Song to Playlist
+```javascript
+// POST /api/playlists/:id/songs
+{
+  "title": "Blinding Lights",
+  "artist": "The Weeknd",
+  "url": "https://www.youtube.com/watch?v=4NRXx6U8ABQ",
+  "platform": "YouTube"
+}
+
+// Response - thumbnail auto-detected
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "title": "Blinding Lights",
+    "artist": "The Weeknd",
+    "thumbnail": "https://img.youtube.com/vi/4NRXx6U8ABQ/mqdefault.jpg",
+    "position": 1
+  }
+}
+```
+
+## Middleware
+
+### Authentication Middleware
+```javascript
+// Verify JWT and attach user to request
+const authenticate = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.userId);
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+```
+
+### Rate Limiting
+```javascript
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per window
+});
+
+app.use('/api/', limiter);
+```
+
+## Environment Variables
+
+```env
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/vibecheck
+
+# Authentication
+JWT_SECRET=your-super-secret-key
+JWT_EXPIRES_IN=7d
+REFRESH_TOKEN_EXPIRES_IN=30d
+
+# External Services
+YOUTUBE_API_KEY=your-youtube-api-key
+SPOTIFY_CLIENT_ID=your-spotify-client-id
+SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
+
+# Storage
+AWS_ACCESS_KEY_ID=your-aws-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret
+AWS_S3_BUCKET=vibecheck-uploads
+
+# Redis (optional)
+REDIS_URL=redis://localhost:6379
+```
 
 ## Supported Music Platforms
 
@@ -153,13 +305,54 @@ Song links support automatic platform detection:
 - Deezer (deezer.com)
 - Tidal (tidal.com)
 
-YouTube links automatically fetch thumbnail previews.
+YouTube links automatically fetch thumbnail previews via YouTube Data API.
 
 ## Tags System
 
 Playlists support up to 5 tags for categorization:
 - Tags are stored as a PostgreSQL array
 - Suggested tags: chill, vibes, workout, study, party, roadtrip, lofi, hiphop, indie, electronic, rnb, pop, rock, jazz, classical, motivation, sleep, focus
+
+## Project Structure
+
+```
+backend/
+├── src/
+│   ├── config/
+│   │   ├── database.js
+│   │   └── redis.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── userController.js
+│   │   ├── playlistController.js
+│   │   └── songController.js
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   ├── errorHandler.js
+│   │   └── validation.js
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Playlist.js
+│   │   ├── Song.js
+│   │   └── Follow.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── users.js
+│   │   ├── playlists.js
+│   │   └── discover.js
+│   ├── services/
+│   │   ├── platformDetector.js
+│   │   └── thumbnailFetcher.js
+│   ├── utils/
+│   │   └── helpers.js
+│   └── app.js
+├── prisma/
+│   └── schema.prisma
+├── tests/
+├── .env.example
+├── package.json
+└── README.md
+```
 
 ## Console Logging (Development)
 
@@ -168,24 +361,42 @@ All data operations are logged for development:
 console.log('[PLAYLIST_CREATED]', { playlist, timestamp })
 console.log('[SONG_ADDED]', { playlistId, song, timestamp })
 console.log('[USER_LOGIN]', { email, timestamp })
+console.log('[USER_FOLLOWED]', { followerId, followingId, timestamp })
 console.log('[PLAYLIST_LIKED]', { playlistId, userId, timestamp })
 ```
 
 ## Getting Started
 
-1. Enable Lovable Cloud in your project
-2. Run the database migrations
-3. Configure authentication settings
-4. Start building!
+```bash
+# Clone the repo
+git clone https://github.com/yourname/vibecheck-backend.git
+cd vibecheck-backend
+
+# Install dependencies
+npm install
+
+# Setup environment
+cp .env.example .env
+
+# Run database migrations
+npx prisma migrate dev
+
+# Start development server
+npm run dev
+```
 
 ## Future Enhancements
 
-- [ ] Real-time playlist collaboration
+- [ ] Real-time notifications (WebSocket)
+- [ ] Direct messaging between users
+- [ ] Playlist collaboration (multiple editors)
 - [ ] Music recommendation engine
 - [ ] Social sharing with OG previews
 - [ ] Playlist embedding for external sites
 - [ ] Import from Spotify/Apple Music
 - [ ] Analytics dashboard for creators
+- [ ] Push notifications (mobile)
+- [ ] Activity feed (who liked, followed, etc.)
 
 ---
 
