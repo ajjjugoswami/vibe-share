@@ -38,7 +38,10 @@ interface PlaylistState {
   discoverPlaylists: Playlist[];
   currentPlaylist: Playlist | null;
   isLoading: boolean;
+  isLoadingMore: boolean;
   error: string | null;
+  feedPage: number;
+  hasMoreFeed: boolean;
 }
 
 const gradients = [
@@ -59,7 +62,10 @@ const initialState: PlaylistState = {
   discoverPlaylists: [],
   currentPlaylist: null,
   isLoading: false,
+  isLoadingMore: false,
   error: null,
+  feedPage: 1,
+  hasMoreFeed: true,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,10 +113,14 @@ export const fetchSavedPlaylists = createAsyncThunk(
 
 export const fetchFeedPlaylists = createAsyncThunk(
   'playlists/fetchFeedPlaylists',
-  async (params: { page?: number; limit?: number } | undefined, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number; append?: boolean } | undefined, { rejectWithValue }) => {
     try {
-      const response = await feedAPI.getFeed(params);
-      return response.data.playlists.map(transformPlaylist);
+      const response = await feedAPI.getFeed({ page: params?.page, limit: params?.limit });
+      return {
+        playlists: response.data.playlists.map(transformPlaylist),
+        append: params?.append || false,
+        hasMore: response.data.playlists.length >= (params?.limit || 20),
+      };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch feed');
     }
@@ -251,6 +261,11 @@ const playlistSlice = createSlice({
       state.userPlaylists = [];
       state.savedPlaylists = [];
     },
+    resetFeedPagination: (state) => {
+      state.feedPage = 1;
+      state.hasMoreFeed = true;
+      state.feedPlaylists = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -272,16 +287,30 @@ const playlistSlice = createSlice({
         state.savedPlaylists = action.payload;
       })
       // Fetch Feed Playlists
-      .addCase(fetchFeedPlaylists.pending, (state) => {
-        state.isLoading = true;
+      .addCase(fetchFeedPlaylists.pending, (state, action) => {
+        if (action.meta.arg?.append) {
+          state.isLoadingMore = true;
+        } else {
+          state.isLoading = true;
+        }
         state.error = null;
       })
       .addCase(fetchFeedPlaylists.fulfilled, (state, action) => {
-        state.feedPlaylists = action.payload;
+        const { playlists, append, hasMore } = action.payload;
+        if (append) {
+          state.feedPlaylists = [...state.feedPlaylists, ...playlists];
+        } else {
+          state.feedPlaylists = playlists;
+          state.feedPage = 1;
+        }
+        state.hasMoreFeed = hasMore;
+        state.feedPage += append ? 1 : 0;
         state.isLoading = false;
+        state.isLoadingMore = false;
       })
       .addCase(fetchFeedPlaylists.rejected, (state, action) => {
         state.isLoading = false;
+        state.isLoadingMore = false;
         state.error = action.payload as string;
       })
       // Fetch Discover Playlists
@@ -369,5 +398,5 @@ const playlistSlice = createSlice({
   },
 });
 
-export const { clearError, setCurrentPlaylist, clearPlaylists } = playlistSlice.actions;
+export const { clearError, setCurrentPlaylist, clearPlaylists, resetFeedPagination } = playlistSlice.actions;
 export default playlistSlice.reducer;

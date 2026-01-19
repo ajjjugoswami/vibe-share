@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchFeedPlaylists } from "@/store/slices/playlistSlice";
+import { fetchFeedPlaylists, resetFeedPagination } from "@/store/slices/playlistSlice";
 import TopNav from "./TopNav";
 import PlaylistCard, { PlaylistData } from "./PlaylistCard";
 
@@ -15,18 +15,50 @@ interface FeedPageProps {
 const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { feedPlaylists, isLoading, error } = useAppSelector((state) => state.playlists);
+  const { feedPlaylists, isLoading, isLoadingMore, error, feedPage, hasMoreFeed } = useAppSelector((state) => state.playlists);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  // Initial load
+  useEffect(() => {
+    if (feedPlaylists.length === 0) {
+      dispatch(fetchFeedPlaylists({ limit: 20, page: 1 }));
+    }
+  }, [dispatch, feedPlaylists.length]);
+
+  // Infinite scroll observer
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [entry] = entries;
+    if (entry.isIntersecting && hasMoreFeed && !isLoading && !isLoadingMore) {
+      dispatch(fetchFeedPlaylists({ page: feedPage + 1, limit: 20, append: true }));
+    }
+  }, [dispatch, feedPage, hasMoreFeed, isLoading, isLoadingMore]);
 
   useEffect(() => {
-    dispatch(fetchFeedPlaylists({ limit: 20 }));
-  }, [dispatch]);
+    observerRef.current = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0.1,
+    });
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
 
   const handlePlaylistClick = (playlist: PlaylistData) => {
     navigate(`/playlist/${playlist.id}`);
   };
 
   const handleRefresh = () => {
-    dispatch(fetchFeedPlaylists({ limit: 20 }));
+    dispatch(resetFeedPagination());
+    dispatch(fetchFeedPlaylists({ limit: 20, page: 1 }));
   };
 
   // Transform Redux state to component format
@@ -37,10 +69,12 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
     verified: false,
     playlistName: playlist.title,
     playlistCover: playlist.coverGradient,
+    coverImage: playlist.songs[0]?.thumbnail,
     description: playlist.description,
     songs: playlist.songs.map(song => ({
       title: song.title,
-      artist: song.artist
+      artist: song.artist,
+      thumbnail: song.thumbnail
     })),
     totalSongs: playlist.songCount || 0,
     likes: playlist.likesCount,
@@ -81,21 +115,22 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
           </div>
         )}
         
-        {isLoading && (
+        {isLoading && feedPlaylists.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
             <p className="text-muted-foreground">Loading playlists...</p>
           </div>
         )}
         
-        {!isLoading && !error && (
+        {!error && (
           <>
-            <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4 space-y-4">
+            {/* Masonry Layout */}
+            <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4">
               {transformedPlaylists.map((playlist, index) => (
                 <div 
                   key={playlist.id} 
-                  className="animate-slide-up break-inside-avoid"
-                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="animate-slide-up break-inside-avoid mb-4"
+                  style={{ animationDelay: `${Math.min(index, 10) * 50}ms` }}
                 >
                   <PlaylistCard 
                     {...playlist} 
@@ -105,7 +140,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
               ))}
             </div>
             
-            {transformedPlaylists.length === 0 && (
+            {transformedPlaylists.length === 0 && !isLoading && (
               <div className="text-center py-16 animate-fade-in">
                 <div className="glass rounded-xl p-8 max-w-md mx-auto">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -120,15 +155,22 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
               </div>
             )}
             
-            {transformedPlaylists.length > 0 && (
-              <div className="flex justify-center mt-8">
-                <Button 
-                  variant="outline" 
-                  onClick={handleRefresh}
-                  className="hover:bg-secondary/80 transition-all duration-300"
-                >
-                  Load more
-                </Button>
+            {/* Infinite scroll trigger */}
+            {transformedPlaylists.length > 0 && hasMoreFeed && (
+              <div ref={loadMoreRef} className="flex justify-center py-8">
+                {isLoadingMore && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading more...</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* End of feed indicator */}
+            {transformedPlaylists.length > 0 && !hasMoreFeed && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground text-sm">You've seen all playlists!</p>
               </div>
             )}
           </>
