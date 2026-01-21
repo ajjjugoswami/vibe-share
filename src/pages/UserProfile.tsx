@@ -38,7 +38,15 @@ const UserProfile = () => {
       setError(null);
       try {
         const response = await usersAPI.getUserByUsername(username);
-        setUserProfile(response.data.user);
+        const fetchedUser = response.data.user;
+        // Normalize user shape: backend returns `_id`, frontend expects `id`
+        setUserProfile({
+          id: fetchedUser.id || fetchedUser._id,
+          username: fetchedUser.username,
+          bio: fetchedUser.bio,
+          avatarUrl: fetchedUser.avatarUrl,
+          playlistCount: fetchedUser.playlistCount || 0,
+        });
       } catch (err) {
         console.error('Failed to fetch user:', err);
         setError('User not found');
