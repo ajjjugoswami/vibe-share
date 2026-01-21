@@ -1,6 +1,6 @@
-import { Music, Bell, Search, LogIn } from "lucide-react";
+import { Music, Search, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button, Badge } from "antd";
+import { Button } from "antd";
 
 interface TopNavProps {
   onShareClick: () => void;
@@ -9,12 +9,6 @@ interface TopNavProps {
 
 const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   const navigate = useNavigate();
-
-  const handleNotificationClick = () => {
-    console.log("[NOTIFICATION_CLICK]", {
-      timestamp: new Date().toISOString()
-    });
-  };
 
   const handleLoginClick = () => {
     navigate("/sign-in");
@@ -39,16 +33,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
             onClick={() => navigate("/search")}
             icon={<Search className="w-4 h-4" />}
           />
-          {isLoggedIn ? (
-            <Badge dot offset={[-2, 2]} color="#8b5cf6">
-              <Button 
-                type="text" 
-                shape="circle"
-                onClick={handleNotificationClick}
-                icon={<Bell className="w-4 h-4" />}
-              />
-            </Badge>
-          ) : (
+          {isLoggedIn ? null : (
             <Button 
               type="text" 
               size="small"
