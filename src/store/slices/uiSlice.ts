@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface UIState {
   theme: 'dark' | 'light';
   sidebarOpen: boolean;
-  createModalOpen: boolean;
   searchQuery: string;
   activeTab: string;
   toasts: Array<{
@@ -16,7 +15,6 @@ interface UIState {
 const initialState: UIState = {
   theme: 'dark',
   sidebarOpen: true,
-  createModalOpen: false,
   searchQuery: '',
   activeTab: 'feed',
   toasts: [],
@@ -34,9 +32,6 @@ const uiSlice = createSlice({
     },
     setSidebarOpen: (state, action: PayloadAction<boolean>) => {
       state.sidebarOpen = action.payload;
-    },
-    setCreateModalOpen: (state, action: PayloadAction<boolean>) => {
-      state.createModalOpen = action.payload;
     },
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
@@ -60,7 +55,6 @@ export const {
   setTheme,
   toggleSidebar,
   setSidebarOpen,
-  setCreateModalOpen,
   setSearchQuery,
   setActiveTab,
   addToast,
