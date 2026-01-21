@@ -82,9 +82,7 @@ const DesktopSidebar = () => {
             block 
             size="large"
             onClick={handleCreatePlaylist}
-            className="btn-gradient !border-0 !h-11 flex items-center justify-start gap-3"
-            icon={<Plus className="w-5 h-5" />}
-          >
+            >
             Create Playlist
           </Button>
         </div>
