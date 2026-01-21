@@ -1,9 +1,10 @@
 import { Heart, Share2, Bookmark, MoreHorizontal, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Avatar, Typography, Dropdown, App } from "antd";
+import { Typography, Dropdown, App } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist, savePlaylist, unsavePlaylist } from "@/store/slices/playlistSlice";
+import UserAvatar from "@/components/UserAvatar";
 
 const { Text } = Typography;
 
@@ -36,6 +37,7 @@ interface PlaylistPostProps extends PlaylistPostData {
 const PlaylistPost = ({
   id,
   username,
+  userAvatar,
   playlistName,
   playlistCover,
   coverImage,
@@ -169,12 +171,7 @@ const PlaylistPost = ({
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate(`/user/${username}`)}
         >
-          <Avatar 
-            size={32} 
-            className="bg-gradient-to-br from-primary to-primary/50"
-          >
-            {username.charAt(0).toUpperCase()}
-          </Avatar>
+          <UserAvatar avatarUrl={userAvatar} size={32} className="bg-gradient-to-br from-primary to-primary/50" />
           <Text strong className="text-sm">{username}</Text>
         </div>
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>

@@ -1,11 +1,12 @@
 import { Settings, Grid3X3, Bookmark, Music, Share2, LogOut, Plus } from "lucide-react";
-import { Button, Tabs, Avatar, Typography, Empty, Spin, App } from "antd";
+import { Button, Tabs, Typography, Empty, Spin, App, Avatar } from "antd";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
 import { Link2 } from "lucide-react";
+import UserAvatar from "@/components/UserAvatar";
 
 const { Text, Title } = Typography;
 
@@ -43,7 +44,7 @@ const ProfilePage = () => {
   };
 
   const handleSettings = () => {
-    message.info("Settings coming soon!");
+    navigate('/settings');
   };
 
   const handleLogout = async () => {
@@ -71,9 +72,7 @@ const ProfilePage = () => {
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
-        <Avatar size={80} className="bg-secondary">
-          <Music className="w-10 h-10 text-muted-foreground" />
-        </Avatar>
+        <UserAvatar avatarUrl={user?.avatarUrl} size={80} className="bg-secondary" />
         <Title level={4}>Sign in to see your profile</Title>
         <Text type="secondary">Create and manage your playlists</Text>
         <Button type="primary" size="large" onClick={() => navigate("/sign-in")} className="btn-gradient !border-0">
@@ -121,11 +120,9 @@ const ProfilePage = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Profile Info */}
         <div className="flex items-start gap-5 mb-6">
-          <Avatar size={80} className="bg-primary/20 flex-shrink-0">
-            <span className="text-2xl font-bold text-primary">
-              {user?.username?.charAt(0).toUpperCase()}
-            </span>
-          </Avatar>
+          <div className="flex-shrink-0">
+            <UserAvatar avatarUrl={user?.avatarUrl} size={80} className="bg-primary/20" />
+          </div>
 
           <div className="flex-1">
             <div className="flex justify-around mb-4">

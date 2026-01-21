@@ -1,9 +1,10 @@
 import { Home, User, Music, LogOut, Plus, Search } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Button, Avatar, Typography, App } from "antd";
+import { Button, Typography, App } from "antd";
 import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
+import UserAvatar from "@/components/UserAvatar";
 
 const { Text } = Typography;
 
@@ -86,14 +87,7 @@ const DesktopSidebar = () => {
       <div className="border-t border-border p-4">
         {isLoggedIn ? (
           <div className="flex items-center gap-3">
-            <Avatar 
-              className="bg-accent/20 flex-shrink-0"
-              size={40}
-            >
-              <span className="text-sm font-medium text-accent">
-                {user?.username?.charAt(0).toUpperCase()}
-              </span>
-            </Avatar>
+            <UserAvatar avatarUrl={user?.avatarUrl} size={40} className="bg-accent/20 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <Text className="font-medium text-sm block truncate">{user?.username}</Text>
               <Text type="secondary" className="text-xs block truncate">{user?.email}</Text>
