@@ -34,7 +34,7 @@ const ProfilePage = () => {
   };
 
   const handleEditProfile = () => {
-    message.info("Edit profile coming soon!");
+    navigate('/edit-profile');
   };
 
   const handleShareProfile = () => {

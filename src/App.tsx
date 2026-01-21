@@ -15,6 +15,7 @@ import SignUp from "./pages/SignUp";
 import CreatePlaylist from "./pages/CreatePlaylist";
 import Settings from "./pages/Settings";
 import EditPlaylist from "./pages/EditPlaylist";
+import EditProfile from "./pages/EditProfile";
 import ViewPlaylist from "./pages/ViewPlaylist";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/user/:username" element={<UserProfile />} />
                   <Route path="/playlist/create" element={<CreatePlaylist />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/edit-profile" element={<EditProfile />} />
                   <Route path="/playlist/:id" element={<ViewPlaylist />} />
                   <Route path="/playlist/:id/edit" element={<EditPlaylist />} />
                 </Route>
