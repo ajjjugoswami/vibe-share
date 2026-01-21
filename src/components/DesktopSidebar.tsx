@@ -40,13 +40,7 @@ const DesktopSidebar = () => {
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-background border-r border-border flex-col z-50">
-      {/* Logo */}
-      <div className="flex items-center gap-2 px-6 h-16 border-b border-border">
-        <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-          <Music className="w-4 h-4 text-white" />
-        </div>
-        <span className="font-semibold text-lg">Share Vibe</span>
-      </div>
+ 
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6">
