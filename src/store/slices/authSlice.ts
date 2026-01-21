@@ -26,6 +26,15 @@ const initialState: AuthState = {
   error: null,
 };
 
+// Helper to normalize user shape (ensure `id` exists)
+const normalizeUser = (u: any) => {
+  if (!u) return null;
+  return {
+    ...u,
+    id: u.id ?? u._id,
+  } as User;
+};
+
 // Async Thunks
 export const initAuth = createAsyncThunk(
   'auth/init',
@@ -124,7 +133,7 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(initAuth.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = normalizeUser(action.payload as any);
         state.isLoading = false;
         state.isInitialized = true;
       })
@@ -139,7 +148,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = normalizeUser(action.payload as any);
         state.isLoading = false;
       })
       .addCase(login.rejected, (state, action) => {
@@ -152,7 +161,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(signup.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = normalizeUser(action.payload as any);
         state.isLoading = false;
       })
       .addCase(signup.rejected, (state, action) => {
@@ -165,7 +174,7 @@ const authSlice = createSlice({
       })
       // Refresh User
       .addCase(refreshUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = normalizeUser(action.payload as any);
       });
   },
 });
