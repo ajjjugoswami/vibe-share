@@ -216,7 +216,7 @@ const UserProfile = () => {
                   <Link2 className="w-8 h-8 text-white/30" />
                 </div>
                 <p className="text-sm font-medium truncate">{playlist.title}</p>
-                <p className="text-xs text-muted-foreground">{playlist.songs.length} songs</p>
+                <p className="text-xs text-muted-foreground">{playlist.songCount || playlist.songs.length} songs</p>
               </div>
             ))}
           </div>

@@ -200,7 +200,7 @@ const ProfilePage = () => {
                   )}
                 </div>
                 <Text strong className="text-sm block truncate">{playlist.title}</Text>
-                <Text type="secondary" className="text-xs">{playlist.songs.length} songs</Text>
+                <p className="text-xs text-muted-foreground">{playlist.songCount || playlist.songs.length} songs</p>
                 
                 {activeTab === "playlists" && (
                   <button
