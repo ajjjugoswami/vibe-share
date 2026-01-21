@@ -118,7 +118,7 @@ const UserProfile = () => {
     ? { 
         id: currentUser?.id || "1",
         username: currentUser?.username || "",
-        bio: "Sharing my music taste with the world",
+        bio: currentUser?.bio || "No bio yet",
         playlistCount: playlists.length,
       }
     : userProfile!;

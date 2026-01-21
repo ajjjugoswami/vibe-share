@@ -136,7 +136,7 @@ const ProfilePage = () => {
 
         <div className="mb-6">
           <Title level={5} className="!mb-1">{user?.username}</Title>
-          <Text type="secondary">Sharing my music taste with the world</Text>
+          <Text type="secondary">{user?.bio || 'No bio yet'}</Text>
         </div>
 
         <div className="flex gap-3 mb-6">
