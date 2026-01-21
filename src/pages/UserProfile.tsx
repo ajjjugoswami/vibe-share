@@ -82,10 +82,6 @@ const UserProfile = () => {
     }
   }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
 
-  const handleMessage = () => {
-    console.log("[MESSAGE_USER]", { username, timestamp: new Date().toISOString() });
-  };
-
   const moreMenuItems: MenuProps["items"] = [
     { key: "share", label: "Share Profile" },
     { key: "report", label: "Report User" },
@@ -169,13 +165,6 @@ const UserProfile = () => {
         </div>
 
         {/* Actions */}
-        {!isOwnProfile && (
-          <div className="flex gap-3 mb-6">
-            <Button block onClick={handleMessage}>
-              Message
-            </Button>
-          </div>
-        )}
 
         {isOwnProfile && (
           <div className="flex gap-3 mb-6">
