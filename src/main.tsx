@@ -5,36 +5,42 @@ import { store } from "./store";
 import App from "./App.tsx";
 import "./index.css";
 
-// Custom dark theme for Ant Design
+// Custom dark theme for Ant Design - Warm orange/amber
 const antdTheme = {
   algorithm: theme.darkAlgorithm,
   token: {
-    colorPrimary: "#8b5cf6",
-    colorBgBase: "#0a0a0f",
-    colorBgContainer: "#111116",
-    colorBgElevated: "#1a1a22",
-    colorBorder: "#27272a",
-    colorBorderSecondary: "#1f1f24",
+    colorPrimary: "#ea580c",
+    colorBgBase: "#0c0f14",
+    colorBgContainer: "#12151c",
+    colorBgElevated: "#1a1e27",
+    colorBorder: "#1f2330",
+    colorBorderSecondary: "#1a1e27",
     colorText: "#fafafa",
-    colorTextSecondary: "#a1a1aa",
-    colorTextTertiary: "#71717a",
-    borderRadius: 12,
-    fontFamily: "'Inter', sans-serif",
+    colorTextSecondary: "#8b8fa3",
+    colorTextTertiary: "#5f6375",
+    borderRadius: 8,
+    fontFamily: "'Outfit', 'Inter', sans-serif",
   },
   components: {
     Button: {
-      primaryShadow: "0 0 20px -5px rgba(139, 92, 246, 0.4)",
+      primaryShadow: "0 0 16px -4px rgba(234, 88, 12, 0.4)",
+      borderRadius: 8,
     },
     Card: {
-      colorBgContainer: "#111116",
+      colorBgContainer: "#12151c",
     },
     Input: {
-      colorBgContainer: "#1a1a22",
-      activeBorderColor: "#8b5cf6",
+      colorBgContainer: "#1a1e27",
+      activeBorderColor: "#ea580c",
+      borderRadius: 8,
     },
     Modal: {
-      contentBg: "#111116",
-      headerBg: "#111116",
+      contentBg: "#12151c",
+      headerBg: "#12151c",
+    },
+    Tabs: {
+      itemSelectedColor: "#ea580c",
+      inkBarColor: "#ea580c",
     },
   },
 };

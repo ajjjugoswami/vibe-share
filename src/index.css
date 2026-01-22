@@ -7,59 +7,57 @@
 
 @layer base {
   :root {
-    --background: 240 12% 3%;
+    --background: 220 15% 5%;
     --foreground: 0 0% 98%;
 
-    --card: 240 12% 6%;
+    --card: 220 15% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 12% 8%;
+    --popover: 220 15% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 262 90% 62%;
+    --primary: 16 90% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 8% 10%;
+    --secondary: 220 12% 12%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 6% 14%;
-    --muted-foreground: 240 5% 50%;
+    --muted: 220 10% 16%;
+    --muted-foreground: 220 8% 50%;
 
-    --accent: 280 100% 70%;
+    --accent: 35 100% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 12%;
-    --input: 240 6% 14%;
-    --ring: 262 90% 62%;
+    --border: 220 10% 14%;
+    --input: 220 10% 16%;
+    --ring: 16 90% 55%;
 
     --radius: 1rem;
 
-    /* Rich gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 90% 62%), hsl(280 100% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(200 95% 55%), hsl(262 90% 62%));
-    --gradient-accent: linear-gradient(135deg, hsl(330 85% 60%), hsl(262 90% 62%));
-    --gradient-sunset: linear-gradient(135deg, hsl(340 80% 55%), hsl(30 90% 55%));
-    --gradient-ocean: linear-gradient(135deg, hsl(180 80% 45%), hsl(220 90% 55%));
-    --gradient-aurora: linear-gradient(135deg, hsl(160 80% 45%), hsl(262 90% 62%), hsl(330 85% 60%));
+    /* Warm gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(16 90% 55%), hsl(35 100% 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(200 80% 50%), hsl(16 90% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(35 100% 55%), hsl(16 90% 55%));
     
     /* Shadows */
-    --shadow-glow: 0 0 60px -15px hsl(262 90% 62% / 0.5);
+    --shadow-glow: 0 0 40px -10px hsl(16 90% 55% / 0.4);
     --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.4);
     --shadow-elevated: 0 16px 48px -12px hsl(0 0% 0% / 0.6);
     --shadow-soft: 0 4px 16px -4px hsl(0 0% 0% / 0.2);
+    --shadow-nav: 0 -8px 32px -4px hsl(0 0% 0% / 0.5);
 
-    /* Sidebar */
-    --sidebar-background: 240 12% 4%;
+    /* Sidebar - keeping for compatibility */
+    --sidebar-background: 220 15% 4%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 262 90% 62%;
+    --sidebar-primary: 16 90% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 8% 10%;
+    --sidebar-accent: 220 12% 12%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 6% 10%;
-    --sidebar-ring: 262 90% 62%;
+    --sidebar-border: 220 10% 12%;
+    --sidebar-ring: 16 90% 55%;
   }
 }
 
