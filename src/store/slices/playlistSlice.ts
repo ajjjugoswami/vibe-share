@@ -76,6 +76,7 @@ const transformPlaylist = (playlist: any): Playlist => ({
   title: playlist.title,
   description: playlist.description || '',
   coverGradient: playlist.coverGradient || gradients[Math.floor(Math.random() * gradients.length)],
+  thumbnailUrl: playlist.thumbnailUrl,
   songs: playlist.songs || [],
   tags: playlist.tags || [],
   likesCount: playlist.likesCount || playlist.likes || 0,
