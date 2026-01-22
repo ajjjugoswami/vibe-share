@@ -13,8 +13,8 @@ interface Song {
 export interface PlaylistData {
   id: string;
   username: string;
-  userAvatar: string;
-  verified: boolean;
+  userAvatar?: string;
+  verified?: boolean;
   playlistName: string;
   playlistCover: string;
   coverImage?: string;
@@ -28,6 +28,7 @@ export interface PlaylistData {
 
 interface PlaylistCardProps extends PlaylistData {
   onClick: () => void;
+  variant?: 'default' | 'compact';
 }
 
 const PlaylistCard = ({
@@ -41,6 +42,7 @@ const PlaylistCard = ({
   likes,
   isLiked = false,
   onClick,
+  variant = 'default',
 }: PlaylistCardProps) => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
@@ -50,7 +52,6 @@ const PlaylistCard = ({
   const [isLiking, setIsLiking] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Sync local state with props when they change
   useEffect(() => {
     setIsLikedState(isLiked);
   }, [isLiked]);
@@ -59,9 +60,12 @@ const PlaylistCard = ({
     setLikeCount(likes);
   }, [likes]);
 
-  // Get first song thumbnail if available
   const firstSongThumbnail = coverImage || songs[0]?.thumbnail;
   const showThumbnail = firstSongThumbnail && !imageError;
+
+  // Random aspect ratios for masonry effect
+  const aspectRatios = ['aspect-square', 'aspect-[4/5]', 'aspect-[3/4]', 'aspect-[5/4]'];
+  const randomAspect = aspectRatios[id.charCodeAt(0) % aspectRatios.length];
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -91,6 +95,7 @@ const PlaylistCard = ({
   };
 
   const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
     if (num >= 1000) return (num / 1000).toFixed(1) + "K";
     return num.toString();
   };
@@ -98,66 +103,69 @@ const PlaylistCard = ({
   return (
     <div 
       onClick={onClick}
-      className="card-elevated overflow-hidden cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+      className="masonry-item card-interactive overflow-hidden cursor-pointer group shine"
     >
-      {/* Cover - Show thumbnail if available, otherwise gradient */}
-      <div className="aspect-square relative overflow-hidden">
+      {/* Cover */}
+      <div className={`relative overflow-hidden ${variant === 'compact' ? 'aspect-square' : randomAspect}`}>
         {showThumbnail ? (
           <img 
             src={firstSongThumbnail}
             alt={playlistName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className={`w-full h-full bg-gradient-to-br ${playlistCover}`} />
+          <div className={`w-full h-full bg-gradient-to-br ${playlistCover} flex items-center justify-center`}>
+            <Play className="w-12 h-12 text-white/30" />
+          </div>
         )}
         
-        {/* Shine effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Play overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100 shadow-xl">
-            <Play className="w-5 h-5 text-background ml-0.5" fill="currentColor" />
+        {/* Play button overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="w-14 h-14 rounded-full bg-white/95 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-xl">
+            <Play className="w-6 h-6 text-background ml-0.5" fill="currentColor" />
           </div>
         </div>
 
         {/* Song count badge */}
-        <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
+        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-medium">
           {totalSongs} songs
         </div>
+
+        {/* Like button */}
+        <button 
+          onClick={handleLike}
+          disabled={isLiking}
+          className={`absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+            isLikedState 
+              ? "bg-red-500 text-white" 
+              : "bg-black/60 backdrop-blur-md text-white hover:bg-white/20"
+          } ${isLiking ? "opacity-50" : ""}`}
+        >
+          <Heart className={`w-4 h-4 ${isLikedState ? "fill-current" : ""}`} />
+        </button>
       </div>
 
       {/* Content */}
-      <div className="p-3">
-        <h3 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+      <div className="p-4">
+        <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">
           {playlistName}
         </h3>
-        <p className="text-xs text-muted-foreground truncate mt-1">
-          {songs.slice(0, 2).map(s => s.artist).join(", ")}
-        </p>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
+        
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
               <User className="w-3 h-3 text-primary" />
             </div>
             <span className="text-xs text-muted-foreground truncate max-w-[80px]">{username}</span>
           </div>
-          <button 
-            onClick={handleLike}
-            disabled={isLiking}
-            className={`flex items-center gap-1.5 text-xs transition-all duration-300 px-2 py-1 rounded-full ${
-              isLikedState 
-                ? "text-red-500 bg-red-500/10" 
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-            } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <Heart className={`w-3.5 h-3.5 transition-transform ${isLikedState ? "fill-current scale-110" : ""}`} />
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Heart className="w-3 h-3" />
             <span>{formatNumber(likeCount)}</span>
-          </button>
+          </div>
         </div>
       </div>
     </div>

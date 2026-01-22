@@ -1,49 +1,35 @@
-import { Music, Search, LogIn } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { Button, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
-import { Button } from "antd";
+
+const { Text } = Typography;
 
 interface TopNavProps {
-  onShareClick: () => void;
-  isLoggedIn: boolean;
+  onShareClick?: () => void;
+  isLoggedIn?: boolean;
 }
 
-const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
+const TopNav = ({ isLoggedIn }: TopNavProps) => {
   const navigate = useNavigate();
 
-  const handleLoginClick = () => {
-    navigate("/sign-in");
-  };
-
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border md:hidden">
-      <div className="flex items-center justify-between px-4 h-14 max-w-5xl mx-auto">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-            <Music className="w-4 h-4 text-white" />
+    <header className="sticky top-0 z-40 glass-strong">
+      <div className="flex items-center justify-between px-4 h-16 max-w-4xl mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-sm">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-semibold text-lg">vibecheck</span>
+          <Text className="text-lg font-bold text-gradient">VibeShare</Text>
         </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-1">
+        {!isLoggedIn && (
           <Button 
-            type="text" 
-            shape="circle"
-            onClick={() => navigate("/search")}
-            icon={<Search className="w-4 h-4" />}
-          />
-          {isLoggedIn ? null : (
-            <Button 
-              type="text" 
-              size="small"
-              onClick={handleLoginClick}
-              icon={<LogIn className="w-4 h-4" />}
-            >
-              Login
-            </Button>
-          )}
-        </div>
+            type="primary" 
+            onClick={() => navigate("/sign-in")}
+            className="!h-10 !rounded-xl btn-gradient !border-0"
+          >
+            Sign In
+          </Button>
+        )}
       </div>
     </header>
   );

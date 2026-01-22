@@ -1,11 +1,12 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, RefreshCw } from "lucide-react";
-import { Button, Spin, Empty, Typography } from "antd";
+import { Plus, RefreshCw, LayoutGrid, List } from "lucide-react";
+import { Button, Spin, Empty, Typography, Segmented } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchFeedPlaylists, resetFeedPagination } from "@/store/slices/playlistSlice";
 import TopNav from "./TopNav";
 import PlaylistPost, { PlaylistPostData } from "./PlaylistPost";
+import PlaylistCard from "./PlaylistCard";
 
 const { Text } = Typography;
 
@@ -20,6 +21,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   const { feedPlaylists, isLoading, isLoadingMore, error, feedPage, hasMoreFeed } = useAppSelector((state) => state.playlists);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   useEffect(() => {
     if (feedPlaylists.length === 0) {
@@ -81,10 +83,23 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   }));
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0">
+    <div className="min-h-screen pb-24 md:pb-0">
       <TopNav onShareClick={onShareClick} isLoggedIn={isLoggedIn} />
       
-      <div className="max-w-[470px] mx-auto">
+      {/* View Mode Toggle */}
+      <div className="max-w-4xl mx-auto px-4 py-3 flex justify-end">
+        <Segmented
+          value={viewMode}
+          onChange={(val) => setViewMode(val as 'list' | 'grid')}
+          options={[
+            { value: 'list', icon: <List className="w-4 h-4" /> },
+            { value: 'grid', icon: <LayoutGrid className="w-4 h-4" /> },
+          ]}
+          className="!bg-secondary"
+        />
+      </div>
+
+      <div className={viewMode === 'list' ? "max-w-[500px] mx-auto" : "max-w-6xl mx-auto px-4"}>
         {isLoading && feedPlaylists.length > 0 && (
           <div className="flex justify-center py-4">
             <Spin />
@@ -93,9 +108,9 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         
         {error && (
           <div className="text-center py-12 px-4 animate-fade-in">
-            <div className="glass rounded-xl p-6">
+            <div className="glass rounded-2xl p-8">
               <Text type="danger" className="block mb-4">{error}</Text>
-              <Button onClick={handleRefresh} icon={<RefreshCw className="w-4 h-4" />}>
+              <Button onClick={handleRefresh} icon={<RefreshCw className="w-4 h-4" />} className="!rounded-xl">
                 Try Again
               </Button>
             </div>
@@ -103,41 +118,66 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         )}
         
         {isLoading && feedPlaylists.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16">
+          <div className="flex flex-col items-center justify-center py-20">
             <Spin size="large" />
-            <Text type="secondary" className="mt-4">Loading your feed...</Text>
+            <Text type="secondary" className="mt-4">Discovering great playlists...</Text>
           </div>
         )}
         
         {!error && (
           <>
-            <div className="divide-y divide-border">
-              {transformedPlaylists.map((playlist, index) => (
-                <div 
-                  key={playlist.id} 
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${Math.min(index, 5) * 100}ms` }}
-                >
-                  <PlaylistPost 
-                    {...playlist} 
-                    onClick={() => handlePlaylistClick(playlist)}
-                  />
-                </div>
-              ))}
-            </div>
+            {viewMode === 'list' ? (
+              <div className="divide-y divide-border/30">
+                {transformedPlaylists.map((playlist, index) => (
+                  <div 
+                    key={playlist.id} 
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${Math.min(index, 5) * 80}ms` }}
+                  >
+                    <PlaylistPost 
+                      {...playlist} 
+                      onClick={() => handlePlaylistClick(playlist)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="masonry-grid">
+                {transformedPlaylists.map((playlist, index) => (
+                  <div 
+                    key={playlist.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
+                  >
+                    <PlaylistCard 
+                      {...playlist}
+                      onClick={() => handlePlaylistClick(playlist)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
             
             {transformedPlaylists.length === 0 && !isLoading && (
               <Empty
-                className="py-16"
-                image={<div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto"><Plus className="w-8 h-8 text-primary" /></div>}
+                className="py-20"
+                image={
+                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto">
+                    <Plus className="w-10 h-10 text-primary" />
+                  </div>
+                }
                 description={
-                  <div>
-                    <Text strong className="block mb-2">No playlists yet</Text>
+                  <div className="mt-4">
+                    <Text strong className="block mb-2 text-lg">No playlists yet</Text>
                     <Text type="secondary">Be the first to share a playlist!</Text>
                   </div>
                 }
               >
-                <Button type="primary" onClick={onShareClick} className="btn-gradient !border-0">
+                <Button 
+                  type="primary" 
+                  onClick={onShareClick} 
+                  className="!mt-4 !h-12 !px-8 btn-gradient !border-0 !rounded-xl"
+                >
                   Create Playlist
                 </Button>
               </Empty>
@@ -150,17 +190,20 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
             )}
 
             {transformedPlaylists.length > 0 && !hasMoreFeed && (
-              <div className="text-center py-8 border-t border-border">
-                <Text type="secondary">You're all caught up!</Text>
+              <div className="text-center py-10">
+                <div className="inline-block px-6 py-3 rounded-full bg-secondary/50">
+                  <Text type="secondary">You're all caught up! ✨</Text>
+                </div>
               </div>
             )}
           </>
         )}
       </div>
 
+      {/* FAB */}
       <button
         onClick={onShareClick}
-        className="fixed bottom-20 right-4 w-14 h-14 rounded-full btn-gradient flex items-center justify-center shadow-xl z-40 active:scale-95 transition-all duration-300 md:hidden glow"
+        className="fab md:hidden glow animate-glow"
       >
         <Plus className="w-6 h-6 text-white" />
       </button>
