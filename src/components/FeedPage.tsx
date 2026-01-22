@@ -63,7 +63,8 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
 
   const transformedPlaylists: PlaylistPostData[] = feedPlaylists.map(playlist => ({
     id: playlist.id,
-    username: playlist.user?.username || 'unknown',
+    username: playlist.username || playlist.user?.username || 'unknown',
+    userAvatar: playlist.userAvatar,
     playlistName: playlist.title,
     playlistCover: playlist.coverGradient,
     coverImage: playlist.songs[0]?.thumbnail,

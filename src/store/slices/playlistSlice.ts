@@ -23,6 +23,8 @@ export interface Playlist {
   createdAt: string;
   updatedAt: string;
   isPublic: boolean;
+  username?: string;
+  userAvatar?: string;
   user?: {
     id: string;
     username: string;
@@ -81,6 +83,8 @@ const transformPlaylist = (playlist: any): Playlist => ({
   createdAt: playlist.createdAt,
   updatedAt: playlist.updatedAt,
   isPublic: playlist.isPublic !== false,
+  username: playlist.username,
+  userAvatar: playlist.userAvatar,
   user: playlist.user || playlist.userId,
   isLiked: playlist.isLiked,
   isSaved: playlist.isSaved,

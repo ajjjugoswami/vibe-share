@@ -9,7 +9,7 @@ interface TopNavProps {
   isLoggedIn?: boolean;
 }
 
-const TopNav = () => {
+const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   const navigate = useNavigate();
 
   return (
