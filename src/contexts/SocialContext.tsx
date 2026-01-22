@@ -6,6 +6,14 @@ export interface UserProfile {
   username: string;
   bio: string;
   avatarUrl?: string;
+  socialLinks?: {
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    tiktok?: string;
+    spotify?: string;
+    website?: string;
+  };
   playlistCount: number;
   createdAt: string;
 }

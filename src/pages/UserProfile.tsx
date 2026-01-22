@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users, Share2, Music } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users, Share2, Music, Instagram, Twitter, Youtube } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
 import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
 import { usersAPI } from "@/lib/api";
@@ -19,6 +19,14 @@ interface UserData {
   username: string;
   bio?: string;
   avatarUrl?: string;
+  socialLinks?: {
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    tiktok?: string;
+    spotify?: string;
+    website?: string;
+  };
   playlistCount?: number;
 }
 
@@ -126,6 +134,7 @@ const UserProfile = () => {
         username: currentUser?.username || "",
         bio: currentUser?.bio || "",
         avatarUrl: currentUser?.avatarUrl || "",
+        socialLinks: currentUser?.socialLinks || {},
         playlistCount: playlists.length,
       }
     : userProfile!;
@@ -183,7 +192,7 @@ const UserProfile = () => {
           <div className="flex gap-2 mt-6">
             {isOwnProfile ? (
               <>
-                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => navigate("/profile/edit")}>
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => navigate("/edit-profile")}>
                   Edit Profile
                 </Button>
                 <Button className="flex-1 rounded-xl" onClick={() => navigate("/playlist/create")}>
@@ -198,6 +207,81 @@ const UserProfile = () => {
             )}
           </div>
         </div>
+
+        {/* Social Links */}
+        {displayProfile.socialLinks && Object.values(displayProfile.socialLinks).some(link => link) && (
+          <div className="bg-card rounded-2xl border border-border/40 p-6 mt-4">
+            <h3 className="text-sm font-semibold mb-4">Social Links</h3>
+            <div className="flex flex-wrap gap-3">
+              {displayProfile.socialLinks.instagram && (
+                <a 
+                  href={displayProfile.socialLinks.instagram} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Instagram"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {displayProfile.socialLinks.twitter && (
+                <a 
+                  href={displayProfile.socialLinks.twitter} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Twitter"
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+              {displayProfile.socialLinks.youtube && (
+                <a 
+                  href={displayProfile.socialLinks.youtube} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="YouTube"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
+              {displayProfile.socialLinks.tiktok && (
+                <a 
+                  href={displayProfile.socialLinks.tiktok} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="TikTok"
+                >
+                  <Music className="w-5 h-5" />
+                </a>
+              )}
+              {displayProfile.socialLinks.spotify && (
+                <a 
+                  href={displayProfile.socialLinks.spotify} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Spotify"
+                >
+                  <Music className="w-5 h-5" />
+                </a>
+              )}
+              {displayProfile.socialLinks.website && (
+                <a 
+                  href={displayProfile.socialLinks.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Website"
+                >
+                  <Link2 className="w-5 h-5" />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Playlists Section */}
         <div className="space-y-4">

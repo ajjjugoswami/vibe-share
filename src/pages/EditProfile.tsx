@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, message, Typography, Upload } from "antd";
@@ -41,6 +40,14 @@ const EditProfile = () => {
   );
   const [username, setUsername] = useState(currentUser?.username || '');
   const [bio, setBio] = useState(currentUser?.bio || '');
+  const [socialLinks, setSocialLinks] = useState({
+    instagram: currentUser?.socialLinks?.instagram || '',
+    twitter: currentUser?.socialLinks?.twitter || '',
+    youtube: currentUser?.socialLinks?.youtube || '',
+    tiktok: currentUser?.socialLinks?.tiktok || '',
+    spotify: currentUser?.socialLinks?.spotify || '',
+    website: currentUser?.socialLinks?.website || ''
+  });
 
   const currentAvatarUrl = avatarType === 'emoji' ? `emoji:${selectedEmoji}` : 
                           avatarType === 'upload' ? uploadedImageUrl : `avatar:${selectedPreset}`;
@@ -75,7 +82,7 @@ const EditProfile = () => {
 
   const onSubmit = async () => {
     if (!currentUser) return;
-    const payload: any = { bio };
+    const payload: any = { bio, socialLinks };
     if (username.trim()) payload.username = username.trim();
     
     if (avatarType === 'upload' && uploadedImageUrl) {
@@ -173,6 +180,71 @@ const EditProfile = () => {
           <Form.Item label={<Text className="text-xs">Bio</Text>}>
             <TextArea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="About you..." maxLength={150} showCount className="!rounded-lg" />
           </Form.Item>
+
+          {/* Social Links */}
+          <div className="space-y-3">
+            <Text className="text-xs font-medium">Social Links</Text>
+            
+            <Form.Item label={<Text className="text-xs">Instagram</Text>}>
+              <Input 
+                size="small" 
+                value={socialLinks.instagram} 
+                onChange={(e) => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))} 
+                placeholder="https://instagram.com/username" 
+                className="!rounded-lg" 
+              />
+            </Form.Item>
+
+            <Form.Item label={<Text className="text-xs">Twitter</Text>}>
+              <Input 
+                size="small" 
+                value={socialLinks.twitter} 
+                onChange={(e) => setSocialLinks(prev => ({ ...prev, twitter: e.target.value }))} 
+                placeholder="https://twitter.com/username" 
+                className="!rounded-lg" 
+              />
+            </Form.Item>
+
+            <Form.Item label={<Text className="text-xs">YouTube</Text>}>
+              <Input 
+                size="small" 
+                value={socialLinks.youtube} 
+                onChange={(e) => setSocialLinks(prev => ({ ...prev, youtube: e.target.value }))} 
+                placeholder="https://youtube.com/channel/..." 
+                className="!rounded-lg" 
+              />
+            </Form.Item>
+
+            <Form.Item label={<Text className="text-xs">TikTok</Text>}>
+              <Input 
+                size="small" 
+                value={socialLinks.tiktok} 
+                onChange={(e) => setSocialLinks(prev => ({ ...prev, tiktok: e.target.value }))} 
+                placeholder="https://tiktok.com/@username" 
+                className="!rounded-lg" 
+              />
+            </Form.Item>
+
+            <Form.Item label={<Text className="text-xs">Spotify</Text>}>
+              <Input 
+                size="small" 
+                value={socialLinks.spotify} 
+                onChange={(e) => setSocialLinks(prev => ({ ...prev, spotify: e.target.value }))} 
+                placeholder="https://open.spotify.com/artist/..." 
+                className="!rounded-lg" 
+              />
+            </Form.Item>
+
+            <Form.Item label={<Text className="text-xs">Website</Text>}>
+              <Input 
+                size="small" 
+                value={socialLinks.website} 
+                onChange={(e) => setSocialLinks(prev => ({ ...prev, website: e.target.value }))} 
+                placeholder="https://yourwebsite.com" 
+                className="!rounded-lg" 
+              />
+            </Form.Item>
+          </div>
         </Form>
 
         <Button block size="small" onClick={() => navigate(-1)} className="!rounded-lg !h-8 mt-4">Cancel</Button>

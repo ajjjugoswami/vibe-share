@@ -90,7 +90,7 @@ export const usersAPI = {
     return handleResponse(response);
   },
 
-  updateUser: async (id: string, data: { bio?: string; avatarUrl?: string; username?: string }) => {
+  updateUser: async (id: string, data: { bio?: string; avatarUrl?: string; username?: string; socialLinks?: any }) => {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'PUT',
       headers: {

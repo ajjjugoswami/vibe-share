@@ -7,6 +7,14 @@ export interface User {
   username: string;
   bio?: string;
   avatarUrl?: string;
+  socialLinks?: {
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    tiktok?: string;
+    spotify?: string;
+    website?: string;
+  };
   followersCount?: number;
   followingCount?: number;
   playlistCount?: number;
