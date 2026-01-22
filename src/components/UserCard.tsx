@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { UserProfile } from "@/contexts/SocialContext";
+import UserAvatar from "@/components/UserAvatar";
 
 interface UserCardProps {
   user: UserProfile;
@@ -19,11 +20,7 @@ const UserCard = ({ user }: UserCardProps) => {
       className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-secondary transition-colors"
     >
       {/* Avatar */}
-      <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-        <span className="text-lg font-bold text-accent">
-          {user.username.charAt(0).toUpperCase()}
-        </span>
-      </div>
+      <UserAvatar avatarUrl={user.avatarUrl} size={48} className="flex-shrink-0" />
 
       {/* Info */}
       <div className="flex-1 min-w-0">
