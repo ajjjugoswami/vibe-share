@@ -15,8 +15,8 @@ const FloatingNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(760px,calc(100vw-2rem))]">
-      <div className="flex w-full items-center justify-between gap-1 px-2.5 py-2 rounded-[2.25rem] bg-card/40 backdrop-blur-2xl border border-border/30 shadow-2xl">
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(600px,calc(100vw-2rem))]">
+      <div className="flex w-full items-center justify-between gap-1 px-2.5 py-1.5 rounded-[2.25rem] bg-card/40 backdrop-blur-2xl border border-border/30 shadow-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -26,7 +26,7 @@ const FloatingNav = () => {
               end={item.to === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-1 px-6 py-2 rounded-[1.5rem] transition-all duration-300",
+                  "flex flex-col items-center gap-1 px-6 py-1.5 rounded-[1.5rem] transition-all duration-300",
                   isActive
                     ? "bg-foreground/5"
                     : "hover:bg-foreground/5"
