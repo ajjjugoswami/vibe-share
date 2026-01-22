@@ -27,7 +27,7 @@ const ViewPlaylist = () => {
   const [playlist, setPlaylist] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
-  const [activeSong, setActiveSong] = useState<SongLink | null>(null);
+  const [activeSongIndex, setActiveSongIndex] = useState<number | null>(null);
   const isSaved = savedPlaylists.some(p => p.id === id);
   const isOwn = playlist?.user?._id === user?.id;
 
@@ -53,8 +53,8 @@ const ViewPlaylist = () => {
     fetchPlaylist();
   }, [id, getPlaylist]);
 
-  const handlePlaySong = (song: SongLink) => {
-    setActiveSong(song);
+  const handlePlaySong = (index: number) => {
+    setActiveSongIndex(index);
   };
 
   const handleOpenExternal = (e: React.MouseEvent, song: SongLink) => {
@@ -251,7 +251,7 @@ const ViewPlaylist = () => {
               <div 
                 key={song.id}
                 className="break-inside-avoid bg-card rounded-xl border border-border/40 overflow-hidden group cursor-pointer hover:border-primary/30 transition-all"
-                onClick={() => handlePlaySong(song)}
+                onClick={() => handlePlaySong(index)}
               >
                 {/* Thumbnail */}
                 <div className="relative">
@@ -314,13 +314,12 @@ const ViewPlaylist = () => {
       </div>
 
       {/* Mini Player */}
-      {activeSong && (
+      {activeSongIndex !== null && playlist.songs.length > 0 && (
         <MiniPlayer
-          url={activeSong.url}
-          title={activeSong.title}
-          artist={activeSong.artist}
-          platform={activeSong.platform}
-          onClose={() => setActiveSong(null)}
+          songs={playlist.songs}
+          currentIndex={activeSongIndex}
+          onChangeIndex={setActiveSongIndex}
+          onClose={() => setActiveSongIndex(null)}
         />
       )}
     </div>
