@@ -1,20 +1,16 @@
 import { Outlet } from "react-router-dom";
-import BottomNav from "./BottomNav";
-import DesktopSidebar from "./DesktopSidebar";
+import FloatingNav from "./FloatingNav";
 
 const MainLayout = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Desktop Sidebar */}
-      <DesktopSidebar />
-      
       {/* Main Content */}
-      <div className="md:ml-64">
+      <div className="pb-24">
         <Outlet />
       </div>
       
-      {/* Mobile Bottom Nav */}
-      <BottomNav />
+      {/* Floating Navigation - Both Mobile & Desktop */}
+      <FloatingNav />
     </div>
   );
 };
