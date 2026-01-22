@@ -6,6 +6,7 @@ import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
 import { usersAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import UserAvatar from "@/components/UserAvatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -124,6 +125,7 @@ const UserProfile = () => {
         id: currentUser?.id || "1",
         username: currentUser?.username || "",
         bio: currentUser?.bio || "",
+        avatarUrl: currentUser?.avatarUrl || "",
         playlistCount: playlists.length,
       }
     : userProfile!;
@@ -158,9 +160,7 @@ const UserProfile = () => {
         <div className="bg-card rounded-2xl border border-border/40 p-6 mb-6">
           <div className="flex items-start gap-4">
             {/* Avatar */}
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
-              <span className="text-3xl font-bold text-white">{initial}</span>
-            </div>
+            <UserAvatar avatarUrl={displayProfile.avatarUrl} size={80} className="flex-shrink-0 shadow-lg ring-2 ring-primary/20 ring-offset-2 ring-offset-background" />
 
             {/* Info */}
             <div className="flex-1 min-w-0">
