@@ -19,10 +19,12 @@ const TopNav = () => {
  
           <Text className="text-base font-semibold italic text-gradient">TuneTangle</Text>
         </div>
-        <User
-          className="w-5 h-5 cursor-pointer text-foreground hover:text-primary transition-colors"
+        <div
+          className="w-7 h-7 rounded-full bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors"
           onClick={() => navigate('/profile')}
-        />
+        >
+          <User className="w-4 h-4 text-foreground" />
+        </div>
       </div>
     </header>
   );
