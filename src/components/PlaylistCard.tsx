@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist } from "@/store/slices/playlistSlice";
+import UserAvatar from "./UserAvatar";
 
 interface Song {
   title: string;
@@ -34,6 +35,7 @@ interface PlaylistCardProps extends PlaylistData {
 const PlaylistCard = ({
   id,
   username,
+  userAvatar,
   playlistName,
   playlistCover,
   coverImage,
@@ -157,9 +159,7 @@ const PlaylistCard = ({
         
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-              <User className="w-3 h-3 text-primary" />
-            </div>
+            <UserAvatar avatarUrl={userAvatar} size={24} />
             <span className="text-xs text-muted-foreground truncate max-w-[80px]">{username}</span>
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
