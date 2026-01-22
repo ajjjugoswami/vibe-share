@@ -15,8 +15,8 @@ const FloatingNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-      <div className="flex items-center gap-2 px-2 py-2 rounded-full bg-card/90 backdrop-blur-2xl border border-border/50 shadow-2xl">
+    <nav className="fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto">
+      <div className="flex items-center justify-between px-3 py-1.5 rounded-2xl bg-card/95 backdrop-blur-2xl border border-border/40 shadow-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -26,30 +26,29 @@ const FloatingNav = () => {
               end={item.to === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-0.5 px-5 py-2 rounded-full transition-all duration-200",
+                  "flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all duration-200",
                   isActive
-                    ? "bg-secondary text-primary"
+                    ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon className={cn("w-5 h-5", isActive && "text-primary")} />
-                  <span className="text-[10px] font-medium">{item.label}</span>
+                  <Icon className={cn("w-5 h-5", isActive && "text-primary")} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-[9px] font-medium">{item.label}</span>
                 </>
               )}
             </NavLink>
           );
         })}
         
-        {/* Create Button - Accent */}
+        {/* Create Button */}
         <button
           onClick={() => navigate(isLoggedIn ? "/playlist/create" : "/sign-in")}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary to-accent text-white font-medium text-sm transition-all duration-200 hover:opacity-90 hover:scale-105 shadow-lg"
+          className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-accent flex items-center justify-center text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
         >
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Create</span>
+          <Plus className="w-5 h-5" strokeWidth={2.5} />
         </button>
       </div>
     </nav>
