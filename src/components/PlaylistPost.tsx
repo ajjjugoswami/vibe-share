@@ -73,7 +73,7 @@ const PlaylistPost = ({
     setLikeCount(likes);
   }, [likes]);
 
-  const firstSongThumbnail = coverImage || songs[0]?.thumbnail;
+  const firstSongThumbnail = coverImage;
   const showThumbnail = firstSongThumbnail && !imageError;
 
   const handleLike = async (e: React.MouseEvent) => {

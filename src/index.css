@@ -387,6 +387,7 @@
 /* Ant Design overrides */
 .ant-btn {
   font-family: 'Outfit', 'Inter', sans-serif !important;
+  box-shadow: none !important;
 }
 
 .ant-typography {

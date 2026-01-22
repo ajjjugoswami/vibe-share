@@ -16,6 +16,7 @@ export interface Playlist {
   title: string;
   description: string;
   coverGradient: string;
+  thumbnailUrl?: string;
   songs: SongLink[];
   tags: string[];
   likesCount: number;

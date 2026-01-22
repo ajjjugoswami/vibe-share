@@ -67,7 +67,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
     userAvatar: playlist.userAvatar,
     playlistName: playlist.title,
     playlistCover: playlist.coverGradient,
-    coverImage: playlist.songs[0]?.thumbnail,
+    coverImage: playlist.thumbnailUrl,
     description: playlist.description,
     songs: playlist.songs.map(song => ({
       title: song.title,

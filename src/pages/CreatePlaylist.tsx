@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Link2, Loader2, X, Tag } from "lucide-react";
+import { ArrowLeft, Plus, Link2, Loader2, X, Tag, Upload, Image } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
 import { useAppSelector } from "@/store/hooks";
 import { gradients } from "@/lib/songUtils";
+import { playlistsAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -30,6 +31,8 @@ const CreatePlaylist = () => {
   const [tagInput, setTagInput] = useState("");
   const [showAddSong, setShowAddSong] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -80,6 +83,32 @@ const CreatePlaylist = () => {
     }
   };
 
+  const handleThumbnailSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error("Image must be less than 5MB");
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select an image file");
+        return;
+      }
+      
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setThumbnailPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveThumbnail = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+  };
+
   const handleCreate = async () => {
     if (title.trim()) {
       setIsCreating(true);
@@ -99,6 +128,17 @@ const CreatePlaylist = () => {
             url: song.url,
             platform: song.platform,
           });
+        }
+
+        // Upload thumbnail if provided
+        if (thumbnailFile) {
+          try {
+            await playlistsAPI.uploadPlaylistThumbnail(playlist.id, thumbnailFile);
+          } catch (thumbnailError) {
+            console.error('Failed to upload thumbnail:', thumbnailError);
+            // Don't fail the entire creation if thumbnail upload fails
+            toast.error("Playlist created but thumbnail upload failed");
+          }
         }
 
         toast.success("Playlist created!");
@@ -136,8 +176,28 @@ const CreatePlaylist = () => {
       <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
         {/* Cover + Title Row */}
         <div className="flex items-center gap-3">
-          <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${selectedGradient} flex items-center justify-center flex-shrink-0 shadow-md`}>
-            <Link2 className="w-6 h-6 text-white/60" />
+          <div className="relative">
+            <div className={`w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden ${
+              thumbnailPreview ? '' : `bg-gradient-to-br ${selectedGradient}`
+            }`}>
+              {thumbnailPreview ? (
+                <img 
+                  src={thumbnailPreview} 
+                  alt="Thumbnail preview" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Link2 className="w-6 h-6 text-white/60" />
+              )}
+            </div>
+            {thumbnailPreview && (
+              <button
+                onClick={handleRemoveThumbnail}
+                className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground text-xs hover:bg-destructive/80"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
           <div className="flex-1 space-y-2">
             <Input
@@ -168,6 +228,32 @@ const CreatePlaylist = () => {
               }`}
             />
           ))}
+        </div>
+
+        {/* Thumbnail Upload */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Custom Thumbnail (Optional)</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleThumbnailSelect}
+              className="hidden"
+              id="thumbnail-upload"
+            />
+            <label
+              htmlFor="thumbnail-upload"
+              className="flex items-center gap-2 px-3 py-2 bg-muted hover:bg-muted/80 rounded-lg cursor-pointer transition-colors text-sm"
+            >
+              <Upload className="w-4 h-4" />
+              {thumbnailFile ? 'Change Image' : 'Upload Image'}
+            </label>
+            {thumbnailFile && (
+              <span className="text-xs text-muted-foreground">
+                {thumbnailFile.name}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Compact Tags */}

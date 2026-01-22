@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Input, Button, App } from "antd";
-import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, Save, AlertTriangle, X, Tag } from "lucide-react";
+import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, Save, AlertTriangle, X, Tag, Upload, Image } from "lucide-react";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
 import { useAppSelector } from "@/store/hooks";
 import { detectPlatform, getYouTubeThumbnail, getPlatformColor, getPlatformIcon, gradients } from "@/lib/songUtils";
+import { playlistsAPI } from "@/lib/api";
+import { toast } from "sonner";
 
 const { TextArea } = Input;
 
@@ -47,6 +49,10 @@ const EditPlaylist = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [currentThumbnailUrl, setCurrentThumbnailUrl] = useState<string | null>(null);
+  const [removeThumbnail, setRemoveThumbnail] = useState(false);
 
   useEffect(() => {
     const fetchPlaylist = async () => {
@@ -69,6 +75,7 @@ const EditPlaylist = () => {
         setSelectedGradient(playlistData.coverGradient);
         setSongs(playlistData.songs);
         setTags(playlistData.tags || []);
+        setCurrentThumbnailUrl(playlistData.thumbnailUrl || null);
       } catch (error) {
         console.error('Failed to load playlist:', error);
         navigate("/profile");
@@ -87,10 +94,12 @@ const EditPlaylist = () => {
         description !== playlist.description ||
         selectedGradient !== playlist.coverGradient ||
         JSON.stringify(songs) !== JSON.stringify(playlist.songs) ||
-        JSON.stringify(tags) !== JSON.stringify(playlist.tags || []);
+        JSON.stringify(tags) !== JSON.stringify(playlist.tags || []) ||
+        thumbnailFile !== null ||
+        removeThumbnail;
       setHasChanges(changed);
     }
-  }, [title, description, selectedGradient, songs, tags, playlist]);
+  }, [title, description, selectedGradient, songs, tags, playlist, thumbnailFile, removeThumbnail]);
 
   useEffect(() => {
     if (newSongUrl.trim()) {
@@ -126,6 +135,38 @@ const EditPlaylist = () => {
       e.preventDefault();
       handleAddTag(tagInput);
     }
+  };
+
+  const handleThumbnailSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error("Image must be less than 5MB");
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select an image file");
+        return;
+      }
+      
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setThumbnailPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setRemoveThumbnail(false); // Reset remove flag when new file is selected
+      setHasChanges(true);
+    }
+  };
+
+  const handleRemoveThumbnail = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+    if (currentThumbnailUrl) {
+      setRemoveThumbnail(true);
+    }
+    setHasChanges(true);
   };
 
   const handleAddSong = () => {
@@ -179,7 +220,31 @@ const EditPlaylist = () => {
           });
         }
 
+        // Upload thumbnail if provided
+        if (thumbnailFile) {
+          try {
+            await playlistsAPI.uploadPlaylistThumbnail(id, thumbnailFile);
+          } catch (thumbnailError) {
+            console.error('Failed to upload thumbnail:', thumbnailError);
+            message.error("Playlist saved but thumbnail upload failed");
+          }
+        }
+
+        // Remove thumbnail if requested
+        if (removeThumbnail && currentThumbnailUrl) {
+          try {
+            await playlistsAPI.removePlaylistThumbnail(id);
+          } catch (removeError) {
+            console.error('Failed to remove thumbnail:', removeError);
+            message.error("Playlist saved but thumbnail removal failed");
+          }
+        }
+
         message.success("Playlist saved successfully!");
+        // Reset thumbnail states
+        setThumbnailFile(null);
+        setThumbnailPreview(null);
+        setRemoveThumbnail(false);
         navigate(`/playlist/${id}`);
       } catch (error) {
         console.error('Failed to save playlist:', error);
@@ -240,8 +305,34 @@ const EditPlaylist = () => {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Cover Preview */}
         <div className="flex flex-col items-center gap-4">
-          <div className={`w-40 h-40 rounded-xl bg-gradient-to-br ${selectedGradient} flex items-center justify-center`}>
-            <Link2 className="w-12 h-12 text-white/50" />
+          <div className="relative">
+            <div className={`w-40 h-40 rounded-xl flex items-center justify-center ${
+              thumbnailPreview || currentThumbnailUrl ? '' : `bg-gradient-to-br ${selectedGradient}`
+            }`}>
+              {thumbnailPreview ? (
+                <img 
+                  src={thumbnailPreview} 
+                  alt="Thumbnail preview" 
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              ) : currentThumbnailUrl ? (
+                <img 
+                  src={currentThumbnailUrl} 
+                  alt="Current thumbnail" 
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              ) : (
+                <Link2 className="w-12 h-12 text-white/50" />
+              )}
+            </div>
+            {(thumbnailPreview || currentThumbnailUrl) && (
+              <button
+                onClick={handleRemoveThumbnail}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground text-xs hover:bg-destructive/80"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
           
           <div className="flex gap-2 flex-wrap justify-center">
@@ -254,6 +345,32 @@ const EditPlaylist = () => {
                 }`}
               />
             ))}
+          </div>
+        </div>
+
+        {/* Thumbnail Upload */}
+        <div className="space-y-3">
+          <label className="text-sm font-medium">Custom Thumbnail</label>
+          <div className="flex items-center gap-3">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleThumbnailSelect}
+              className="hidden"
+              id="thumbnail-upload-edit"
+            />
+            <label
+              htmlFor="thumbnail-upload-edit"
+              className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg cursor-pointer transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              {thumbnailFile ? 'Change Image' : currentThumbnailUrl ? 'Change Image' : 'Upload Image'}
+            </label>
+            {thumbnailFile && (
+              <span className="text-sm text-muted-foreground">
+                {thumbnailFile.name}
+              </span>
+            )}
           </div>
         </div>
 

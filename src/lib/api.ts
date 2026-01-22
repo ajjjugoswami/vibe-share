@@ -313,6 +313,26 @@ export const playlistsAPI = {
     });
     return handleResponse(response);
   },
+
+  uploadPlaylistThumbnail: async (playlistId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('thumbnail', file);
+
+    const response = await fetch(`${API_BASE_URL}/playlists/${playlistId}/thumbnail`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: formData,
+    });
+    return handleResponse(response);
+  },
+
+  removePlaylistThumbnail: async (playlistId: string) => {
+    const response = await fetch(`${API_BASE_URL}/playlists/${playlistId}/thumbnail`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  },
 };
 
 // Feed API
