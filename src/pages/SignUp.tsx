@@ -27,7 +27,7 @@ const SignUp = () => {
 
     try {
       await dispatch(signup({ email, password, username })).unwrap();
-      message.success("Welcome to VibeShare!");
+      message.success("Welcome to TuneTangle!");
       navigate("/");
     } catch (err) {
       message.error(error || "Signup failed");
@@ -60,7 +60,7 @@ const SignUp = () => {
               <Music className="w-7 h-7 text-white" />
             </div>
           </div>
-          <Title level={2} className="!text-gradient !mb-2">VibeShare</Title>
+          <Title level={2} className="!text-gradient !mb-2">TuneTangle</Title>
           <Title level={4} className="!text-foreground !mb-1 !font-semibold">Join the community</Title>
           <Text type="secondary">Create your account to start sharing music</Text>
         </div>
