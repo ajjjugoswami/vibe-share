@@ -70,7 +70,6 @@ const initialState: PlaylistState = {
   hasMoreFeed: true,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const transformPlaylist = (playlist: any): Playlist => ({
   id: playlist.id || playlist._id,
   title: playlist.title,
