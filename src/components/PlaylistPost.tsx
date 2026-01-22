@@ -1,4 +1,4 @@
-import { Heart, Share2, Bookmark, MoreHorizontal, Play } from "lucide-react";
+import { Heart, Share2, Bookmark, MoreHorizontal, Play, Music2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typography, Dropdown, App } from "antd";
@@ -61,7 +61,6 @@ const PlaylistPost = ({
   const [imageError, setImageError] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
-  // Sync local state with props when they change
   useEffect(() => {
     setIsLikedState(isLiked);
   }, [isLiked]);
@@ -164,126 +163,135 @@ const PlaylistPost = ({
   ];
 
   return (
-    <article className="bg-background border-b border-border">
-      {/* Header - User Info */}
-      <div className="flex items-center justify-between px-4 py-3">
+    <article className="p-4 transition-colors hover:bg-secondary/20">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <div 
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center gap-3 cursor-pointer group"
           onClick={() => navigate(`/user/${username}`)}
         >
-          <UserAvatar avatarUrl={userAvatar} size={32} className="bg-gradient-to-br from-primary to-primary/50" />
-          <Text strong className="text-sm">{username}</Text>
+          <div className="relative">
+            <div className="absolute -inset-0.5 bg-gradient-to-br from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
+            <UserAvatar avatarUrl={userAvatar} size={40} className="relative bg-secondary" />
+          </div>
+          <div>
+            <Text strong className="text-sm block group-hover:text-primary transition-colors">{username}</Text>
+            <Text type="secondary" className="text-xs">{totalSongs} songs</Text>
+          </div>
         </div>
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-          <button className="p-1 hover:bg-secondary rounded-full transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
+          <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
+            <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
           </button>
         </Dropdown>
       </div>
 
-      {/* Content - Playlist Cover */}
+      {/* Cover */}
       <div 
-        className="relative cursor-pointer group"
+        className="relative cursor-pointer group rounded-2xl overflow-hidden mb-4"
         onClick={onClick}
       >
-        <div className="aspect-square w-full">
+        <div className="aspect-[4/3] w-full">
           {showThumbnail ? (
             <img 
               src={firstSongThumbnail}
               alt={playlistName}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               onError={() => setImageError(true)}
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${playlistCover} flex items-center justify-center`}>
               <div className="text-center text-white/70">
-                <Play className="w-16 h-16 mx-auto mb-2" />
+                <Music2 className="w-16 h-16 mx-auto mb-2" />
                 <p className="text-lg font-medium">{totalSongs} songs</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100 shadow-xl">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Play button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
             <Play className="w-7 h-7 text-background ml-1" fill="currentColor" />
           </div>
         </div>
 
-        {/* Song count badge */}
-        <div className="absolute bottom-3 right-3 px-2 py-1 rounded-md bg-black/70 backdrop-blur-sm text-white text-xs font-medium">
-          {totalSongs} songs
+        {/* Song count */}
+        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="flex items-center gap-2">
+            {songs.slice(0, 3).map((song, i) => (
+              song.thumbnail && (
+                <img 
+                  key={i}
+                  src={song.thumbnail}
+                  alt={song.title}
+                  className="w-10 h-10 rounded-lg object-cover border-2 border-white/20"
+                />
+              )
+            ))}
+            {songs.length > 3 && (
+              <div className="w-10 h-10 rounded-lg bg-black/50 backdrop-blur-sm flex items-center justify-center text-white text-xs font-medium">
+                +{songs.length - 3}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={handleLike}
-              disabled={isLiking}
-              className={`transition-all duration-200 active:scale-90 ${isLiking ? "opacity-50" : ""}`}
-            >
-              <Heart 
-                className={`w-6 h-6 ${isLikedState ? "text-red-500 fill-current" : "hover:text-muted-foreground"}`} 
-              />
-            </button>
-            <button 
-              onClick={handleShare}
-              className="transition-all duration-200 active:scale-90"
-            >
-              <Share2 className="w-6 h-6 hover:text-muted-foreground" />
-            </button>
-          </div>
-          <button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className={`transition-all duration-200 active:scale-90 ${isSaving ? "opacity-50" : ""}`}
-          >
-            <Bookmark 
-              className={`w-6 h-6 ${isSavedState ? "fill-current" : "hover:text-muted-foreground"}`} 
-            />
-          </button>
-        </div>
-
-        {/* Like count */}
-        <Text strong className="text-sm mb-1 block">
-          {formatNumber(likeCount)} likes
-        </Text>
-
-        {/* Caption */}
-        <div className="text-sm">
-          <Text strong className="mr-2">{username}</Text>
-          <Text>
-            {playlistName}
-            {description && (
-              <>
-                {" - "}
-                {showFullDescription ? description : truncatedDescription}
-                {description.length > 100 && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setShowFullDescription(!showFullDescription); }}
-                    className="text-muted-foreground ml-1"
-                  >
-                    {showFullDescription ? "less" : "more"}
-                  </button>
-                )}
-              </>
+      {/* Info */}
+      <div className="mb-3">
+        <h3 className="font-semibold text-base mb-1">{playlistName}</h3>
+        {description && (
+          <p className="text-sm text-muted-foreground">
+            {showFullDescription ? description : truncatedDescription}
+            {description.length > 100 && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowFullDescription(!showFullDescription); }}
+                className="text-primary ml-1 hover:underline"
+              >
+                {showFullDescription ? "less" : "more"}
+              </button>
             )}
-          </Text>
-        </div>
-
-        {/* Songs preview */}
-        {songs.length > 0 && (
-          <button 
-            onClick={onClick}
-            className="text-muted-foreground text-sm mt-1 hover:underline"
-          >
-            View all {totalSongs} songs
-          </button>
+          </p>
         )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={handleLike}
+            disabled={isLiking}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+              isLikedState 
+                ? "bg-red-500/10 text-red-500" 
+                : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+            } ${isLiking ? "opacity-50" : ""}`}
+          >
+            <Heart className={`w-5 h-5 ${isLikedState ? "fill-current" : ""}`} />
+            <span className="text-sm font-medium">{formatNumber(likeCount)}</span>
+          </button>
+          <button 
+            onClick={handleShare}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+        <button 
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+            isSavedState 
+              ? "bg-primary/10 text-primary" 
+              : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+          } ${isSaving ? "opacity-50" : ""}`}
+        >
+          <Bookmark className={`w-5 h-5 ${isSavedState ? "fill-current" : ""}`} />
+        </button>
       </div>
     </article>
   );
