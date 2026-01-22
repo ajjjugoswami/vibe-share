@@ -167,8 +167,8 @@ const ViewPlaylist = () => {
         <div className="flex gap-4 mb-8">
           {/* Cover */}
           <div className={`w-28 h-28 md:w-40 md:h-40 rounded-2xl bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center flex-shrink-0 overflow-hidden shadow-lg`}>
-            {playlist.songs[0]?.thumbnail ? (
-              <img src={playlist.songs[0].thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
+            {playlist.thumbnailUrl || playlist.songs[0]?.thumbnail ? (
+              <img src={playlist.thumbnailUrl || playlist.songs[0].thumbnail} alt={playlist.title} className="w-full h-full object-cover" />
             ) : (
               <Link2 className="w-12 h-12 text-white/30" />
             )}

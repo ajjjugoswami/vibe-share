@@ -305,9 +305,9 @@ const UserProfile = () => {
                 >
                   <div className="bg-card rounded-xl border border-border/40 overflow-hidden hover:border-primary/30 transition-all">
                     <div className={`aspect-square bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center`}>
-                      {playlist.songs?.[0]?.thumbnail ? (
+                      {playlist.thumbnailUrl || playlist.songs?.[0]?.thumbnail ? (
                         <img 
-                          src={playlist.songs[0].thumbnail} 
+                          src={playlist.thumbnailUrl || playlist.songs[0].thumbnail} 
                           alt={playlist.title}
                           className="w-full h-full object-cover"
                         />
