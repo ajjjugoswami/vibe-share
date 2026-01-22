@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Avatar, Button, Empty, Spin, Dropdown } from "antd";
-import type { MenuProps } from "antd";
-import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users, Share2, UserPlus, UserCheck, Music } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
 import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
 import { usersAPI } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface UserData {
   id: string;
@@ -13,6 +19,8 @@ interface UserData {
   bio?: string;
   avatarUrl?: string;
   playlistCount?: number;
+  followerCount?: number;
+  followingCount?: number;
 }
 
 const UserProfile = () => {
@@ -24,9 +32,10 @@ const UserProfile = () => {
   
   const [userProfile, setUserProfile] = useState<UserData | null>(null);
   const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
-  const [loadingUser, setLoadingUser] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPlaylists, setLoadingPlaylists] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
 
@@ -39,13 +48,14 @@ const UserProfile = () => {
       try {
         const response = await usersAPI.getUserByUsername(username);
         const fetchedUser = response.data.user;
-        // Normalize user shape: backend returns `_id`, frontend expects `id`
         setUserProfile({
           id: fetchedUser.id || fetchedUser._id,
           username: fetchedUser.username,
           bio: fetchedUser.bio,
           avatarUrl: fetchedUser.avatarUrl,
           playlistCount: fetchedUser.playlistCount || 0,
+          followerCount: fetchedUser.followerCount || 0,
+          followingCount: fetchedUser.followingCount || 0,
         });
       } catch (err) {
         console.error('Failed to fetch user:', err);
@@ -82,18 +92,29 @@ const UserProfile = () => {
     }
   }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
 
-  const moreMenuItems: MenuProps["items"] = [
-    { key: "share", label: "Share Profile" },
-    { key: "report", label: "Report User" },
-  ];
+  const handleFollow = () => {
+    if (!isLoggedIn) {
+      navigate("/sign-in");
+      return;
+    }
+    setIsFollowing(!isFollowing);
+    toast.success(isFollowing ? "Unfollowed" : "Following!");
+  };
+
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}/user/${username}`;
+    if (navigator.share) {
+      navigator.share({ title: `@${username}`, url: shareUrl });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success("Profile link copied!");
+    }
+  };
 
   if (loadingUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Spin size="large" />
-          <p className="text-muted-foreground mt-4">Loading profile...</p>
-        </div>
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -101,9 +122,11 @@ const UserProfile = () => {
   if (error || (!userProfile && !isOwnProfile)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <Users className="w-16 h-16 text-muted-foreground" />
-        <p className="text-muted-foreground">{error || "User not found"}</p>
-        <Button onClick={() => navigate("/")}>
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+          <Users className="w-10 h-10 text-muted-foreground" />
+        </div>
+        <p className="text-muted-foreground font-medium">{error || "User not found"}</p>
+        <Button variant="outline" onClick={() => navigate("/")}>
           Go Home
         </Button>
       </div>
@@ -114,110 +137,167 @@ const UserProfile = () => {
     ? { 
         id: currentUser?.id || "1",
         username: currentUser?.username || "",
-        bio: currentUser?.bio || "No bio yet",
+        bio: currentUser?.bio || "",
         playlistCount: playlists.length,
+        followerCount: 0,
+        followingCount: 0,
       }
     : userProfile!;
 
+  const initial = displayProfile.username.charAt(0).toUpperCase();
+
   return (
-    <div className="min-h-screen pb-20 md:pb-8">
+    <div className="min-h-screen pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between px-4 h-14 max-w-4xl mx-auto">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-secondary rounded-lg transition-colors">
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
+        <div className="flex items-center justify-between px-4 h-14 max-w-2xl mx-auto">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="font-medium">@{displayProfile.username}</h1>
-          <Dropdown menu={{ items: moreMenuItems }} trigger={["click"]}>
-            <button className="p-2 -mr-2 hover:bg-secondary rounded-lg transition-colors">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </Dropdown>
+          <span className="font-semibold">@{displayProfile.username}</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors">
+                <MoreHorizontal className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleShare}>Share Profile</DropdownMenuItem>
+              <DropdownMenuItem>Report User</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Profile Header */}
-        <div className="flex items-start gap-5 mb-6">
-          <Avatar
-            size={80}
-            className="!bg-accent/20 !text-accent flex-shrink-0"
-          >
-            <span className="text-2xl font-bold">
-              {displayProfile.username.charAt(0).toUpperCase()}
-            </span>
-          </Avatar>
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        {/* Profile Card */}
+        <div className="bg-card rounded-2xl border border-border/40 p-6 mb-6">
+          <div className="flex items-start gap-4">
+            {/* Avatar */}
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 shadow-lg">
+              <span className="text-3xl font-bold text-white">{initial}</span>
+            </div>
 
-          <div className="flex-1">
-            <div className="flex justify-around mb-4">
-              <div className="text-center">
-                <div className="font-semibold">{displayProfile.playlistCount}</div>
-                <div className="text-xs text-muted-foreground">playlists</div>
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold truncate">{displayProfile.username}</h1>
+              {displayProfile.bio && (
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{displayProfile.bio}</p>
+              )}
+              
+              {/* Stats */}
+              <div className="flex items-center gap-6 mt-4">
+                <div className="text-center">
+                  <p className="text-lg font-bold">{displayProfile.playlistCount}</p>
+                  <p className="text-xs text-muted-foreground">Playlists</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">{displayProfile.followerCount || 0}</p>
+                  <p className="text-xs text-muted-foreground">Followers</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">{displayProfile.followingCount || 0}</p>
+                  <p className="text-xs text-muted-foreground">Following</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Bio */}
-        <div className="mb-6">
-          <h2 className="font-semibold">{displayProfile.username}</h2>
-          <p className="text-sm text-muted-foreground mt-1">{displayProfile.bio}</p>
-        </div>
-
-        {/* Actions */}
-
-        {isOwnProfile && (
-          <div className="flex gap-3 mb-6">
-            <Button block onClick={() => navigate("/profile")}>
-              Edit Profile
-            </Button>
-            <Button
-              type="primary"
-              block
-              onClick={() => navigate("/playlist/create")}
-              className="!bg-accent hover:!bg-accent/90 !border-0"
-            >
-              Create Playlist
-            </Button>
+          {/* Actions */}
+          <div className="flex gap-2 mt-6">
+            {isOwnProfile ? (
+              <>
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => navigate("/profile/edit")}>
+                  Edit Profile
+                </Button>
+                <Button className="flex-1 rounded-xl" onClick={() => navigate("/playlist/create")}>
+                  Create Playlist
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  className={`flex-1 rounded-xl gap-2 ${isFollowing ? "bg-muted text-foreground hover:bg-muted/80" : ""}`}
+                  variant={isFollowing ? "outline" : "default"}
+                  onClick={handleFollow}
+                >
+                  {isFollowing ? (
+                    <>
+                      <UserCheck className="w-4 h-4" />
+                      Following
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      Follow
+                    </>
+                  )}
+                </Button>
+                <Button variant="outline" size="icon" className="rounded-xl" onClick={handleShare}>
+                  <Share2 className="w-4 h-4" />
+                </Button>
+              </>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-border mb-6">
-          <button className="flex-1 py-3 flex items-center justify-center gap-2 border-b-2 border-foreground text-foreground text-sm">
+        {/* Playlists Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Grid3X3 className="w-4 h-4" />
-            Playlists
-          </button>
-        </div>
+            <span className="text-sm font-medium">Playlists</span>
+          </div>
 
-        {/* Playlists Grid */}
-        {loadingPlaylists ? (
-          <div className="py-16 text-center">
-            <Spin />
-          </div>
-        ) : userPlaylists.length === 0 ? (
-          <Empty
-            image={<Link2 className="w-16 h-16 mx-auto text-muted-foreground" />}
-            description="No playlists yet"
-            className="py-16"
-          />
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {userPlaylists.map((playlist) => (
-              <div 
-                key={playlist.id}
-                onClick={() => navigate(`/playlist/${playlist.id}`)}
-                className="cursor-pointer group"
-              >
-                <div className={`aspect-square rounded-xl bg-gradient-to-br ${playlist.coverGradient} mb-2 flex items-center justify-center transition-transform group-hover:scale-[1.02]`}>
-                  <Link2 className="w-8 h-8 text-white/30" />
-                </div>
-                <p className="text-sm font-medium truncate">{playlist.title}</p>
-                <p className="text-xs text-muted-foreground">{playlist.songCount || playlist.songs.length} songs</p>
+          {loadingPlaylists ? (
+            <div className="py-16 flex justify-center">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : userPlaylists.length === 0 ? (
+            <div className="py-16 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-muted flex items-center justify-center">
+                <Music className="w-7 h-7 text-muted-foreground" />
               </div>
-            ))}
-          </div>
-        )}
+              <p className="text-muted-foreground font-medium">No playlists yet</p>
+              {isOwnProfile && (
+                <Button className="mt-4" onClick={() => navigate("/playlist/create")}>
+                  Create your first playlist
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="columns-2 md:columns-3 gap-3 space-y-3">
+              {userPlaylists.map((playlist) => (
+                <div 
+                  key={playlist.id}
+                  onClick={() => navigate(`/playlist/${playlist.id}`)}
+                  className="break-inside-avoid cursor-pointer group"
+                >
+                  <div className="bg-card rounded-xl border border-border/40 overflow-hidden hover:border-primary/30 transition-all">
+                    <div className={`aspect-square bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center`}>
+                      {playlist.songs?.[0]?.thumbnail ? (
+                        <img 
+                          src={playlist.songs[0].thumbnail} 
+                          alt={playlist.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Link2 className="w-10 h-10 text-white/30" />
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                        {playlist.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {playlist.songCount || playlist.songs?.length || 0} songs
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
