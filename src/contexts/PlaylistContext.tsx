@@ -18,6 +18,7 @@ export interface Playlist {
   title: string;
   description: string;
   coverGradient: string;
+  thumbnailUrl?: string;
   songs: SongLink[];
   tags: string[];
   likesCount: number;
@@ -177,6 +178,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     title: playlist.title,
     description: playlist.description || '',
     coverGradient: playlist.coverGradient || gradients[Math.floor(Math.random() * gradients.length)],
+    thumbnailUrl: playlist.thumbnailUrl,
     songs: playlist.songs || [],
     tags: playlist.tags || [],
     likesCount: playlist.likesCount || playlist.likes || 0,

@@ -3,9 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Input, Button, App } from "antd";
 import { ArrowLeft, Plus, Link2, Trash2, ExternalLink, Loader2, Save, AlertTriangle, X, Tag, Upload, Image } from "lucide-react";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { detectPlatform, getYouTubeThumbnail, getPlatformColor, getPlatformIcon, gradients } from "@/lib/songUtils";
 import { playlistsAPI } from "@/lib/api";
+import { fetchFeedPlaylists } from "@/store/slices/playlistSlice";
 import { toast } from "sonner";
 
 const { TextArea } = Input;
@@ -22,6 +23,7 @@ const EditPlaylist = () => {
   const { getPlaylist, updatePlaylist, deletePlaylist, addSongToPlaylist } = usePlaylist();
   const user = useAppSelector((state) => state.auth.user);
   const isLoggedIn = !!user;
+  const dispatch = useAppDispatch();
   const { message } = App.useApp();
   
   const [playlist, setPlaylist] = useState<{
@@ -245,6 +247,8 @@ const EditPlaylist = () => {
         setThumbnailFile(null);
         setThumbnailPreview(null);
         setRemoveThumbnail(false);
+        // Refresh the feed to show updated thumbnails
+        dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
         navigate(`/playlist/${id}`);
       } catch (error) {
         console.error('Failed to save playlist:', error);

@@ -197,7 +197,11 @@ const PlaylistPost = ({
               src={firstSongThumbnail}
               alt={playlistName}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              onError={() => setImageError(true)}
+              crossOrigin="anonymous"
+              onError={(e) => {
+                console.error('Image failed to load:', firstSongThumbnail, e);
+                setImageError(true);
+              }}
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${playlistCover} flex items-center justify-center`}>

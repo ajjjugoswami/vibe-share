@@ -61,25 +61,28 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
     dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
   };
 
-  const transformedPlaylists: PlaylistPostData[] = feedPlaylists.map(playlist => ({
-    id: playlist.id,
-    username: playlist.username || playlist.user?.username || 'unknown',
-    userAvatar: playlist.userAvatar,
-    playlistName: playlist.title,
-    playlistCover: playlist.coverGradient,
-    coverImage: playlist.thumbnailUrl,
-    description: playlist.description,
-    songs: playlist.songs.map(song => ({
-      title: song.title,
-      artist: song.artist,
-      thumbnail: song.thumbnail
-    })),
-    totalSongs: playlist.songCount || playlist.songs.length || 0,
-    likes: playlist.likesCount,
-    isLiked: playlist.isLiked,
-    isSaved: playlist.isSaved,
-    createdAt: playlist.createdAt
-  }));
+  const transformedPlaylists: PlaylistPostData[] = feedPlaylists.map(playlist => {
+    
+    return {
+      id: playlist.id,
+      username: playlist.username || playlist.user?.username || 'unknown',
+      userAvatar: playlist.userAvatar,
+      playlistName: playlist.title,
+      playlistCover: playlist.coverGradient,
+      coverImage: playlist.thumbnailUrl,
+      description: playlist.description,
+      songs: playlist.songs.map(song => ({
+        title: song.title,
+        artist: song.artist,
+        thumbnail: song.thumbnail
+      })),
+      totalSongs: playlist.songCount || playlist.songs.length || 0,
+      likes: playlist.likesCount,
+      isLiked: playlist.isLiked,
+      isSaved: playlist.isSaved,
+      createdAt: playlist.createdAt
+    };
+  });
 
   return (
     <div className="min-h-screen">
