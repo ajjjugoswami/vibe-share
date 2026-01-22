@@ -1,11 +1,11 @@
-import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3 } from "lucide-react";
+import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3, Instagram, Twitter, Youtube, Music, Link2 } from "lucide-react";
 import { Button, Tabs, Typography, Empty, Spin, App } from "antd";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
-import { Link2, Music2 } from "lucide-react";
+import {   Music2 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
 const { Text, Title } = Typography;
@@ -90,6 +90,70 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Social Links */}
+        {user?.socialLinks && Object.values(user.socialLinks).some(link => link) && (
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-3">
+              {user.socialLinks.instagram && (
+                <a 
+                  href={user.socialLinks.instagram} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Instagram"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {user.socialLinks.twitter && (
+                <a 
+                  href={user.socialLinks.twitter} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Twitter"
+                >
+                  <Twitter className="w-4 h-4" />
+                </a>
+              )}
+              {user.socialLinks.youtube && (
+                <a 
+                  href={user.socialLinks.youtube} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="YouTube"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+              )}
+ 
+              {user.socialLinks.spotify && (
+                <a 
+                  href={user.socialLinks.spotify} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Spotify"
+                >
+                  <Music className="w-4 h-4" />
+                </a>
+              )}
+              {user.socialLinks.website && (
+                <a 
+                  href={user.socialLinks.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
+                  title="Website"
+                >
+                  <Link2 className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-2 mb-6">

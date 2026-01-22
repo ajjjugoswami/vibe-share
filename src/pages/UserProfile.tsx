@@ -23,7 +23,6 @@ interface UserData {
     instagram?: string;
     twitter?: string;
     youtube?: string;
-    tiktok?: string;
     spotify?: string;
     website?: string;
   };
@@ -246,17 +245,7 @@ const UserProfile = () => {
                   <Youtube className="w-5 h-5" />
                 </a>
               )}
-              {displayProfile.socialLinks.tiktok && (
-                <a 
-                  href={displayProfile.socialLinks.tiktok} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors flex items-center justify-center"
-                  title="TikTok"
-                >
-                  <Music className="w-5 h-5" />
-                </a>
-              )}
+ 
               {displayProfile.socialLinks.spotify && (
                 <a 
                   href={displayProfile.socialLinks.spotify} 

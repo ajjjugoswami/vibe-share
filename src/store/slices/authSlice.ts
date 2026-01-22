@@ -11,7 +11,6 @@ export interface User {
     instagram?: string;
     twitter?: string;
     youtube?: string;
-    tiktok?: string;
     spotify?: string;
     website?: string;
   };

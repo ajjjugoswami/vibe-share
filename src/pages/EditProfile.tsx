@@ -44,7 +44,6 @@ const EditProfile = () => {
     instagram: currentUser?.socialLinks?.instagram || '',
     twitter: currentUser?.socialLinks?.twitter || '',
     youtube: currentUser?.socialLinks?.youtube || '',
-    tiktok: currentUser?.socialLinks?.tiktok || '',
     spotify: currentUser?.socialLinks?.spotify || '',
     website: currentUser?.socialLinks?.website || ''
   });
@@ -211,16 +210,6 @@ const EditProfile = () => {
                 value={socialLinks.youtube} 
                 onChange={(e) => setSocialLinks(prev => ({ ...prev, youtube: e.target.value }))} 
                 placeholder="https://youtube.com/channel/..." 
-                className="!rounded-lg" 
-              />
-            </Form.Item>
-
-            <Form.Item label={<Text className="text-xs">TikTok</Text>}>
-              <Input 
-                size="small" 
-                value={socialLinks.tiktok} 
-                onChange={(e) => setSocialLinks(prev => ({ ...prev, tiktok: e.target.value }))} 
-                placeholder="https://tiktok.com/@username" 
                 className="!rounded-lg" 
               />
             </Form.Item>
