@@ -151,6 +151,18 @@ export const usersAPI = {
   //   });
   //   return handleResponse(response);
   // },
+
+  uploadProfilePicture: async (file: File) => {
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    const response = await fetch(`${API_BASE_URL}/users/upload-profile-picture`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: formData,
+    });
+    return handleResponse(response);
+  },
 };
 
 // Playlists API

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, message, Typography } from "antd";
-import { ArrowLeft, Check } from "lucide-react";
+import { Form, Input, Button, message, Typography, Upload } from "antd";
+import { ArrowLeft, Check, Upload as UploadIcon, Camera } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { usersAPI } from "@/lib/api";
 import { updateUser } from "@/store/slices/authSlice";
@@ -22,10 +22,13 @@ const EditProfile = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const currentUser = useAppSelector((s) => s.auth.user);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
-  const [avatarType, setAvatarType] = useState<'preset' | 'emoji'>(
-    currentUser?.avatarUrl?.startsWith('emoji:') ? 'emoji' : 'preset'
+  const [uploading, setUploading] = useState(false);
+  const [avatarType, setAvatarType] = useState<'preset' | 'emoji' | 'upload'>(
+    currentUser?.avatarUrl?.startsWith('emoji:') ? 'emoji' : 
+    currentUser?.avatarUrl?.startsWith('https://res.cloudinary.com/') ? 'upload' : 'preset'
   );
   const [selectedPreset, setSelectedPreset] = useState(
     currentUser?.avatarUrl?.startsWith('avatar:') ? parseInt(currentUser.avatarUrl.split(':')[1], 10) : 0
@@ -33,18 +36,55 @@ const EditProfile = () => {
   const [selectedEmoji, setSelectedEmoji] = useState(
     currentUser?.avatarUrl?.startsWith('emoji:') ? currentUser.avatarUrl.split(':')[1] : '😎'
   );
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(
+    currentUser?.avatarUrl?.startsWith('https://res.cloudinary.com/') ? currentUser.avatarUrl : ''
+  );
   const [username, setUsername] = useState(currentUser?.username || '');
   const [bio, setBio] = useState(currentUser?.bio || '');
 
-  const currentAvatarUrl = avatarType === 'emoji' ? `emoji:${selectedEmoji}` : `avatar:${selectedPreset}`;
+  const currentAvatarUrl = avatarType === 'emoji' ? `emoji:${selectedEmoji}` : 
+                          avatarType === 'upload' ? uploadedImageUrl : `avatar:${selectedPreset}`;
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      message.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      message.error('Image size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const res = await usersAPI.uploadProfilePicture(file);
+      setUploadedImageUrl(res.data.imageUrl);
+      dispatch(updateUser(res.data.user));
+      message.success('Profile picture uploaded successfully!');
+    } catch (err: any) {
+      message.error(err.message || 'Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const onSubmit = async () => {
     if (!currentUser) return;
     const payload: any = { bio };
     if (username.trim()) payload.username = username.trim();
-    payload.avatarUrl = avatarType === "emoji" && selectedEmoji && isEmoji(selectedEmoji) 
-      ? `emoji:${selectedEmoji}` 
-      : `avatar:${selectedPreset}`;
+    
+    if (avatarType === 'upload' && uploadedImageUrl) {
+      payload.avatarUrl = uploadedImageUrl;
+    } else if (avatarType === "emoji" && selectedEmoji && isEmoji(selectedEmoji)) {
+      payload.avatarUrl = `emoji:${selectedEmoji}`;
+    } else {
+      payload.avatarUrl = `avatar:${selectedPreset}`;
+    }
 
     try {
       setLoading(true);
@@ -79,6 +119,7 @@ const EditProfile = () => {
           <div className="flex gap-2 mb-4">
             <Button size="small" type={avatarType === 'preset' ? 'primary' : 'default'} onClick={() => setAvatarType('preset')} className="!rounded-lg !h-7 !text-xs">Avatars</Button>
             <Button size="small" type={avatarType === 'emoji' ? 'primary' : 'default'} onClick={() => setAvatarType('emoji')} className="!rounded-lg !h-7 !text-xs">Emojis</Button>
+            <Button size="small" type={avatarType === 'upload' ? 'primary' : 'default'} onClick={() => setAvatarType('upload')} className="!rounded-lg !h-7 !text-xs">Upload</Button>
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             {avatarType === 'preset' ? (
@@ -87,12 +128,39 @@ const EditProfile = () => {
                   <UserAvatar avatarUrl={`avatar:${idx}`} size={36} />
                 </button>
               ))
-            ) : (
+            ) : avatarType === 'emoji' ? (
               emojiOptions.map((emoji) => (
                 <button key={emoji} onClick={() => setSelectedEmoji(emoji)} className={`w-11 h-11 rounded-xl text-xl transition-all ${selectedEmoji === emoji ? 'ring-2 ring-primary bg-primary/10' : 'bg-secondary'}`}>
                   {emoji}
                 </button>
               ))
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file);
+                  }}
+                  className="hidden"
+                />
+                <Button
+                  type="dashed"
+                  onClick={() => fileInputRef.current?.click()}
+                  loading={uploading}
+                  icon={<Camera className="w-4 h-4" />}
+                  className="!rounded-lg !h-10"
+                >
+                  {uploading ? 'Uploading...' : 'Choose Image'}
+                </Button>
+                {uploadedImageUrl && (
+                  <Text className="text-xs text-muted-foreground text-center">
+                    Image uploaded successfully
+                  </Text>
+                )}
+              </div>
             )}
           </div>
         </div>
