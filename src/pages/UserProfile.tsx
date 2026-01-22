@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users, Share2, UserPlus, UserCheck, Music } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users, Share2, Music } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
 import { usePlaylist, Playlist } from "@/contexts/PlaylistContext";
 import { usersAPI } from "@/lib/api";
@@ -19,8 +19,6 @@ interface UserData {
   bio?: string;
   avatarUrl?: string;
   playlistCount?: number;
-  followerCount?: number;
-  followingCount?: number;
 }
 
 const UserProfile = () => {
@@ -35,7 +33,6 @@ const UserProfile = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPlaylists, setLoadingPlaylists] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isFollowing, setIsFollowing] = useState(false);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
 
@@ -54,8 +51,6 @@ const UserProfile = () => {
           bio: fetchedUser.bio,
           avatarUrl: fetchedUser.avatarUrl,
           playlistCount: fetchedUser.playlistCount || 0,
-          followerCount: fetchedUser.followerCount || 0,
-          followingCount: fetchedUser.followingCount || 0,
         });
       } catch (err) {
         console.error('Failed to fetch user:', err);
@@ -91,15 +86,6 @@ const UserProfile = () => {
       }
     }
   }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
-
-  const handleFollow = () => {
-    if (!isLoggedIn) {
-      navigate("/sign-in");
-      return;
-    }
-    setIsFollowing(!isFollowing);
-    toast.success(isFollowing ? "Unfollowed" : "Following!");
-  };
 
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/user/${username}`;
@@ -139,8 +125,6 @@ const UserProfile = () => {
         username: currentUser?.username || "",
         bio: currentUser?.bio || "",
         playlistCount: playlists.length,
-        followerCount: 0,
-        followingCount: 0,
       }
     : userProfile!;
 
@@ -191,14 +175,6 @@ const UserProfile = () => {
                   <p className="text-lg font-bold">{displayProfile.playlistCount}</p>
                   <p className="text-xs text-muted-foreground">Playlists</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold">{displayProfile.followerCount || 0}</p>
-                  <p className="text-xs text-muted-foreground">Followers</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold">{displayProfile.followingCount || 0}</p>
-                  <p className="text-xs text-muted-foreground">Following</p>
-                </div>
               </div>
             </div>
           </div>
@@ -215,28 +191,10 @@ const UserProfile = () => {
                 </Button>
               </>
             ) : (
-              <>
-                <Button 
-                  className={`flex-1 rounded-xl gap-2 ${isFollowing ? "bg-muted text-foreground hover:bg-muted/80" : ""}`}
-                  variant={isFollowing ? "outline" : "default"}
-                  onClick={handleFollow}
-                >
-                  {isFollowing ? (
-                    <>
-                      <UserCheck className="w-4 h-4" />
-                      Following
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4" />
-                      Follow
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-xl" onClick={handleShare}>
-                  <Share2 className="w-4 h-4" />
-                </Button>
-              </>
+              <Button variant="outline" className="flex-1 rounded-xl gap-2" onClick={handleShare}>
+                <Share2 className="w-4 h-4" />
+                Share Profile
+              </Button>
             )}
           </div>
         </div>
