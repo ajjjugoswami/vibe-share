@@ -15,8 +15,8 @@ const FloatingNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-6 left-4 right-4 z-50 max-w-sm mx-auto">
-      <div className="flex items-center justify-between px-4 py-2.5 rounded-full bg-card/60 backdrop-blur-2xl border border-white/10 shadow-2xl">
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="flex items-center gap-1 px-2 py-2 rounded-[2rem] bg-black/70 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -26,17 +26,29 @@ const FloatingNav = () => {
               end={item.to === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all duration-200",
+                  "flex flex-col items-center gap-1 px-5 py-2 rounded-3xl transition-all duration-300",
                   isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white/10"
+                    : "hover:bg-white/5"
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon className={cn("w-5 h-5", isActive && "text-primary")} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className="text-[9px] font-medium">{item.label}</span>
+                  <Icon 
+                    className={cn(
+                      "w-5 h-5 transition-colors",
+                      isActive ? "text-primary" : "text-white/70"
+                    )} 
+                    strokeWidth={isActive ? 2.5 : 2} 
+                    fill={isActive ? "currentColor" : "none"}
+                  />
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors",
+                    isActive ? "text-white" : "text-white/60"
+                  )}>
+                    {item.label}
+                  </span>
                 </>
               )}
             </NavLink>
@@ -46,7 +58,7 @@ const FloatingNav = () => {
         {/* Create Button */}
         <button
           onClick={() => navigate(isLoggedIn ? "/playlist/create" : "/sign-in")}
-          className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-accent flex items-center justify-center text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
+          className="w-11 h-11 ml-1 rounded-full bg-primary flex items-center justify-center text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
         >
           <Plus className="w-5 h-5" strokeWidth={2.5} />
         </button>
