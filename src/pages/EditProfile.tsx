@@ -174,10 +174,10 @@ const EditProfile = () => {
         {/* Form */}
         <Form layout="vertical">
           <Form.Item label={<Text className="text-xs">Username</Text>}>
-            <Input size="small" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your username" className="!rounded-lg" />
+            <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your username" className="!rounded-[8px]" />
           </Form.Item>
           <Form.Item label={<Text className="text-xs">Bio</Text>}>
-            <TextArea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="About you..." maxLength={150} showCount className="!rounded-lg" />
+            <TextArea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="About you..." maxLength={150} showCount className="!rounded-[8px]" />
           </Form.Item>
 
           {/* Social Links */}
@@ -186,57 +186,52 @@ const EditProfile = () => {
             
             <Form.Item label={<Text className="text-xs">Instagram</Text>}>
               <Input 
-                size="small" 
                 value={socialLinks.instagram} 
                 onChange={(e) => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))} 
                 placeholder="https://instagram.com/username" 
-                className="!rounded-lg" 
+                className="!rounded-[8px]" 
               />
             </Form.Item>
 
             <Form.Item label={<Text className="text-xs">Twitter</Text>}>
               <Input 
-                size="small" 
                 value={socialLinks.twitter} 
                 onChange={(e) => setSocialLinks(prev => ({ ...prev, twitter: e.target.value }))} 
                 placeholder="https://twitter.com/username" 
-                className="!rounded-lg" 
+                className="!rounded-[8px]" 
               />
             </Form.Item>
 
             <Form.Item label={<Text className="text-xs">YouTube</Text>}>
               <Input 
-                size="small" 
                 value={socialLinks.youtube} 
                 onChange={(e) => setSocialLinks(prev => ({ ...prev, youtube: e.target.value }))} 
                 placeholder="https://youtube.com/channel/..." 
-                className="!rounded-lg" 
+                className="!rounded-[8px]" 
               />
             </Form.Item>
 
             <Form.Item label={<Text className="text-xs">Spotify</Text>}>
               <Input 
-                size="small" 
                 value={socialLinks.spotify} 
                 onChange={(e) => setSocialLinks(prev => ({ ...prev, spotify: e.target.value }))} 
                 placeholder="https://open.spotify.com/artist/..." 
-                className="!rounded-lg" 
+                className="!rounded-[8px]" 
               />
             </Form.Item>
 
             <Form.Item label={<Text className="text-xs">Website</Text>}>
               <Input 
-                size="small" 
                 value={socialLinks.website} 
                 onChange={(e) => setSocialLinks(prev => ({ ...prev, website: e.target.value }))} 
                 placeholder="https://yourwebsite.com" 
-                className="!rounded-lg" 
+                className="!rounded-[8px]" 
               />
             </Form.Item>
           </div>
         </Form>
 
-        <Button block size="small" onClick={() => navigate(-1)} className="!rounded-lg !h-8 mt-4">Cancel</Button>
+        <Button block size="small" onClick={() => navigate(-1)} className="!rounded-[8px] !h-8 mt-4">Cancel</Button>
       </div>
     </div>
   );
