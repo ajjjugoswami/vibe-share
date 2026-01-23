@@ -54,7 +54,7 @@ const SignIn = () => {
               <Music className="w-7 h-7 text-white" />
             </div>
           </div>
-          <Title level={2} className="!text-gradient !mb-2">VibeShare</Title>
+          <Title level={2} className="!text-gradient !mb-2">Now Music</Title>
           <Title level={4} className="!text-foreground !mb-1 !font-semibold">Welcome back</Title>
           <Text type="secondary">Sign in to continue sharing music</Text>
         </div>

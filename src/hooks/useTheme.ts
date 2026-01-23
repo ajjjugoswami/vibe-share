@@ -66,7 +66,7 @@ export const themes: Record<ThemeColor, ThemeConfig> = {
   },
 };
 
-const THEME_STORAGE_KEY = 'vibeshare-theme';
+const THEME_STORAGE_KEY = 'Now Music-theme';
 
 export const useTheme = () => {
   const [theme, setThemeState] = useState<ThemeColor>(() => {
