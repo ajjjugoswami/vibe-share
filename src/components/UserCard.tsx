@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserProfile } from "@/contexts/SocialContext";
 import UserAvatar from "@/components/UserAvatar";
@@ -7,7 +8,7 @@ interface UserCardProps {
   showFollowButton?: boolean;
 }
 
-const UserCard = ({ user }: UserCardProps) => {
+const UserCard = memo(({ user }: UserCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -32,6 +33,8 @@ const UserCard = ({ user }: UserCardProps) => {
       </div>
     </div>
   );
-};
+});
+
+UserCard.displayName = "UserCard";
 
 export default UserCard;
