@@ -166,7 +166,30 @@ const ProfilePage = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} centered className="!mb-4" size="small" />
+        <div className="flex justify-between items-center mb-4 border-b border-border/30 pb-2">
+          <Button
+            type={activeTab === "playlists" ? "primary" : "text"}
+            size="small"
+            onClick={() => setActiveTab("playlists")}
+            className="!rounded-[8px] !h-8"
+          >
+            <span className="flex items-center gap-1.5 text-sm">
+              <Grid3X3 className="w-3.5 h-3.5" />
+              Playlists
+            </span>
+          </Button>
+          <Button
+            type={activeTab === "saved" ? "primary" : "text"}
+            size="small"
+            onClick={() => setActiveTab("saved")}
+            className="!rounded-[8px] !h-8"
+          >
+            <span className="flex items-center gap-1.5 text-sm">
+              <Bookmark className="w-3.5 h-3.5" />
+              Saved
+            </span>
+          </Button>
+        </div>
 
         {/* Content */}
         {isLoading ? (
