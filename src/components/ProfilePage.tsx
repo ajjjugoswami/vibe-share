@@ -186,8 +186,8 @@ const ProfilePage = () => {
                 className="cursor-pointer group"
               >
                 <div className="aspect-square rounded-xl overflow-hidden mb-2 bg-secondary">
-                  {playlist.songs[0]?.thumbnail ? (
-                    <img src={playlist.songs[0].thumbnail} alt={playlist.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  {playlist.thumbnailUrl ? (
+                    <img src={playlist.thumbnailUrl} alt={playlist.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   ) : (
                     <div className={`w-full h-full bg-gradient-to-br ${playlist.coverGradient} flex items-center justify-center`}>
                       <Link2 className="w-6 h-6 text-white/30" />
