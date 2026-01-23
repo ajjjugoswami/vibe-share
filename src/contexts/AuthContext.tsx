@@ -65,6 +65,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('refreshToken', refreshToken);
       setUser(userData);
 
+      // Refresh user data to ensure it's up to date
+      await refreshUser();
+
       console.log("[USER_LOGIN]", {
         userId: userData.id,
         email,
@@ -84,6 +87,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('vibe_token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       setUser(userData);
+
+      // Refresh user data to ensure it's up to date
+      await refreshUser();
 
       console.log("[USER_REGISTERED]", {
         userId: userData.id,
