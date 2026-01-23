@@ -137,11 +137,11 @@ const CreatePlaylist = () => {
           } catch (thumbnailError) {
             console.error('Failed to upload thumbnail:', thumbnailError);
             // Don't fail the entire creation if thumbnail upload fails
-            toast.error("Playlist created but thumbnail upload failed");
+            toast.error("Playlist created, but thumbnail upload failed");
           }
         }
 
-        toast.success("Playlist created!");
+        toast.success("Playlist created successfully!");
         navigate(`/playlist/${playlist.id}`);
       } catch (error) {
         console.error('Failed to create playlist:', error);

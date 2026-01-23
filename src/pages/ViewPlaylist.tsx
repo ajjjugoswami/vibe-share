@@ -84,10 +84,10 @@ const ViewPlaylist = () => {
         setIsLiked(true);
         setPlaylist((prev: any) => prev ? { ...prev, likesCount: (prev.likesCount || 0) + 1 } : null);
       }
-      toast.success(isLiked ? "Removed like" : "Liked!");
+      toast.success(isLiked ? "Like removed" : "Playlist liked!");
     } catch (error) {
       console.error("Failed to toggle like:", error);
-      toast.error("Failed to update like");
+      toast.error("Failed to like playlist");
     }
   };
 
@@ -101,10 +101,10 @@ const ViewPlaylist = () => {
     
     if (isSaved) {
       unsavePlaylist(playlist.id);
-      toast.success("Removed from saved");
+      toast.success("Removed from saved playlists");
     } else {
       savePlaylist(playlist.id);
-      toast.success("Saved to collection");
+      toast.success("Playlist saved!");
     }
   };
 
