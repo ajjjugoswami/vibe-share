@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, MoreHorizontal, Grid3X3, Link2, Users, Share2, Music, Instagram, Twitter, Youtube } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
@@ -41,6 +41,7 @@ const UserProfile = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingPlaylists, setLoadingPlaylists] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fetchingPlaylistsRef = useRef(false);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
 
@@ -73,8 +74,9 @@ const UserProfile = () => {
 
   useEffect(() => {
     const fetchUserPlaylists = async () => {
-      if (!userProfile) return;
+      if (!userProfile || fetchingPlaylistsRef.current) return;
       
+      fetchingPlaylistsRef.current = true;
       setLoadingPlaylists(true);
       try {
         const fetchedPlaylists = await getUserPlaylists(userProfile.id, { limit: 20 });
@@ -83,6 +85,7 @@ const UserProfile = () => {
         console.error('Failed to fetch user playlists:', error);
       } finally {
         setLoadingPlaylists(false);
+        fetchingPlaylistsRef.current = false;
       }
     };
 
@@ -93,7 +96,7 @@ const UserProfile = () => {
         fetchUserPlaylists();
       }
     }
-  }, [userProfile, isOwnProfile, playlists, getUserPlaylists]);
+  }, [userProfile?.id, isOwnProfile, playlists, getUserPlaylists]);
 
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/user/${username}`;

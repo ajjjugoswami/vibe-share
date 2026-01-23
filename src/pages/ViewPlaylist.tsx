@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink, Edit, Link2, Play } from "lucide-react";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
@@ -28,6 +28,7 @@ const ViewPlaylist = () => {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [activeSongIndex, setActiveSongIndex] = useState<number | null>(null);
+  const fetchingRef = useRef(false);
   const isSaved = savedPlaylists.some(p => p.id === id);
   const isOwn = playlist?.user?._id === user?.id;
 
@@ -39,15 +40,18 @@ const ViewPlaylist = () => {
 
   useEffect(() => {
     const fetchPlaylist = async () => {
-      if (id) {
-        try {
-          const fetchedPlaylist = await getPlaylist(id);
-          setPlaylist(fetchedPlaylist);
-        } catch (error) {
-          console.error('Failed to fetch playlist:', error);
-        } finally {
-          setLoading(false);
-        }
+      if (!id || fetchingRef.current) return;
+      
+      fetchingRef.current = true;
+      setLoading(true);
+      try {
+        const fetchedPlaylist = await getPlaylist(id);
+        setPlaylist(fetchedPlaylist);
+      } catch (error) {
+        console.error('Failed to fetch playlist:', error);
+      } finally {
+        setLoading(false);
+        fetchingRef.current = false;
       }
     };
     fetchPlaylist();
