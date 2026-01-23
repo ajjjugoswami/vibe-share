@@ -17,7 +17,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
       <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
         <div className="flex items-center gap-2">
  
-          <Text className="text-base font-semibold text-gradient">Now Music</Text>
+          <img src="/logo.png" alt="Now Music" className="h-12 w-auto" />
         </div>
         <div
           className="w-7 h-7 rounded-full bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors"
