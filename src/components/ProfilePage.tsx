@@ -80,10 +80,10 @@ const ProfilePage = () => {
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* Profile Header */}
         <div className="flex items-center gap-4 mb-6">
-          <UserAvatar avatarUrl={user?.avatarUrl} size={64} className="ring-2 ring-primary/20 ring-offset-2 ring-offset-background" />
+          <UserAvatar avatarUrl={user?.avatarUrl} size={90} className="ring-2 ring-primary/20 ring-offset-2 ring-offset-background" />
           <div className="flex-1">
             <Title level={5} className="!mb-0">{user?.username}</Title>
-            <Text type="secondary" className="text-sm">{user?.bio || 'No bio yet'}</Text>
+            <Text type="secondary" className="text-[11px] leading-none">{user?.bio || 'No bio yet'}</Text>
             <div className="flex gap-4 mt-2">
               <Text className="text-sm"><span className="font-semibold">{userPlaylists.length}</span> playlists</Text>
               <Text className="text-sm"><span className="font-semibold">{savedPlaylists.length}</span> saved</Text>
