@@ -1,5 +1,5 @@
 import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3, Instagram, Twitter, Youtube, Music, Link2, RefreshCw } from "lucide-react";
-import { Button, Tabs, Typography, Empty, Spin, App } from "antd";
+import { Button, Typography, Empty, App } from "antd";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -7,6 +7,7 @@ import { logout, refreshUser } from "@/store/slices/authSlice";
 import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
 import { Music2 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
+import { PlaylistGridSkeleton } from "@/components/skeletons";
 
 const { Text, Title } = Typography;
 
@@ -220,7 +221,7 @@ const ProfilePage = () => {
 
         {/* Content */}
         {isLoading ? (
-          <div className="py-12 flex justify-center"><Spin /></div>
+          <PlaylistGridSkeleton count={4} />
         ) : currentPlaylists.length === 0 ? (
           <Empty
             className="py-12"

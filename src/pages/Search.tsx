@@ -7,6 +7,7 @@ import UserCard from "@/components/UserCard";
 import { useNavigate } from "react-router-dom";
 import { Link2 } from "lucide-react";
 import { searchAPI } from "@/lib/api";
+import { SearchResultsSkeleton } from "@/components/skeletons";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -292,10 +293,10 @@ const Search = () => {
           <>
             {/* Search Results */}
             {isLoading ? (
-              <div className="py-16 text-center">
-                <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground">Searching...</p>
-              </div>
+              <SearchResultsSkeleton 
+                type={activeFilter === "all" ? "mixed" : activeFilter === "tags" ? "playlists" : activeFilter} 
+                count={4} 
+              />
             ) : error ? (
               <div className="py-16 text-center">
                 <p className="text-red-500 mb-2">Search failed</p>
