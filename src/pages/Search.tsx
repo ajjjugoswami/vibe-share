@@ -165,9 +165,9 @@ const Search = () => {
       {/* Header with Search */}
       <header className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="px-4 py-3 max-w-4xl mx-auto">
-          <h1 className="text-xl font-bold mb-3">Search</h1>
+          <h1 className="text-xl font-bold mb-3 max-w-lg mx-auto">Search</h1>
           
-          <form onSubmit={handleSearchSubmit} className="relative">
+          <form onSubmit={handleSearchSubmit} className="relative max-w-lg mx-auto ">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search users, playlists, or tags..."
@@ -214,7 +214,7 @@ const Search = () => {
         )}
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-4">
+      <div className="max-w-lg mx-auto px-4 py-6">
         {!isSearching ? (
           <>
             {/* Recent Searches */}
