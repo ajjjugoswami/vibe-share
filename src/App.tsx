@@ -2,6 +2,7 @@ import { App as AntdApp } from "antd";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Analytics } from '@vercel/analytics/react';
 import { PlaylistProvider } from "./contexts/PlaylistContext";
 import { SocialProvider } from "./contexts/SocialContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -38,6 +39,7 @@ const App = () => (
     <AntdApp>
       <BrowserRouter>
         <ScrollToTop />
+        <Analytics />
         <AuthInitializer>
           <AuthProvider>
             <PlaylistProvider>
