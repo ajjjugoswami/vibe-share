@@ -96,6 +96,7 @@ const UserProfile = () => {
         fetchUserPlaylists();
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfile?.id, isOwnProfile, playlists, getUserPlaylists]);
 
   const handleShare = () => {
@@ -160,7 +161,6 @@ const UserProfile = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleShare}>Share Profile</DropdownMenuItem>
-              <DropdownMenuItem>Report User</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
