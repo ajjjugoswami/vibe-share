@@ -7,15 +7,39 @@ import { fetchFeedPlaylists } from "@/store/slices/playlistSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { playlistsAPI } from "@/lib/api";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 const EditPlaylist = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getPlaylist, updatePlaylist, addSongToPlaylist, deletePlaylist } = usePlaylist();
   const dispatch = useAppDispatch();
+  const isMobile = useIsMobile();
 
   const [isLoading, setIsLoading] = useState(true);
   const [playlist, setPlaylist] = useState<any | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deleteType, setDeleteType] = useState<'playlist' | 'songs' | null>(null);
+  const [songsToDelete, setSongsToDelete] = useState<string[]>([]);
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
 
   useEffect(() => {
     if (!id) return navigate('/profile');
@@ -37,6 +61,54 @@ const EditPlaylist = () => {
     fetchPlaylist();
   }, [id, navigate, getPlaylist]);
 
+  const proceedWithSubmit = async (payload: any, removedSongIds: string[]) => {
+    // Delete songs
+    for (const songId of removedSongIds) {
+      try {
+        await playlistsAPI.deleteSong(songId);
+      } catch (err) {
+        console.error(`Failed to delete song ${songId}:`, err);
+        // continue deleting others but show a toast
+        toast.error('Some songs could not be removed');
+      }
+    }
+
+    // add new songs (those without an id)
+    const newSongs = (payload.songs || []).filter((s: any) => !s.id);
+    for (const song of newSongs) {
+      await addSongToPlaylist(id, {
+        title: song.title,
+        artist: song.artist,
+        url: song.url,
+        platform: song.platform,
+      });
+    }
+
+    // upload thumbnail if provided
+    if (payload.thumbnailFile) {
+      try {
+        await playlistsAPI.uploadPlaylistThumbnail(id, payload.thumbnailFile);
+      } catch (err) {
+        console.error('Thumbnail upload failed:', err);
+        toast.error('Playlist saved but thumbnail upload failed');
+      }
+    }
+
+    // remove thumbnail if requested
+    if (payload.removeThumbnail && playlist?.thumbnailUrl) {
+      try {
+        await playlistsAPI.removePlaylistThumbnail(id);
+      } catch (err) {
+        console.error('Thumbnail removal failed:', err);
+        toast.error('Playlist saved but thumbnail removal failed');
+      }
+    }
+
+    toast.success('Playlist saved');
+    dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
+    navigate(`/playlist/${id}`);
+  };
+
   const handleSubmit = async (payload: any) => {
     if (!id) return;
     try {
@@ -53,66 +125,46 @@ const EditPlaylist = () => {
       const currentSongIds: string[] = (payload.songs || []).map((s: any) => s.id).filter(Boolean);
       const removedSongIds = originalSongIds.filter((sid) => !currentSongIds.includes(sid));
 
-      for (const songId of removedSongIds) {
-        try {
-          await playlistsAPI.deleteSong(songId);
-        } catch (err) {
-          console.error(`Failed to delete song ${songId}:`, err);
-          // continue deleting others but show a toast
-          toast.error('Some songs could not be removed');
-        }
+      if (removedSongIds.length > 0) {
+        setSongsToDelete(removedSongIds);
+        setPendingPayload(payload);
+        setDeleteType('songs');
+        setShowDeleteConfirmation(true);
+        return; // Wait for confirmation
       }
 
-      // add new songs (those without an id)
-      const newSongs = (payload.songs || []).filter((s: any) => !s.id);
-      for (const song of newSongs) {
-        await addSongToPlaylist(id, {
-          title: song.title,
-          artist: song.artist,
-          url: song.url,
-          platform: song.platform,
-        });
-      }
-
-      // upload thumbnail if provided
-      if (payload.thumbnailFile) {
-        try {
-          await playlistsAPI.uploadPlaylistThumbnail(id, payload.thumbnailFile);
-        } catch (err) {
-          console.error('Thumbnail upload failed:', err);
-          toast.error('Playlist saved but thumbnail upload failed');
-        }
-      }
-
-      // remove thumbnail if requested
-      if (payload.removeThumbnail && playlist?.thumbnailUrl) {
-        try {
-          await playlistsAPI.removePlaylistThumbnail(id);
-        } catch (err) {
-          console.error('Thumbnail removal failed:', err);
-          toast.error('Playlist saved but thumbnail removal failed');
-        }
-      }
-
-      toast.success('Playlist saved');
-      dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
-      navigate(`/playlist/${id}`);
+      await proceedWithSubmit(payload, removedSongIds);
     } catch (err) {
       console.error('Failed to save playlist:', err);
       toast.error('Failed to save playlist');
     }
   };
 
-  const handleDelete = async () => {
-    if (!id) return;
-    try {
-      await deletePlaylist(id);
-      toast.success('Playlist deleted');
-      navigate('/profile');
-    } catch (err) {
-      console.error('Failed to delete playlist:', err);
-      toast.error('Failed to delete playlist');
+  const handleDelete = () => {
+    setDeleteType('playlist');
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteType === 'playlist') {
+      if (!id) return;
+      try {
+        await deletePlaylist(id);
+        toast.success('Playlist deleted');
+        navigate('/profile');
+      } catch (err) {
+        console.error('Failed to delete playlist:', err);
+        toast.error('Failed to delete playlist');
+      }
+    } else if (deleteType === 'songs') {
+      if (pendingPayload) {
+        await proceedWithSubmit(pendingPayload, songsToDelete);
+      }
     }
+    setShowDeleteConfirmation(false);
+    setDeleteType(null);
+    setSongsToDelete([]);
+    setPendingPayload(null);
   };
 
   if (isLoading) {
@@ -157,6 +209,61 @@ const EditPlaylist = () => {
           </button>
         </div>
       </div>
+
+      {/* Confirmation Dialog/Sheet */}
+      {isMobile ? (
+        <Sheet open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+          <SheetContent side="top" className="max-h-[50vh] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>
+                {deleteType === 'playlist' ? 'Delete Playlist' : 'Delete Songs'}
+              </SheetTitle>
+              <SheetDescription>
+                {deleteType === 'playlist'
+                  ? 'Are you sure you want to delete this playlist? This action cannot be undone.'
+                  : `Are you sure you want to delete ${songsToDelete.length} song${songsToDelete.length > 1 ? 's' : ''}? This action cannot be undone.`
+                }
+              </SheetDescription>
+            </SheetHeader>
+            <SheetFooter className="flex-row gap-2 mt-4">
+              <button
+                onClick={() => setShowDeleteConfirmation(false)}
+                className="flex-1 py-1 px-4 border border-border rounded-[8px]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 py-1 px-4 bg-destructive text-destructive-foreground rounded-[8px]"
+              >
+                Delete
+              </button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {deleteType === 'playlist' ? 'Delete Playlist' : 'Delete Songs'}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {deleteType === 'playlist'
+                  ? 'Are you sure you want to delete this playlist? This action cannot be undone.'
+                  : `Are you sure you want to delete ${songsToDelete.length} song${songsToDelete.length > 1 ? 's' : ''}? This action cannot be undone.`
+                }
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-[8px]">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
