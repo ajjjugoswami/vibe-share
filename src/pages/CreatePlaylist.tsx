@@ -15,24 +15,46 @@ import SortableSongItem from "@/components/SortableSongItem";
 
 const suggestedTags = ["chill", "vibes", "workout", "study", "party", "roadtrip"];
 
-type SongWithTempId = Omit<SongLink, "id"> & { tempId: string };
+type SongWithTempId = Omit<SongLink, "id"> & { tempId: string; id?: string };
 
-const CreatePlaylist = () => {
+type CreatePlaylistProps = {
+  initialData?: {
+    id?: string;
+    title?: string;
+    description?: string;
+    coverGradient?: string;
+    tags?: string[];
+    songs?: SongLink[];
+    thumbnailUrl?: string | null;
+  };
+  onSubmit?: (payload: {
+    title: string;
+    description: string;
+    coverGradient: string;
+    tags: string[];
+    songs: Array<Partial<SongLink> & { tempId?: string }>; // may include existing ids
+    thumbnailFile?: File | null;
+    removeThumbnail?: boolean;
+  }) => Promise<void>;
+};
+
+const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => {
   const navigate = useNavigate();
   const { createPlaylist, addSongToPlaylist } = usePlaylist();
   const user = useAppSelector((state) => state.auth.user);
   const isLoggedIn = !!user;
   
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedGradient, setSelectedGradient] = useState(gradients[0]);
-  const [songs, setSongs] = useState<SongWithTempId[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [selectedGradient, setSelectedGradient] = useState(initialData?.coverGradient || gradients[0]);
+  const [songs, setSongs] = useState<SongWithTempId[]>((initialData?.songs || []).map(s => ({...s, tempId: s.id || crypto.randomUUID()})));
+  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [showAddSong, setShowAddSong] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(initialData?.thumbnailUrl || null);
+  const [removeThumbnail, setRemoveThumbnail] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -107,21 +129,41 @@ const CreatePlaylist = () => {
   const handleRemoveThumbnail = () => {
     setThumbnailFile(null);
     setThumbnailPreview(null);
+    if (initialData?.thumbnailUrl) setRemoveThumbnail(true);
   };
 
   const handleCreate = async () => {
-    if (title.trim()) {
-      setIsCreating(true);
-      try {
-        const playlist = await createPlaylist({
-          title: title.trim(),
-          description: description.trim(),
-          coverGradient: selectedGradient,
-          tags, 
-          isPublic: true
-        });
+    if (!title.trim()) return;
+    setIsCreating(true);
 
-        for (const song of songs) {
+    const payload = {
+      title: title.trim(),
+      description: description.trim(),
+      coverGradient: selectedGradient,
+      tags,
+      songs,
+      thumbnailFile,
+      removeThumbnail,
+    };
+
+    try {
+      if (onSubmit) {
+        await onSubmit(payload as any);
+        return;
+      }
+
+      // default create behavior
+      const playlist = await createPlaylist({
+        title: payload.title,
+        description: payload.description,
+        coverGradient: payload.coverGradient,
+        tags: payload.tags,
+        isPublic: true
+      });
+
+      for (const song of songs) {
+        // only songs added in this flow won't have an id
+        if (!song.id) {
           await addSongToPlaylist(playlist.id, {
             title: song.title,
             artist: song.artist,
@@ -129,26 +171,24 @@ const CreatePlaylist = () => {
             platform: song.platform,
           });
         }
-
-        // Upload thumbnail if provided
-        if (thumbnailFile) {
-          try {
-            await playlistsAPI.uploadPlaylistThumbnail(playlist.id, thumbnailFile);
-          } catch (thumbnailError) {
-            console.error('Failed to upload thumbnail:', thumbnailError);
-            // Don't fail the entire creation if thumbnail upload fails
-            toast.error("Playlist created, but thumbnail upload failed");
-          }
-        }
-
-        toast.success("Playlist created successfully!");
-        navigate(`/playlist/${playlist.id}`);
-      } catch (error) {
-        console.error('Failed to create playlist:', error);
-        toast.error("Failed to create playlist");
-      } finally {
-        setIsCreating(false);
       }
+
+      if (thumbnailFile) {
+        try {
+          await playlistsAPI.uploadPlaylistThumbnail(playlist.id, thumbnailFile);
+        } catch (thumbnailError) {
+          console.error('Failed to upload thumbnail:', thumbnailError);
+          toast.error("Playlist created, but thumbnail upload failed");
+        }
+      }
+
+      toast.success("Playlist created successfully!");
+      navigate(`/playlist/${playlist.id}`);
+    } catch (err) {
+      console.error('Failed to create/update playlist:', err);
+      toast.error("Failed to save playlist");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -160,14 +200,14 @@ const CreatePlaylist = () => {
           <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <span className="font-semibold">New Playlist</span>
+          <span className="font-semibold">{initialData ? 'Edit Playlist' : 'New Playlist'}</span>
           <Button
             size="sm"
             onClick={handleCreate}
             disabled={!title.trim() || isCreating}
             className="h-8 px-4 rounded-lg"
           >
-            {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create"}
+            {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : (initialData ? 'Save' : 'Create')}
           </Button>
         </div>
       </header>
