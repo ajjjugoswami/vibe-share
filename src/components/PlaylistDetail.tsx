@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlaylistData } from "./PlaylistCard";
 import { usePlaylist } from "../contexts/PlaylistContext";
-import { useAuth } from "../contexts/AuthContext";
+import { useAppSelector } from "../store/hooks";
 
 interface SongLink {
   title: string;
@@ -72,7 +72,7 @@ const getPlatformIcon = (platform: string) => {
 
 const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
   const { likePlaylist, unlikePlaylist, savePlaylist, unsavePlaylist } = usePlaylist();
-  const { isLoggedIn } = useAuth();
+  const isLoggedIn = useAppSelector((state) => !!state.auth.user);
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(playlist.isLiked || false);
   const [isSaved, setIsSaved] = useState(playlist.isSaved || false);

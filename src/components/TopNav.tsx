@@ -1,8 +1,6 @@
-import { Music2, User } from "lucide-react";
-import { Typography } from "antd";
 import { useNavigate } from "react-router-dom";
-
-const { Text } = Typography;
+import { useAppSelector } from "../store/hooks";
+import UserAvatar from "./UserAvatar";
 
 interface TopNavProps {
   onShareClick?: () => void;
@@ -11,6 +9,7 @@ interface TopNavProps {
 
 const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   const navigate = useNavigate();
+  const user = useAppSelector((state) => state.auth.user);
 
   return (
     <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
@@ -20,10 +19,10 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
           <img src="/logo.png" alt="Now Music" className="h-12 w-auto" />
         </div>
         <div
-          className="w-7 h-7 rounded-full bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors"
+          className="cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/profile')}
         >
-          <User className="w-4 h-4 text-foreground" />
+          <UserAvatar avatarUrl={user?.avatarUrl} size={28} />
         </div>
       </div>
     </header>
