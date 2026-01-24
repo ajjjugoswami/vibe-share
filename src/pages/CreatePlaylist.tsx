@@ -177,7 +177,7 @@ const CreatePlaylist = () => {
         {/* Cover + Title Row */}
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className={`w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden ${
+            <div className={`w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden ${
               thumbnailPreview ? '' : `bg-gradient-to-br ${selectedGradient}`
             }`}>
               {thumbnailPreview ? (
@@ -204,13 +204,13 @@ const CreatePlaylist = () => {
               placeholder="Playlist name"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="h-10 bg-card border-border/40 rounded-lg"
+              className="h-8 bg-card border-border/40 rounded-[8px]"
             />
             <Input
               placeholder="Description (optional)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="h-10 bg-card border-border/40 rounded-lg text-sm"
+              className="h-8 bg-card border-border/40 rounded-[8px] text-sm"
             />
           </div>
         </div>
