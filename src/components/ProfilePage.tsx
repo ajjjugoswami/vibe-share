@@ -157,10 +157,10 @@ const ProfilePage = () => {
 
         {/* Actions */}
         <div className="flex gap-2 mb-6">
-          <Button size="small" onClick={() => navigate('/edit-profile')} icon={<Edit3 className="w-3.5 h-3.5" />} className="flex-1 !rounded-lg !h-8">
+          <Button size="small" onClick={() => navigate('/edit-profile')} icon={<Edit3 className="w-3.5 h-3.5" />} className="flex-1 !rounded-[14px] !h-8">
             Edit Profile
           </Button>
-          <Button size="small" onClick={() => navigate('/playlist/create')} icon={<Plus className="w-3.5 h-3.5" />} className="flex-1 !rounded-lg !h-8">
+          <Button size="small" onClick={() => navigate('/playlist/create')} icon={<Plus className="w-3.5 h-3.5" />} className="flex-1 !rounded-[14px] !h-8">
             New Playlist
           </Button>
         </div>
