@@ -19,7 +19,6 @@ import Settings from "./pages/Settings";
 import EditPlaylist from "./pages/EditPlaylist";
 import EditProfile from "./pages/EditProfile";
 import ViewPlaylist from "./pages/ViewPlaylist";
-import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,7 +45,7 @@ const App = () => (
                 <Routes>
                   <Route path="/sign-in" element={<SignIn />} />
                   <Route path="/sign-up" element={<SignUp />} />
-                  <Route path="/auth/callback" element={<AuthCallback />} />
+
                   <Route element={<MainLayout />}>
                   <Route path="/" element={<Feed />} />
                   <Route path="/discover" element={<Discover />} />

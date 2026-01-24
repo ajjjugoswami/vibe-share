@@ -61,8 +61,13 @@ export const authAPI = {
     return handleResponse(response);
   },
 
-  googleLogin: () => {
-    window.location.href = `${API_BASE_URL}/auth/google`;
+  googleSignIn: async (credential: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential }),
+    });
+    return handleResponse(response);
   },
 };
 

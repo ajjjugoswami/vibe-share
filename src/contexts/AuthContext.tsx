@@ -18,7 +18,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
-  googleLogin: () => void;
+  googleLogin: (credential: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -104,8 +104,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const googleLogin = () => {
-    authAPI.googleLogin();
+  const googleLogin = async (credential: string) => {
+    try {
+      const response = await authAPI.googleSignIn(credential);
+      const { user: userData, accessToken, refreshToken } = response.data;
+
+      localStorage.setItem('vibe_token', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      setUser(userData);
+
+      // Refresh user data to ensure it's up to date
+      await refreshUser();
+
+      console.log("[USER_GOOGLE_SIGNIN]", {
+        userId: userData.id,
+        email: userData.email,
+        username: userData.username,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Google sign-in failed:', error);
+      throw error;
+    }
   };
 
   const logout = async () => {
