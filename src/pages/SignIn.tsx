@@ -66,7 +66,7 @@ const SignIn = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Example@email.com"
                 required
-                className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60"
+                className="h-10 bg-card border-border/50 rounded-[9px] text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -81,7 +81,7 @@ const SignIn = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
                   required
-                  className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60 pr-10"
+                  className="h-10 bg-card border-border/50 rounded-[9px] text-foreground placeholder:text-muted-foreground/60 pr-10"
                 />
                 <button
                   type="button"
@@ -121,7 +121,7 @@ const SignIn = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg"
+              className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-[9px]"
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
@@ -141,7 +141,7 @@ const SignIn = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-10 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-lg"
+            className="w-full h-10 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-[9px] flex items-center justify-center"
             onClick={() => toast.info("Google sign-in coming soon!")}
           >
             <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">

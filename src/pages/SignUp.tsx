@@ -71,7 +71,7 @@ const SignUp = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Choose a username"
                 required
-                className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60"
+                className="h-10 bg-card border-border/50 rounded-[9px] text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -85,7 +85,7 @@ const SignUp = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Example@email.com"
                 required
-                className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60"
+                className="h-10 bg-card border-border/50 rounded-[9px] text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -100,7 +100,7 @@ const SignUp = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
                   required
-                  className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60 pr-10"
+                  className="h-10 bg-card border-border/50 rounded-[9px] text-foreground placeholder:text-muted-foreground/60 pr-10"
                 />
                 <button
                   type="button"
@@ -123,7 +123,7 @@ const SignUp = () => {
             </div>
 
             {error && (
-              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <div className="p-3 rounded-[9px] bg-destructive/10 border border-destructive/20">
                 <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
@@ -131,7 +131,7 @@ const SignUp = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg"
+              className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-[9px]"
             >
               {isLoading ? "Creating account..." : "Sign up"}
             </Button>
@@ -151,7 +151,7 @@ const SignUp = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-10 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-lg"
+            className="w-full h-10 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-[9px] flex items-center justify-center"
             onClick={() => toast.info("Google sign-up coming soon!")}
           >
             <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
