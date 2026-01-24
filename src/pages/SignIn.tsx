@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Shield, Zap } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login, clearError } from "@/store/slices/authSlice";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useAuth } from "../contexts/AuthContext";
+import { message } from "antd";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +14,7 @@ const SignIn = () => {
 
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,10 +23,10 @@ const SignIn = () => {
 
     try {
       await dispatch(login({ email, password })).unwrap();
-      toast.success("Welcome back!");
+      message.success("Welcome back!");
       navigate("/");
     } catch (err) {
-      toast.error(error || "Login failed");
+      message.error(error || "Login failed");
     }
   };
 
@@ -142,7 +143,7 @@ const SignIn = () => {
             type="button"
             variant="outline"
             className="w-full h-10 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-[9px] flex items-center justify-center"
-            onClick={() => toast.info("Google sign-in coming soon!")}
+            onClick={googleLogin}
           >
             <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

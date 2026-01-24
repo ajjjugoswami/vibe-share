@@ -60,6 +60,10 @@ export const authAPI = {
     });
     return handleResponse(response);
   },
+
+  googleLogin: () => {
+    window.location.href = `${API_BASE_URL}/auth/google`;
+  },
 };
 
 // Users API

@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { PlaylistProvider } from "./contexts/PlaylistContext";
 import { SocialProvider } from "./contexts/SocialContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import AuthInitializer from "./components/AuthInitializer";
 import MainLayout from "./components/MainLayout";
 import Feed from "./pages/Feed";
@@ -18,6 +19,7 @@ import Settings from "./pages/Settings";
 import EditPlaylist from "./pages/EditPlaylist";
 import EditProfile from "./pages/EditProfile";
 import ViewPlaylist from "./pages/ViewPlaylist";
+import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,12 +40,14 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <AuthInitializer>
-          <PlaylistProvider>
-            <SocialProvider>
-              <Routes>
-                <Route path="/sign-in" element={<SignIn />} />
-                <Route path="/sign-up" element={<SignUp />} />
-                <Route element={<MainLayout />}>
+          <AuthProvider>
+            <PlaylistProvider>
+              <SocialProvider>
+                <Routes>
+                  <Route path="/sign-in" element={<SignIn />} />
+                  <Route path="/sign-up" element={<SignUp />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route element={<MainLayout />}>
                   <Route path="/" element={<Feed />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/search" element={<Search />} />
@@ -60,6 +64,7 @@ const App = () => (
               </Routes>
             </SocialProvider>
           </PlaylistProvider>
+          </AuthProvider>
         </AuthInitializer>
       </BrowserRouter>
     </AntdApp>

@@ -18,6 +18,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
+  googleLogin: () => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -103,6 +104,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const googleLogin = () => {
+    authAPI.googleLogin();
+  };
+
   const logout = async () => {
     try {
       await authAPI.logout();
@@ -137,6 +142,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isLoading,
       login,
       signup,
+      googleLogin,
       logout,
       refreshUser
     }}>
