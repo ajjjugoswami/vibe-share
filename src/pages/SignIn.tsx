@@ -52,17 +52,7 @@ const SignIn = () => {
             </p>
           </div>
 
-          {/* Trust Badges */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-              <Shield className="w-4 h-4" />
-              <span>Secure</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-              <Zap className="w-4 h-4" />
-              <span>Fast</span>
-            </div>
-          </div>
+ 
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
