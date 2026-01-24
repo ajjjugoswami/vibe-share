@@ -1,11 +1,11 @@
-import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3, Instagram, Twitter, Youtube, Music, Link2 } from "lucide-react";
+import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3, Instagram, Twitter, Youtube, Music, Link2, RefreshCw } from "lucide-react";
 import { Button, Tabs, Typography, Empty, Spin, App } from "antd";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { logout } from "@/store/slices/authSlice";
+import { logout, refreshUser } from "@/store/slices/authSlice";
 import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
-import {   Music2 } from "lucide-react";
+import { Music2 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
 const { Text, Title } = Typography;
@@ -22,12 +22,31 @@ const ProfilePage = () => {
 
   const currentPlaylists = activeTab === "playlists" ? userPlaylists : savedPlaylists;
 
-  useEffect(() => {
-    if (isLoggedIn && user) {
+  const fetchData = useCallback(() => {
+    if (isLoggedIn && user?.id) {
       dispatch(fetchUserPlaylists(user.id));
       dispatch(fetchSavedPlaylists());
     }
-  }, [isLoggedIn, user, dispatch]);
+  }, [isLoggedIn, user?.id, dispatch]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await dispatch(refreshUser()).unwrap();
+      fetchData();
+      message.success("Profile refreshed!");
+    } catch (error) {
+      message.error("Failed to refresh");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleShareProfile = () => {
     const shareUrl = `${window.location.origin}/user/${user?.username}`;
@@ -70,6 +89,14 @@ const ProfilePage = () => {
         <div className="flex items-center justify-between px-4 h-12 max-w-lg mx-auto">
           <Text className="font-medium text-sm">@{user?.username}</Text>
           <div className="flex items-center gap-0.5">
+            <Button 
+              type="text" 
+              size="small" 
+              onClick={handleRefresh} 
+              icon={<RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />} 
+              className="!w-8 !h-8" 
+              disabled={isRefreshing}
+            />
             <Button type="text" size="small" onClick={handleShareProfile} icon={<Share2 className="w-4 h-4" />} className="!w-8 !h-8" />
             <Button type="text" size="small" onClick={() => navigate('/settings')} icon={<Settings className="w-4 h-4" />} className="!w-8 !h-8" />
             <Button type="text" size="small" onClick={handleLogout} icon={<LogOut className="w-4 h-4" />} className="!w-8 !h-8" />
