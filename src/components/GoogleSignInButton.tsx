@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAppDispatch } from '../store/hooks';
+import { googleLogin } from '../store/slices/authSlice';
 
 declare global {
   interface Window {
@@ -14,7 +15,7 @@ interface GoogleSignInButtonProps {
 }
 
 const GoogleSignInButton = ({ onSuccess, onError, className = '' }: GoogleSignInButtonProps) => {
-  const { googleLogin } = useAuth();
+  const dispatch = useAppDispatch();
   const buttonRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,7 +64,7 @@ const GoogleSignInButton = ({ onSuccess, onError, className = '' }: GoogleSignIn
   const handleCredentialResponse = async (response: any) => {
     try {
       setIsLoading(true);
-      await googleLogin(response.credential);
+      await dispatch(googleLogin(response.credential)).unwrap();
       onSuccess?.();
     } catch (error) {
       console.error('Google sign-in error:', error);

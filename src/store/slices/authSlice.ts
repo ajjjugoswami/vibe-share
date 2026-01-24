@@ -128,6 +128,27 @@ export const refreshUser = createAsyncThunk(
   }
 );
 
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (credential: string, { rejectWithValue }) => {
+    try {
+      const response = await authAPI.googleSignIn(credential);
+      const { accessToken, refreshToken } = response.data;
+      
+      localStorage.setItem('vibe_token', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      
+      // Fetch complete user profile after login
+      const meResponse = await authAPI.getMe();
+      console.log('[GOOGLE_LOGIN] User fetched:', meResponse);
+      return meResponse.data?.user || meResponse.user;
+    } catch (error: any) {
+      console.error('[GOOGLE_LOGIN] Error:', error);
+      return rejectWithValue(error.message || 'Google sign-in failed');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -190,6 +211,19 @@ const authSlice = createSlice({
       // Refresh User
       .addCase(refreshUser.fulfilled, (state, action) => {
         state.user = normalizeUser(action.payload as any);
+      })
+      // Google Login
+      .addCase(googleLogin.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.user = normalizeUser(action.payload as any);
+        state.isLoading = false;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

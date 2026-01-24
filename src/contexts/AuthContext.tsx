@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { useAppDispatch } from "../store/hooks";
+import { googleLogin as reduxGoogleLogin } from "../store/slices/authSlice";
 import { authAPI } from "../lib/api";
 
 interface User {
@@ -36,6 +38,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
 
   // Check for existing session on mount
   useEffect(() => {
@@ -106,15 +109,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const googleLogin = async (credential: string) => {
     try {
-      const response = await authAPI.googleSignIn(credential);
-      const { user: userData, accessToken, refreshToken } = response.data;
-
-      localStorage.setItem('vibe_token', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      // Dispatch to Redux store
+      const userData = await dispatch(reduxGoogleLogin(credential)).unwrap();
+      
+      // Also update local context state
       setUser(userData);
-
-      // Refresh user data to ensure it's up to date
-      await refreshUser();
 
       console.log("[USER_GOOGLE_SIGNIN]", {
         userId: userData.id,
