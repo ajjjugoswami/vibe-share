@@ -7,6 +7,7 @@ import { usersAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import UserAvatar from "@/components/UserAvatar";
+import { UserProfileSkeleton, PlaylistGridSkeleton } from "@/components/skeletons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -110,11 +111,7 @@ const UserProfile = () => {
   };
 
   if (loadingUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <UserProfileSkeleton />;
   }
 
   if (error || (!userProfile && !isOwnProfile)) {
@@ -283,9 +280,7 @@ const UserProfile = () => {
           </div>
 
           {loadingPlaylists ? (
-            <div className="py-16 flex justify-center">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
+            <PlaylistGridSkeleton count={4} />
           ) : userPlaylists.length === 0 ? (
             <div className="py-16 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-muted flex items-center justify-center">

@@ -9,6 +9,7 @@ import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import MiniPlayer from "@/components/MiniPlayer";
+import { PlaylistDetailSkeleton } from "@/components/skeletons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -126,11 +127,7 @@ const ViewPlaylist = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <PlaylistDetailSkeleton />;
   }
 
   if (!playlist) {

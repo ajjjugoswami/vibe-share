@@ -1,11 +1,12 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { RefreshCw } from "lucide-react";
-import { Button, Spin, Empty, Typography } from "antd";
+import { Button, Empty, Typography } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchFeedPlaylists, resetFeedPagination } from "@/store/slices/playlistSlice";
 import TopNav from "./TopNav";
 import PlaylistPost, { PlaylistPostData } from "./PlaylistPost";
+import { FeedSkeleton, FeedCardSkeleton } from "@/components/skeletons";
 
 const { Text } = Typography;
 
@@ -90,8 +91,8 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       
       <div className="max-w-lg mx-auto">
         {isLoading && feedPlaylists.length > 0 && (
-          <div className="flex justify-center py-4">
-            <Spin />
+          <div className="px-4 py-4">
+            <FeedCardSkeleton />
           </div>
         )}
         
@@ -107,10 +108,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         )}
         
         {isLoading && feedPlaylists.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Spin size="large" />
-            <Text type="secondary" className="mt-4 text-sm">Loading...</Text>
-          </div>
+          <FeedSkeleton count={3} />
         )}
         
         {!error && (
@@ -147,8 +145,8 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
             )}
             
             {transformedPlaylists.length > 0 && hasMoreFeed && (
-              <div ref={loadMoreRef} className="flex justify-center py-8">
-                {isLoadingMore && <Spin />}
+              <div ref={loadMoreRef} className="px-4 py-4">
+                {isLoadingMore && <FeedCardSkeleton />}
               </div>
             )}
 
