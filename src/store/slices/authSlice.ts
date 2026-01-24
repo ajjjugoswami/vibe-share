@@ -72,8 +72,10 @@ export const login = createAsyncThunk(
       
       // Fetch complete user profile after login to get avatarUrl and all data
       const meResponse = await authAPI.getMe();
-      return meResponse.user;
+      console.log('[LOGIN] User fetched:', meResponse);
+      return meResponse.data?.user || meResponse.user;
     } catch (error: any) {
+      console.error('[LOGIN] Error:', error);
       return rejectWithValue(error.message || 'Login failed');
     }
   }
@@ -91,8 +93,10 @@ export const signup = createAsyncThunk(
       
       // Fetch complete user profile after signup to ensure consistency
       const meResponse = await authAPI.getMe();
-      return meResponse.user;
+      console.log('[SIGNUP] User fetched:', meResponse);
+      return meResponse.data?.user || meResponse.user;
     } catch (error: any) {
+      console.error('[SIGNUP] Error:', error);
       return rejectWithValue(error.message || 'Signup failed');
     }
   }
