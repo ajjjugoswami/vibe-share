@@ -50,6 +50,7 @@ interface PlaylistContextType {
   likePlaylist: (id: string) => Promise<void>;
   unlikePlaylist: (id: string) => Promise<void>;
   addSongToPlaylist: (playlistId: string, song: Omit<SongLink, "id" | "position">) => Promise<void>;
+  addSongsToPlaylist: (playlistId: string, songs: Omit<SongLink, "id" | "position">[]) => Promise<void>;
   removeSongFromPlaylist: (playlistId: string, songId: string) => Promise<void>;
   updateSongInPlaylist: (playlistId: string, songId: string, updates: Partial<SongLink>) => Promise<void>;
   reorderSongs: (playlistId: string, songs: { id: string; position: number }[]) => Promise<void>;
@@ -345,6 +346,28 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const addSongsToPlaylist = async (playlistId: string, songs: Omit<SongLink, "id" | "position">[]) => {
+    try {
+      setError(null);
+      await playlistsAPI.addSongs(playlistId, {
+        songs: songs.map(song => ({
+          title: song.title,
+          artist: song.artist,
+          url: song.url,
+          platform: song.platform,
+          thumbnail: song.thumbnail,
+        }))
+      });
+
+      // Refresh the playlist to get updated songs
+      await refreshPlaylists();
+    } catch (err) {
+      console.error('Failed to add songs:', err);
+      setError('Failed to add songs');
+      throw err;
+    }
+  };
+
   const removeSongFromPlaylist = async (playlistId: string, songId: string) => {
     try {
       setError(null);
@@ -406,6 +429,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
       likePlaylist,
       unlikePlaylist,
       addSongToPlaylist,
+      addSongsToPlaylist,
       removeSongFromPlaylist,
       updateSongInPlaylist,
       reorderSongs,

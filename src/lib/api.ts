@@ -291,6 +291,18 @@ export const playlistsAPI = {
     return handleResponse(response);
   },
 
+  addSongs: async (playlistId: string, data: { songs: { title: string; artist: string; url: string; platform?: string; thumbnail?: string }[] }) => {
+    const response = await fetch(`${API_BASE_URL}/playlists/${playlistId}/songs/batch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
   updateSong: async (songId: string, data: { title?: string; artist?: string; url?: string; platform?: string }) => {
     const response = await fetch(`${API_BASE_URL}/playlists/songs/${songId}`, {
       method: 'PUT',

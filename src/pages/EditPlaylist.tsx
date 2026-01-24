@@ -30,7 +30,7 @@ import {
 const EditPlaylist = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getPlaylist, updatePlaylist, addSongToPlaylist, deletePlaylist } = usePlaylist();
+  const { getPlaylist, updatePlaylist, addSongToPlaylist, addSongsToPlaylist, deletePlaylist } = usePlaylist();
   const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
 
@@ -75,13 +75,13 @@ const EditPlaylist = () => {
 
     // add new songs (those without an id)
     const newSongs = (payload.songs || []).filter((s: any) => !s.id);
-    for (const song of newSongs) {
-      await addSongToPlaylist(id, {
+    if (newSongs.length > 0) {
+      await addSongsToPlaylist(id!, newSongs.map(song => ({
         title: song.title,
         artist: song.artist,
         url: song.url,
         platform: song.platform,
-      });
+      })));
     }
 
     // upload thumbnail if provided

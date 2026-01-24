@@ -40,7 +40,7 @@ type CreatePlaylistProps = {
 
 const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => {
   const navigate = useNavigate();
-  const { createPlaylist, addSongToPlaylist } = usePlaylist();
+  const { createPlaylist, addSongToPlaylist, addSongsToPlaylist } = usePlaylist();
   const user = useAppSelector((state) => state.auth.user);
   const isLoggedIn = !!user;
   
@@ -161,16 +161,15 @@ const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => 
         isPublic: true
       });
 
-      for (const song of songs) {
-        // only songs added in this flow won't have an id
-        if (!song.id) {
-          await addSongToPlaylist(playlist.id, {
-            title: song.title,
-            artist: song.artist,
-            url: song.url,
-            platform: song.platform,
-          });
-        }
+      // Add all new songs in a single batch request
+      const newSongs = songs.filter(song => !song.id);
+      if (newSongs.length > 0) {
+        await addSongsToPlaylist(playlist.id, newSongs.map(song => ({
+          title: song.title,
+          artist: song.artist,
+          url: song.url,
+          platform: song.platform,
+        })));
       }
 
       if (thumbnailFile) {
