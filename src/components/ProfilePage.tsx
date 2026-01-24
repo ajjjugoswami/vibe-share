@@ -185,10 +185,10 @@ const ProfilePage = () => {
 
         {/* Actions */}
         <div className="flex gap-2 mb-6">
-          <Button size="small" onClick={() => navigate('/edit-profile')} icon={<Edit3 className="w-3.5 h-3.5" />} className="flex-1 !rounded-[14px] !h-8">
+          <Button size="small" onClick={() => navigate('/edit-profile')} icon={<Edit3 className="w-3.5 h-3.5" />} className="flex-1 !rounded-[10px] !h-8">
             Edit Profile
           </Button>
-          <Button size="small" onClick={() => navigate('/playlist/create')} icon={<Plus className="w-3.5 h-3.5" />} className="flex-1 !rounded-[14px] !h-8">
+          <Button size="small" onClick={() => navigate('/playlist/create')} icon={<Plus className="w-3.5 h-3.5" />} className="flex-1 !rounded-[10px] !h-8">
             New Playlist
           </Button>
         </div>
@@ -197,7 +197,7 @@ const ProfilePage = () => {
         <div className="flex items-center justify-between mb-5">
           <button
             onClick={() => setActiveTab("playlists")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium transition-all duration-300 ${
               activeTab === "playlists"
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                 : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -208,7 +208,7 @@ const ProfilePage = () => {
           </button>
           <button
             onClick={() => setActiveTab("saved")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium transition-all duration-300 ${
               activeTab === "saved"
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                 : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
