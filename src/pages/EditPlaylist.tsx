@@ -40,12 +40,28 @@ const EditPlaylist = () => {
   const handleSubmit = async (payload: any) => {
     if (!id) return;
     try {
+      // Update basic playlist fields
       await updatePlaylist(id, {
         title: payload.title,
         description: payload.description,
         coverGradient: payload.coverGradient,
         tags: payload.tags,
       });
+
+      // Delete songs that were removed in the editor
+      const originalSongIds: string[] = (playlist?.songs || []).map((s: any) => s.id).filter(Boolean);
+      const currentSongIds: string[] = (payload.songs || []).map((s: any) => s.id).filter(Boolean);
+      const removedSongIds = originalSongIds.filter((sid) => !currentSongIds.includes(sid));
+
+      for (const songId of removedSongIds) {
+        try {
+          await playlistsAPI.deleteSong(songId);
+        } catch (err) {
+          console.error(`Failed to delete song ${songId}:`, err);
+          // continue deleting others but show a toast
+          toast.error('Some songs could not be removed');
+        }
+      }
 
       // add new songs (those without an id)
       const newSongs = (payload.songs || []).filter((s: any) => !s.id);
