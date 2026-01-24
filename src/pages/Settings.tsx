@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import { Button, message, Modal, Typography } from "antd";
 import { ArrowLeft, Check, Palette, Shield, Trash2 } from "lucide-react";
@@ -85,7 +84,7 @@ const Settings = () => {
               <Text type="secondary" className="text-xs">Email</Text>
               <Text className="block text-sm">{currentUser?.email || "—"}</Text>
             </div>
-            <Button size="small" onClick={handleChangePassword} className="!rounded-lg !h-8">
+            <Button size="small" onClick={handleChangePassword} className="!rounded-[10px] !h-8">
               Change Password
             </Button>
           </div>
@@ -97,7 +96,7 @@ const Settings = () => {
             <Trash2 className="w-4 h-4 text-destructive" />
             <Text strong className="text-sm text-destructive">Danger Zone</Text>
           </div>
-          <Button size="small" danger onClick={handleDeleteAccount} className="!rounded-lg !h-8">
+          <Button size="small" danger onClick={handleDeleteAccount} className="!rounded-[10px] !h-8">
             Delete Account
           </Button>
         </div>
