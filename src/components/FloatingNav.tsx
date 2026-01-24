@@ -16,7 +16,7 @@ const FloatingNav = () => {
 
   return (
     <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(600px,calc(100vw-2rem))]">
-      <div className="flex w-full items-center justify-between gap-1 px-2.5 py-1.5 rounded-[2.25rem] bg-card/40 backdrop-blur-2xl border border-border/30 shadow-2xl">
+      <div className="flex w-full items-center justify-between gap-1 px-2.5 py-1.5 rounded-[2.25rem] bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
