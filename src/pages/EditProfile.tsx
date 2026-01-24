@@ -1,14 +1,16 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, message, Typography, Upload } from "antd";
-import { ArrowLeft, Check, Upload as UploadIcon, Camera } from "lucide-react";
+import { message } from "antd";
+import { ArrowLeft, Check, Camera, Instagram, Twitter, Youtube, Music, Globe, ChevronDown, Loader2 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { usersAPI } from "@/lib/api";
 import { updateUser } from "@/store/slices/authSlice";
 import UserAvatar from "@/components/UserAvatar";
-
-const { TextArea } = Input;
-const { Title, Text } = Typography;
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 const EditProfile = () => {
   const dispatch = useAppDispatch();
@@ -18,6 +20,7 @@ const EditProfile = () => {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [socialOpen, setSocialOpen] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(
     currentUser?.avatarUrl?.startsWith('https://res.cloudinary.com/') ? currentUser.avatarUrl : ''
   );
@@ -32,17 +35,16 @@ const EditProfile = () => {
   });
 
   const currentAvatarUrl = uploadedImageUrl;
+  const hasSocialLinks = Object.values(socialLinks).some(v => v);
 
   const handleImageUpload = async (file: File) => {
     if (!file) return;
     
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       message.error('Please select an image file');
       return;
     }
 
-    // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       message.error('Image size must be less than 5MB');
       return;
@@ -53,7 +55,7 @@ const EditProfile = () => {
       const res = await usersAPI.uploadProfilePicture(file);
       setUploadedImageUrl(res.data.imageUrl);
       dispatch(updateUser(res.data.user));
-      message.success('Profile picture uploaded successfully!');
+      message.success('Profile picture uploaded!');
     } catch (err: any) {
       message.error(err.message || 'Failed to upload image');
     } finally {
@@ -75,7 +77,7 @@ const EditProfile = () => {
       const res = await usersAPI.updateUser(currentUser.id, payload);
       dispatch(updateUser(res.data.user));
       message.success("Profile updated!");
-      navigate(`/user/${res.data.user.username}`);
+      navigate(`/profile`);
     } catch (err: any) {
       message.error(err.message || "Failed to update");
     } finally {
@@ -85,22 +87,60 @@ const EditProfile = () => {
 
   if (!currentUser) return null;
 
+  const socialInputs = [
+    { key: 'instagram', icon: Instagram, placeholder: 'Instagram username', prefix: '@' },
+    { key: 'twitter', icon: Twitter, placeholder: 'Twitter username', prefix: '@' },
+    { key: 'youtube', icon: Youtube, placeholder: 'YouTube channel URL' },
+    { key: 'spotify', icon: Music, placeholder: 'Spotify artist URL' },
+    { key: 'website', icon: Globe, placeholder: 'Website URL' },
+  ];
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center justify-between px-4 h-12 max-w-lg mx-auto">
-          <Button type="text" size="small" onClick={() => navigate(-1)} icon={<ArrowLeft className="w-4 h-4" />} className="!w-8 !h-8" />
-          <Title level={5} className="!mb-0 !text-sm">Edit Profile</Title>
-          <Button type="text" size="small" onClick={onSubmit} loading={loading} icon={!loading && <Check className="w-4 h-4" />} className="!w-8 !h-8 !text-primary" />
+        <div className="flex items-center justify-between px-4 h-14 max-w-lg mx-auto">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)}
+            className="h-9 w-9"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="font-semibold">Edit Profile</h1>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onSubmit} 
+            disabled={loading}
+            className="h-9 w-9 text-primary"
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
+          </Button>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 py-6">
-        {/* Avatar */}
-        <div className="flex flex-col items-center mb-6">
-          <UserAvatar avatarUrl={currentAvatarUrl} size={80} className="mb-3 ring-2 ring-primary/20 ring-offset-2 ring-offset-background" />
-          <div className="flex flex-col items-center gap-3">
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Avatar Section */}
+        <div className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/40">
+          <div className="relative group">
+            <UserAvatar 
+              avatarUrl={currentAvatarUrl} 
+              size={72} 
+              className="ring-2 ring-primary/20 ring-offset-2 ring-offset-background" 
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              {uploading ? (
+                <Loader2 className="w-5 h-5 text-white animate-spin" />
+              ) : (
+                <Camera className="w-5 h-5 text-white" />
+              )}
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -111,84 +151,114 @@ const EditProfile = () => {
               }}
               className="hidden"
             />
-            <Button
-              type="dashed"
+          </div>
+          <div className="flex-1">
+            <p className="font-medium">{currentUser.username}</p>
+            <button
               onClick={() => fileInputRef.current?.click()}
-              loading={uploading}
-              icon={<Camera className="w-4 h-4" />}
-              className="!rounded-lg !h-10"
+              disabled={uploading}
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
-              {uploading ? 'Uploading...' : uploadedImageUrl ? 'Change Image' : 'Upload Image'}
-            </Button>
-            {uploadedImageUrl && (
-              <Text className="text-xs text-muted-foreground text-center">
-                Image uploaded successfully
-              </Text>
-            )}
+              {uploading ? 'Uploading...' : 'Change photo'}
+            </button>
           </div>
         </div>
 
-        {/* Form */}
-        <Form layout="vertical">
-          <Form.Item label={<Text className="text-xs">Username</Text>}>
-            <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your username" className="!rounded-[8px]" />
-          </Form.Item>
-          <Form.Item label={<Text className="text-xs">Bio</Text>}>
-            <TextArea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="About you..." maxLength={150} showCount className="!rounded-[8px]" />
-          </Form.Item>
-
-          {/* Social Links */}
-          <div className="space-y-3">
-            <Text className="text-xs font-medium">Social Links</Text>
-            
-            <Form.Item label={<Text className="text-xs">Instagram</Text>}>
-              <Input 
-                value={socialLinks.instagram} 
-                onChange={(e) => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))} 
-                placeholder="https://instagram.com/username" 
-                className="!rounded-[8px]" 
-              />
-            </Form.Item>
-
-            <Form.Item label={<Text className="text-xs">Twitter</Text>}>
-              <Input 
-                value={socialLinks.twitter} 
-                onChange={(e) => setSocialLinks(prev => ({ ...prev, twitter: e.target.value }))} 
-                placeholder="https://twitter.com/username" 
-                className="!rounded-[8px]" 
-              />
-            </Form.Item>
-
-            <Form.Item label={<Text className="text-xs">YouTube</Text>}>
-              <Input 
-                value={socialLinks.youtube} 
-                onChange={(e) => setSocialLinks(prev => ({ ...prev, youtube: e.target.value }))} 
-                placeholder="https://youtube.com/channel/..." 
-                className="!rounded-[8px]" 
-              />
-            </Form.Item>
-
-            <Form.Item label={<Text className="text-xs">Spotify</Text>}>
-              <Input 
-                value={socialLinks.spotify} 
-                onChange={(e) => setSocialLinks(prev => ({ ...prev, spotify: e.target.value }))} 
-                placeholder="https://open.spotify.com/artist/..." 
-                className="!rounded-[8px]" 
-              />
-            </Form.Item>
-
-            <Form.Item label={<Text className="text-xs">Website</Text>}>
-              <Input 
-                value={socialLinks.website} 
-                onChange={(e) => setSocialLinks(prev => ({ ...prev, website: e.target.value }))} 
-                placeholder="https://yourwebsite.com" 
-                className="!rounded-[8px]" 
-              />
-            </Form.Item>
+        {/* Basic Info */}
+        <div className="space-y-4 p-4 bg-card rounded-2xl border border-border/40">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Username</label>
+            <Input 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              placeholder="Your username" 
+              className="h-11 bg-background border-border/50"
+            />
           </div>
-        </Form>
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground">Bio</label>
+              <span className="text-xs text-muted-foreground">{bio.length}/150</span>
+            </div>
+            <Textarea 
+              value={bio} 
+              onChange={(e) => setBio(e.target.value)} 
+              placeholder="Tell people about yourself..." 
+              maxLength={150}
+              rows={3}
+              className="resize-none bg-background border-border/50"
+            />
+          </div>
+        </div>
 
-        <Button block size="small" onClick={() => navigate(-1)} className="!rounded-[8px] !h-8 mt-4">Cancel</Button>
+        {/* Social Links - Collapsible */}
+        <Collapsible open={socialOpen} onOpenChange={setSocialOpen}>
+          <div className="bg-card rounded-2xl border border-border/40 overflow-hidden">
+            <CollapsibleTrigger asChild>
+              <button className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-sm">Social Links</p>
+                    <p className="text-xs text-muted-foreground">
+                      {hasSocialLinks ? 'Connected' : 'Add your social profiles'}
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown className={cn(
+                  "w-5 h-5 text-muted-foreground transition-transform",
+                  socialOpen && "rotate-180"
+                )} />
+              </button>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent>
+              <div className="px-4 pb-4 space-y-3 border-t border-border/30 pt-4">
+                {socialInputs.map(({ key, icon: Icon, placeholder, prefix }) => (
+                  <div key={key} className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <Input
+                      value={socialLinks[key as keyof typeof socialLinks]}
+                      onChange={(e) => setSocialLinks(prev => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="h-10 bg-background border-border/50 flex-1"
+                    />
+                  </div>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
+        {/* Action Buttons */}
+        <div className="space-y-3 pt-2">
+          <Button 
+            onClick={onSubmit} 
+            disabled={loading}
+            className="w-full h-11 rounded-xl"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+            className="w-full h-11 rounded-xl text-muted-foreground"
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   );
