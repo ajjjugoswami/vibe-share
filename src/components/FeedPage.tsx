@@ -138,7 +138,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
                   </div>
                 }
               >
-                <Button size="small" onClick={onShareClick} className="!rounded-lg !h-8">
+                <Button size="small" onClick={onShareClick} className="!rounded-[8px] px-4 !h-8">
                   Create Playlist
                 </Button>
               </Empty>
