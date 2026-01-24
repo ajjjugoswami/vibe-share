@@ -85,21 +85,22 @@ const PlaylistPost = ({
       return;
     }
 
-    setIsLiking(true);
+    // Optimistic update
+    const wasLiked = isLikedState;
+    setIsLikedState(!wasLiked);
+    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+
     try {
-      if (isLikedState) {
+      if (wasLiked) {
         await dispatch(unlikePlaylist(id)).unwrap();
-        setIsLikedState(false);
-        setLikeCount(prev => prev - 1);
       } else {
         await dispatch(likePlaylist(id)).unwrap();
-        setIsLikedState(true);
-        setLikeCount(prev => prev + 1);
       }
     } catch (error) {
+      // Revert on error
+      setIsLikedState(wasLiked);
+      setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
       console.error("Failed to toggle like:", error);
-    } finally {
-      setIsLiking(false);
     }
   };
 
@@ -112,21 +113,22 @@ const PlaylistPost = ({
       return;
     }
 
-    setIsSaving(true);
+    // Optimistic update
+    const wasSaved = isSavedState;
+    setIsSavedState(!wasSaved);
+    message.success(wasSaved ? "Removed from saved" : "Saved to collection");
+
     try {
-      if (isSavedState) {
+      if (wasSaved) {
         await dispatch(unsavePlaylist(id)).unwrap();
-        setIsSavedState(false);
-        message.success("Removed from saved");
       } else {
         await dispatch(savePlaylist(id)).unwrap();
-        setIsSavedState(true);
-        message.success("Saved to collection");
       }
     } catch (error) {
+      // Revert on error
+      setIsSavedState(wasSaved);
+      message.error("Action failed, please try again");
       console.error("Failed to toggle save:", error);
-    } finally {
-      setIsSaving(false);
     }
   };
 

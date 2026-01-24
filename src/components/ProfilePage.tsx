@@ -194,29 +194,29 @@ const ProfilePage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-between items-center mb-4 border-b border-border/30 pb-2">
-          <Button
-            type={activeTab === "playlists" ? "primary" : "text"}
-            size="small"
+        <div className="flex items-center justify-between mb-5">
+          <button
             onClick={() => setActiveTab("playlists")}
-            className="!rounded-[8px] !h-8"
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+              activeTab === "playlists"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            }`}
           >
-            <span className="flex items-center gap-1.5 text-sm">
-              <Grid3X3 className="w-3.5 h-3.5" />
-              Playlists
-            </span>
-          </Button>
-          <Button
-            type={activeTab === "saved" ? "primary" : "text"}
-            size="small"
+            <Grid3X3 className="w-4 h-4" />
+            Playlists
+          </button>
+          <button
             onClick={() => setActiveTab("saved")}
-            className="!rounded-[8px] !h-8"
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+              activeTab === "saved"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            }`}
           >
-            <span className="flex items-center gap-1.5 text-sm">
-              <Bookmark className="w-3.5 h-3.5" />
-              Saved
-            </span>
-          </Button>
+            <Bookmark className="w-4 h-4" />
+            Saved
+          </button>
         </div>
 
         {/* Content */}
