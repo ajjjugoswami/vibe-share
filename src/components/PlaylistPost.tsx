@@ -1,4 +1,4 @@
-import { Heart, Share2, Bookmark, MoreHorizontal, Play, Music2 } from "lucide-react";
+import { Heart, Share2, Bookmark, MoreHorizontal, Play, Music2, BookmarkCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typography, Dropdown, App } from "antd";
@@ -264,23 +264,25 @@ const PlaylistPost = ({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-2">
           <button 
             onClick={handleLike}
             disabled={isLiking}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300 ${
               isLikedState 
-                ? "bg-red-500/10 text-red-500" 
-                : "hover:bg-secondary text-muted-foreground hover:text-foreground"
-            } ${isLiking ? "opacity-50" : ""}`}
+                ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
+                : "bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground"
+            } ${isLiking ? "opacity-50 scale-95" : "active:scale-95"}`}
           >
-            <Heart className={`w-5 h-5 ${isLikedState ? "fill-current" : ""}`} />
-            <span className="text-sm font-medium">{formatNumber(likeCount)}</span>
+            <Heart 
+              className={`w-5 h-5 transition-transform duration-300 ${isLikedState ? "fill-current scale-110" : ""}`} 
+            />
+            <span className="text-sm font-semibold">{formatNumber(likeCount)}</span>
           </button>
           <button 
             onClick={handleShare}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-95"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -288,13 +290,17 @@ const PlaylistPost = ({
         <button 
           onClick={handleSave}
           disabled={isSaving}
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
+          className={`flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300 ${
             isSavedState 
-              ? "bg-primary/10 text-primary" 
-              : "hover:bg-secondary text-muted-foreground hover:text-foreground"
-          } ${isSaving ? "opacity-50" : ""}`}
+              ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25" 
+              : "bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground"
+          } ${isSaving ? "opacity-50 scale-95" : "active:scale-95"}`}
         >
-          <Bookmark className={`w-5 h-5 ${isSavedState ? "fill-current" : ""}`} />
+          {isSavedState ? (
+            <BookmarkCheck className="w-5 h-5 fill-current" />
+          ) : (
+            <Bookmark className="w-5 h-5" />
+          )}
         </button>
       </div>
     </article>

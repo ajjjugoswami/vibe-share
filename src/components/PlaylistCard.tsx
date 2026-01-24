@@ -141,13 +141,13 @@ const PlaylistCard = ({
         <button 
           onClick={handleLike}
           disabled={isLiking}
-          className={`absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+          className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
             isLikedState 
-              ? "bg-red-500 text-white" 
+              ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/30 scale-110" 
               : "bg-black/60 backdrop-blur-md text-white hover:bg-white/20"
-          } ${isLiking ? "opacity-50" : ""}`}
+          } ${isLiking ? "opacity-50 scale-95" : "active:scale-90"}`}
         >
-          <Heart className={`w-4 h-4 ${isLikedState ? "fill-current" : ""}`} />
+          <Heart className={`w-4.5 h-4.5 transition-transform duration-300 ${isLikedState ? "fill-current" : ""}`} />
         </button>
       </div>
 
