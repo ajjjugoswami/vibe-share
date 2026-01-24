@@ -65,14 +65,16 @@ export const login = createAsyncThunk(
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await authAPI.login({ email, password });
-      const { user, accessToken, refreshToken } = response.data;
+      const { accessToken, refreshToken } = response.data;
       
       localStorage.setItem('vibe_token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       
-      return user;
+      // Fetch complete user profile after login to get avatarUrl and all data
+      const meResponse = await authAPI.getMe();
+      return meResponse.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      return rejectWithValue(error.message || 'Login failed');
     }
   }
 );
@@ -82,14 +84,16 @@ export const signup = createAsyncThunk(
   async ({ email, password, username }: { email: string; password: string; username: string }, { rejectWithValue }) => {
     try {
       const response = await authAPI.register({ email, username, password });
-      const { user, accessToken, refreshToken } = response.data;
+      const { accessToken, refreshToken } = response.data;
       
       localStorage.setItem('vibe_token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       
-      return user;
+      // Fetch complete user profile after signup to ensure consistency
+      const meResponse = await authAPI.getMe();
+      return meResponse.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Signup failed');
+      return rejectWithValue(error.message || 'Signup failed');
     }
   }
 );
