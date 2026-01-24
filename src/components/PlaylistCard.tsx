@@ -78,21 +78,22 @@ const PlaylistCard = ({
       return;
     }
 
-    setIsLiking(true);
+    // Optimistic update
+    const wasLiked = isLikedState;
+    setIsLikedState(!wasLiked);
+    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+
     try {
-      if (isLikedState) {
+      if (wasLiked) {
         await dispatch(unlikePlaylist(id)).unwrap();
-        setIsLikedState(false);
-        setLikeCount(prev => prev - 1);
       } else {
         await dispatch(likePlaylist(id)).unwrap();
-        setIsLikedState(true);
-        setLikeCount(prev => prev + 1);
       }
     } catch (error) {
+      // Revert on error
+      setIsLikedState(wasLiked);
+      setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
       console.error("Failed to toggle like:", error);
-    } finally {
-      setIsLiking(false);
     }
   };
 
