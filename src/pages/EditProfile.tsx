@@ -10,13 +10,6 @@ import UserAvatar from "@/components/UserAvatar";
 const { TextArea } = Input;
 const { Title, Text } = Typography;
 
-const avatarOptions = [0, 1, 2, 3, 4, 5, 6, 7];
-const emojiOptions = ['😎', '🎵', '🎧', '🎤', '🎸', '🎹', '🔥', '✨'];
-
-const isEmoji = (s: string) => {
-  try { return /[\p{Emoji}]/u.test(s); } catch { return false; }
-};
-
 const EditProfile = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -25,16 +18,6 @@ const EditProfile = () => {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [avatarType, setAvatarType] = useState<'preset' | 'emoji' | 'upload'>(
-    currentUser?.avatarUrl?.startsWith('emoji:') ? 'emoji' : 
-    currentUser?.avatarUrl?.startsWith('https://res.cloudinary.com/') ? 'upload' : 'preset'
-  );
-  const [selectedPreset, setSelectedPreset] = useState(
-    currentUser?.avatarUrl?.startsWith('avatar:') ? parseInt(currentUser.avatarUrl.split(':')[1], 10) : 0
-  );
-  const [selectedEmoji, setSelectedEmoji] = useState(
-    currentUser?.avatarUrl?.startsWith('emoji:') ? currentUser.avatarUrl.split(':')[1] : '😎'
-  );
   const [uploadedImageUrl, setUploadedImageUrl] = useState(
     currentUser?.avatarUrl?.startsWith('https://res.cloudinary.com/') ? currentUser.avatarUrl : ''
   );
@@ -48,8 +31,7 @@ const EditProfile = () => {
     website: currentUser?.socialLinks?.website || ''
   });
 
-  const currentAvatarUrl = avatarType === 'emoji' ? `emoji:${selectedEmoji}` : 
-                          avatarType === 'upload' ? uploadedImageUrl : `avatar:${selectedPreset}`;
+  const currentAvatarUrl = uploadedImageUrl;
 
   const handleImageUpload = async (file: File) => {
     if (!file) return;
@@ -84,12 +66,8 @@ const EditProfile = () => {
     const payload: any = { bio, socialLinks };
     if (username.trim()) payload.username = username.trim();
     
-    if (avatarType === 'upload' && uploadedImageUrl) {
+    if (uploadedImageUrl) {
       payload.avatarUrl = uploadedImageUrl;
-    } else if (avatarType === "emoji" && selectedEmoji && isEmoji(selectedEmoji)) {
-      payload.avatarUrl = `emoji:${selectedEmoji}`;
-    } else {
-      payload.avatarUrl = `avatar:${selectedPreset}`;
     }
 
     try {
@@ -122,51 +100,30 @@ const EditProfile = () => {
         {/* Avatar */}
         <div className="flex flex-col items-center mb-6">
           <UserAvatar avatarUrl={currentAvatarUrl} size={80} className="mb-3 ring-2 ring-primary/20 ring-offset-2 ring-offset-background" />
-          <div className="flex gap-2 mb-4">
-            <Button size="small" type={avatarType === 'preset' ? 'primary' : 'default'} onClick={() => setAvatarType('preset')} className="!rounded-lg !h-7 !text-xs">Avatars</Button>
-            <Button size="small" type={avatarType === 'emoji' ? 'primary' : 'default'} onClick={() => setAvatarType('emoji')} className="!rounded-lg !h-7 !text-xs">Emojis</Button>
-            <Button size="small" type={avatarType === 'upload' ? 'primary' : 'default'} onClick={() => setAvatarType('upload')} className="!rounded-lg !h-7 !text-xs">Upload</Button>
-          </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {avatarType === 'preset' ? (
-              avatarOptions.map((idx) => (
-                <button key={idx} onClick={() => setSelectedPreset(idx)} className={`p-1.5 rounded-xl transition-all ${selectedPreset === idx ? 'ring-2 ring-primary bg-primary/10' : 'bg-secondary'}`}>
-                  <UserAvatar avatarUrl={`avatar:${idx}`} size={36} />
-                </button>
-              ))
-            ) : avatarType === 'emoji' ? (
-              emojiOptions.map((emoji) => (
-                <button key={emoji} onClick={() => setSelectedEmoji(emoji)} className={`w-11 h-11 rounded-xl text-xl transition-all ${selectedEmoji === emoji ? 'ring-2 ring-primary bg-primary/10' : 'bg-secondary'}`}>
-                  {emoji}
-                </button>
-              ))
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file);
-                  }}
-                  className="hidden"
-                />
-                <Button
-                  type="dashed"
-                  onClick={() => fileInputRef.current?.click()}
-                  loading={uploading}
-                  icon={<Camera className="w-4 h-4" />}
-                  className="!rounded-lg !h-10"
-                >
-                  {uploading ? 'Uploading...' : 'Choose Image'}
-                </Button>
-                {uploadedImageUrl && (
-                  <Text className="text-xs text-muted-foreground text-center">
-                    Image uploaded successfully
-                  </Text>
-                )}
-              </div>
+          <div className="flex flex-col items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file);
+              }}
+              className="hidden"
+            />
+            <Button
+              type="dashed"
+              onClick={() => fileInputRef.current?.click()}
+              loading={uploading}
+              icon={<Camera className="w-4 h-4" />}
+              className="!rounded-lg !h-10"
+            >
+              {uploading ? 'Uploading...' : uploadedImageUrl ? 'Change Image' : 'Upload Image'}
+            </Button>
+            {uploadedImageUrl && (
+              <Text className="text-xs text-muted-foreground text-center">
+                Image uploaded successfully
+              </Text>
             )}
           </div>
         </div>
