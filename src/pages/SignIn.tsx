@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Music, Shield, Zap } from "lucide-react";
+import { Shield, Zap } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login, clearError } from "@/store/slices/authSlice";
 import { Input } from "@/components/ui/input";
@@ -34,9 +34,7 @@ const SignIn = () => {
       {/* Header */}
       <header className="p-4 md:p-6">
         <Link to="/" className="flex items-center gap-2 w-fit">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-            <Music className="w-4 h-4 text-white" />
-          </div>
+          <img src="/logo.png" alt="Now Music" className="w-8 h-8 rounded-lg object-cover" />
           <span className="font-semibold text-foreground">Now Music</span>
         </Link>
       </header>
@@ -78,7 +76,7 @@ const SignIn = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Example@email.com"
                 required
-                className="h-12 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60"
+                className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -93,7 +91,7 @@ const SignIn = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
                   required
-                  className="h-12 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60 pr-12"
+                  className="h-10 bg-card border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60 pr-10"
                 />
                 <button
                   type="button"
@@ -133,7 +131,7 @@ const SignIn = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg"
+              className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg"
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
@@ -153,10 +151,10 @@ const SignIn = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-lg"
+            className="w-full h-10 border-border/50 bg-card hover:bg-card/80 text-foreground font-medium rounded-lg"
             onClick={() => toast.info("Google sign-in coming soon!")}
           >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
