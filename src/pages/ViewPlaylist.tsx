@@ -343,7 +343,7 @@ const ViewPlaylist = () => {
             <button
               type="button"
               onClick={handleLike}
-              className={`flex items-center gap-1.5 h-9 px-3.5 rounded-md text-sm font-medium transition-all duration-300 active:scale-95 touch-manipulation ${
+              className={`flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium transition-all duration-300 active:scale-95 touch-manipulation ${
                 isLiked 
                   ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
                   : "bg-secondary hover:bg-secondary/80 active:bg-secondary text-foreground"
@@ -356,7 +356,7 @@ const ViewPlaylist = () => {
             <button
               type="button"
               onClick={handleShare}
-              className="w-9 h-9 rounded-md bg-secondary hover:bg-secondary/80 active:bg-secondary flex items-center justify-center transition-colors touch-manipulation"
+              className="w-9 h-9 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary flex items-center justify-center transition-colors touch-manipulation"
             >
               <Share2 className="w-4 h-4" />
             </button>
@@ -365,7 +365,7 @@ const ViewPlaylist = () => {
               <button
                 type="button"
                 onClick={handleSave}
-                className={`w-9 h-9 rounded-md flex items-center justify-center transition-all duration-300 active:scale-95 touch-manipulation ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 touch-manipulation ${
                   isSaved 
                     ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25" 
                     : "bg-secondary hover:bg-secondary/80 active:bg-secondary text-foreground"
