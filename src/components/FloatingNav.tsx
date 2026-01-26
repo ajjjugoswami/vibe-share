@@ -2,6 +2,7 @@ import { Home, Search, Plus, User } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
+import { triggerHaptic } from "@/hooks/useHaptic";
 
 const FloatingNav = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -57,7 +58,10 @@ const FloatingNav = () => {
         
         {/* Create Button */}
         <button
-          onClick={() => navigate(isLoggedIn ? "/playlist/create" : "/sign-in")}
+          onClick={() => {
+            triggerHaptic('medium');
+            navigate(isLoggedIn ? "/playlist/create" : "/sign-in");
+          }}
           className="w-11 h-11 ml-1 rounded-full bg-primary flex items-center justify-center text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
         >
           <Plus className="w-5 h-5" strokeWidth={2.5} />
