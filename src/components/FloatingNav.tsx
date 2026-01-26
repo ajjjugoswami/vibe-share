@@ -3,11 +3,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
 import { triggerHaptic } from "@/hooks/useHaptic";
+import { useClickSound } from "@/hooks/useClickSound";
 
 const FloatingNav = () => {
   const { user } = useAppSelector((state) => state.auth);
   const isLoggedIn = !!user;
   const navigate = useNavigate();
+  const { playSound } = useClickSound();
 
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
@@ -59,6 +61,7 @@ const FloatingNav = () => {
         {/* Create Button */}
         <button
           onClick={() => {
+            playSound('tap');
             triggerHaptic('medium');
             navigate(isLoggedIn ? "/playlist/create" : "/sign-in");
           }}
