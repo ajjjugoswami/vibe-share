@@ -165,11 +165,12 @@ const PlaylistPost = ({
   ];
 
   return (
-    <article className="p-4 transition-colors hover:bg-secondary/20">
+    <article className="p-4 transition-colors active:bg-secondary/30">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div 
-          className="flex items-center gap-3 cursor-pointer group"
+        <button 
+          type="button"
+          className="flex items-center gap-3 group touch-manipulation text-left"
           onClick={() => navigate(`/user/${username}`)}
         >
           <div className="relative">
@@ -180,17 +181,21 @@ const PlaylistPost = ({
             <Text strong className="text-sm block group-hover:text-primary transition-colors">{username}</Text>
             <Text type="secondary" className="text-xs">{totalSongs} songs</Text>
           </div>
-        </div>
+        </button>
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-          <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
+          <button 
+            type="button"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary active:bg-secondary/80 transition-colors touch-manipulation"
+          >
             <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
           </button>
         </Dropdown>
       </div>
 
       {/* Cover */}
-      <div 
-        className="relative cursor-pointer group rounded-2xl overflow-hidden mb-4"
+      <button 
+        type="button"
+        className="relative w-full group rounded-2xl overflow-hidden mb-4 touch-manipulation text-left"
         onClick={onClick}
       >
         <div className="aspect-[4/3] w-full">
@@ -245,7 +250,7 @@ const PlaylistPost = ({
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Info */}
       <div className="mb-3">
@@ -269,12 +274,13 @@ const PlaylistPost = ({
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-2">
           <button 
+            type="button"
             onClick={handleLike}
             disabled={isLiking}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-300 ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-300 touch-manipulation min-h-[44px] ${
               isLikedState 
                 ? "bg-red-500/10 text-red-500" 
-                : "bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground"
+                : "bg-secondary/80 hover:bg-secondary active:bg-secondary text-muted-foreground hover:text-foreground"
             } ${isLiking ? "opacity-50 scale-95" : "active:scale-95"}`}
           >
             <Heart 
@@ -283,19 +289,21 @@ const PlaylistPost = ({
             <span className="text-sm font-semibold">{formatNumber(likeCount)}</span>
           </button>
           <button 
+            type="button"
             onClick={handleShare}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-95"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-secondary/80 hover:bg-secondary active:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-95 touch-manipulation"
           >
             <Share2 className="w-4 h-4" />
           </button>
         </div>
         <button 
+          type="button"
           onClick={handleSave}
           disabled={isSaving}
-          className={`flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 ${
+          className={`flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300 touch-manipulation ${
             isSavedState 
               ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25" 
-              : "bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground"
+              : "bg-secondary/80 hover:bg-secondary active:bg-secondary text-muted-foreground hover:text-foreground"
           } ${isSaving ? "opacity-50 scale-95" : "active:scale-95"}`}
         >
           {isSavedState ? (

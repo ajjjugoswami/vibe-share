@@ -333,7 +333,7 @@ const ViewPlaylist = () => {
               <Button 
                 size="sm" 
                 onClick={handleEdit} 
-                className="gap-2 rounded-full px-5 h-9"
+                className="gap-2 rounded-full px-5 h-10 touch-manipulation"
               >
                 <Edit className="w-4 h-4" />
                 Edit
@@ -341,11 +341,12 @@ const ViewPlaylist = () => {
             )}
             
             <button
+              type="button"
               onClick={handleLike}
-              className={`flex items-center gap-1.5 h-9 px-4 rounded-full text-sm font-medium transition-all duration-300 active:scale-95 ${
+              className={`flex items-center gap-1.5 h-10 px-4 rounded-full text-sm font-medium transition-all duration-300 active:scale-95 touch-manipulation ${
                 isLiked 
                   ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
-                  : "bg-secondary hover:bg-secondary/80 text-foreground"
+                  : "bg-secondary hover:bg-secondary/80 active:bg-secondary text-foreground"
               }`}
             >
               <Heart className={`w-4 h-4 transition-transform ${isLiked ? "fill-current scale-110" : ""}`} />
@@ -353,19 +354,21 @@ const ViewPlaylist = () => {
             </button>
             
             <button
+              type="button"
               onClick={handleShare}
-              className="w-9 h-9 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary flex items-center justify-center transition-colors touch-manipulation"
             >
               <Share2 className="w-4 h-4" />
             </button>
             
             {!isOwn && (
               <button
+                type="button"
                 onClick={handleSave}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 touch-manipulation ${
                   isSaved 
                     ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25" 
-                    : "bg-secondary hover:bg-secondary/80 text-foreground"
+                    : "bg-secondary hover:bg-secondary/80 active:bg-secondary text-foreground"
                 }`}
               >
                 {isSaved ? (
@@ -404,9 +407,10 @@ const ViewPlaylist = () => {
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               {playlist.songs.map((song: SongLink, index: number) => (
-                <div 
+                <button 
+                  type="button"
                   key={song.id}
-                  className="group bg-card rounded-2xl border border-border/40 overflow-hidden cursor-pointer hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 animate-fade-in"
+                  className="text-left group bg-card rounded-2xl border border-border/40 overflow-hidden hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 animate-fade-in active:scale-[0.98] touch-manipulation"
                   style={{ animationDelay: `${Math.min(index, 10) * 50}ms` }}
                   onClick={() => handlePlaySong(index)}
                 >
@@ -462,22 +466,24 @@ const ViewPlaylist = () => {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-1">
                       <button 
+                        type="button"
                         onClick={(e) => handleOpenExternal(e, song)}
-                        className="flex-1 flex items-center justify-center gap-1 h-7 rounded-lg bg-secondary/80 hover:bg-secondary text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 h-8 rounded-lg bg-secondary/80 hover:bg-secondary active:bg-secondary text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
                       >
                         <ExternalLink className="w-3 h-3" />
                         Open
                       </button>
                       <button 
+                        type="button"
                         onClick={(e) => handleShareSong(e, song)}
-                        className="flex-1 flex items-center justify-center gap-1 h-7 rounded-lg bg-secondary/80 hover:bg-secondary text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 h-8 rounded-lg bg-secondary/80 hover:bg-secondary active:bg-secondary text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
                       >
                         <Share2 className="w-3 h-3" />
                         Share
                       </button>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
