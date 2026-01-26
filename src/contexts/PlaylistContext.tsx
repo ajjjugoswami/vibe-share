@@ -11,6 +11,7 @@ export interface SongLink {
   platform: string;
   thumbnail?: string;
   position?: number;
+  duration?: number;
 }
 
 export interface Playlist {
