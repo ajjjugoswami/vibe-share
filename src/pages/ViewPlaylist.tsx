@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import MiniPlayer from "@/components/MiniPlayer";
 import UserAvatar from "@/components/UserAvatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useClickSound } from "@/hooks/useClickSound";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +51,7 @@ const ViewPlaylist = () => {
   const fetchingRef = useRef(false);
   const isSaved = savedPlaylists.some(p => p.id === id);
   const isOwn = playlist?.user?._id === user?.id;
+  const { playSound } = useClickSound();
 
   useEffect(() => {
     if (playlist) {
@@ -78,16 +80,19 @@ const ViewPlaylist = () => {
   }, [id, getPlaylist]);
 
   const handlePlaySong = (index: number) => {
+    playSound('pop');
     setActiveSongIndex(index);
   };
 
   const handleOpenExternal = (e: React.MouseEvent, song: SongLink) => {
     e.stopPropagation();
+    playSound('tap');
     window.open(song.url, "_blank", "noopener,noreferrer");
   };
 
   const handleShareSong = (e: React.MouseEvent, song: SongLink) => {
     e.stopPropagation();
+    playSound('click');
     if (navigator.share) {
       navigator.share({ title: song.title, url: song.url });
     } else {
@@ -97,6 +102,7 @@ const ViewPlaylist = () => {
   };
 
   const handleLike = async () => {
+    playSound('pop');
     if (!isLoggedIn) {
       navigate("/sign-in");
       return;
@@ -125,6 +131,7 @@ const ViewPlaylist = () => {
   };
 
   const handleSave = () => {
+    playSound('pop');
     if (!playlist || !playlist.id) return;
     
     if (!isLoggedIn) {
@@ -142,6 +149,7 @@ const ViewPlaylist = () => {
   };
 
   const handleShare = () => {
+    playSound('click');
     if (!playlist) return;
     
     const shareUrl = `${window.location.origin}/playlist/${id}`;
@@ -155,6 +163,7 @@ const ViewPlaylist = () => {
   };
 
   const handleEdit = () => {
+    playSound('tap');
     navigate(`/playlist/${id}/edit`);
   };
 
