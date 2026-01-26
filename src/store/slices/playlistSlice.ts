@@ -45,7 +45,14 @@ interface PlaylistState {
   error: string | null;
   feedPage: number;
   hasMoreFeed: boolean;
+  // Cache timestamps to avoid redundant API calls
+  userPlaylistsLastFetched: number | null;
+  savedPlaylistsLastFetched: number | null;
+  feedLastFetched: number | null;
+  currentUserId: string | null;
 }
+
+const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
 
 const gradients = [
   "from-purple-800 to-pink-900",
@@ -69,6 +76,16 @@ const initialState: PlaylistState = {
   error: null,
   feedPage: 1,
   hasMoreFeed: true,
+  userPlaylistsLastFetched: null,
+  savedPlaylistsLastFetched: null,
+  feedLastFetched: null,
+  currentUserId: null,
+};
+
+// Helper to check if cache is valid
+export const isCacheValid = (lastFetched: number | null): boolean => {
+  if (!lastFetched) return false;
+  return Date.now() - lastFetched < CACHE_DURATION;
 };
 
 const transformPlaylist = (playlist: any): Playlist => ({
@@ -265,11 +282,21 @@ const playlistSlice = createSlice({
     clearPlaylists: (state) => {
       state.userPlaylists = [];
       state.savedPlaylists = [];
+      state.userPlaylistsLastFetched = null;
+      state.savedPlaylistsLastFetched = null;
+      state.currentUserId = null;
     },
     resetFeedPagination: (state) => {
       state.feedPage = 1;
       state.hasMoreFeed = true;
       state.feedPlaylists = [];
+      state.feedLastFetched = null;
+    },
+    invalidateUserPlaylists: (state) => {
+      state.userPlaylistsLastFetched = null;
+    },
+    invalidateSavedPlaylists: (state) => {
+      state.savedPlaylistsLastFetched = null;
     },
   },
   extraReducers: (builder) => {
@@ -282,6 +309,8 @@ const playlistSlice = createSlice({
       .addCase(fetchUserPlaylists.fulfilled, (state, action) => {
         state.userPlaylists = action.payload;
         state.isLoading = false;
+        state.userPlaylistsLastFetched = Date.now();
+        state.currentUserId = action.meta.arg;
       })
       .addCase(fetchUserPlaylists.rejected, (state, action) => {
         state.isLoading = false;
@@ -290,6 +319,7 @@ const playlistSlice = createSlice({
       // Fetch Saved Playlists
       .addCase(fetchSavedPlaylists.fulfilled, (state, action) => {
         state.savedPlaylists = action.payload;
+        state.savedPlaylistsLastFetched = Date.now();
       })
       // Fetch Feed Playlists
       .addCase(fetchFeedPlaylists.pending, (state, action) => {
@@ -307,6 +337,7 @@ const playlistSlice = createSlice({
         } else {
           state.feedPlaylists = playlists;
           state.feedPage = 1;
+          state.feedLastFetched = Date.now();
         }
         state.hasMoreFeed = hasMore;
         state.feedPage += append ? 1 : 0;
@@ -403,5 +434,5 @@ const playlistSlice = createSlice({
   },
 });
 
-export const { clearError, setCurrentPlaylist, clearPlaylists, resetFeedPagination } = playlistSlice.actions;
+export const { clearError, setCurrentPlaylist, clearPlaylists, resetFeedPagination, invalidateUserPlaylists, invalidateSavedPlaylists } = playlistSlice.actions;
 export default playlistSlice.reducer;

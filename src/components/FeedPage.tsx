@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { RefreshCw } from "lucide-react";
 import { Button, Empty, Typography } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchFeedPlaylists, resetFeedPagination } from "@/store/slices/playlistSlice";
+import { fetchFeedPlaylists, resetFeedPagination, isCacheValid } from "@/store/slices/playlistSlice";
 import TopNav from "./TopNav";
 import PlaylistPost, { PlaylistPostData } from "./PlaylistPost";
 import { FeedSkeleton, FeedCardSkeleton } from "@/components/skeletons";
@@ -18,15 +18,16 @@ interface FeedPageProps {
 const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { feedPlaylists, isLoading, isLoadingMore, error, feedPage, hasMoreFeed } = useAppSelector((state) => state.playlists);
+  const { feedPlaylists, isLoading, isLoadingMore, error, feedPage, hasMoreFeed, feedLastFetched } = useAppSelector((state) => state.playlists);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
+  // Only fetch if cache is invalid or no data
   useEffect(() => {
-    if (feedPlaylists.length === 0) {
+    if (feedPlaylists.length === 0 || !isCacheValid(feedLastFetched)) {
       dispatch(fetchFeedPlaylists({ limit: 10, page: 1 }));
     }
-  }, [dispatch, feedPlaylists.length]);
+  }, [dispatch, feedPlaylists.length, feedLastFetched]);
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const [entry] = entries;
