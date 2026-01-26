@@ -165,7 +165,7 @@ const AddSongSheet = ({ isOpen, onClose, onAdd }: AddSongSheetProps) => {
           {/* Inline Preview + Fields Row */}
           <div className="flex gap-3">
             {/* Thumbnail Preview */}
-            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+            <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
               {thumbnail ? (
                 <img 
                   src={thumbnail} 
@@ -178,7 +178,7 @@ const AddSongSheet = ({ isOpen, onClose, onAdd }: AddSongSheetProps) => {
                   {url ? (
                     <span className="text-2xl">{getPlatformIcon(platform || "Other")}</span>
                   ) : (
-                    <Music className="w-5 h-5 text-muted-foreground" />
+                    <Music className="w-6 h-6 text-muted-foreground" />
                   )}
                 </div>
               )}
@@ -190,13 +190,13 @@ const AddSongSheet = ({ isOpen, onClose, onAdd }: AddSongSheetProps) => {
                 placeholder="Song title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="h-8 bg-card border-border/50 rounded-md text-sm"
+                className="h-9 bg-card border-border/50 rounded-md text-sm"
               />
               <Input
                 placeholder="Artist (optional)"
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
-                className="h-8 bg-card border-border/50 rounded-md text-sm"
+                className="h-9 bg-card border-border/50 rounded-md text-sm"
               />
             </div>
           </div>

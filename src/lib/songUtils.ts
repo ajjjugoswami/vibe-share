@@ -28,6 +28,14 @@ export const getYouTubeThumbnail = (url: string): string | null => {
   return null;
 };
 
+export const getSoundCloudThumbnail = (): string => {
+  return "https://res.cloudinary.com/dkt6vvcdo/image/upload/v1737893600/soundcloud-default_xtqzpz.jpg";
+};
+
+export const getAppleMusicThumbnail = (): string => {
+  return "https://res.cloudinary.com/dkt6vvcdo/image/upload/v1737893600/apple-music-default_jqwxyz.jpg";
+};
+
 export const getSpotifyThumbnail = (): string => {
   return "https://res.cloudinary.com/dkt6vvcdo/image/upload/v1769432574/spotify-playlist-featured_rbxrle.jpg";
 };
@@ -39,6 +47,12 @@ export const getPlatformThumbnail = (url: string): string | null => {
   }
   if (platform === "Spotify") {
     return getSpotifyThumbnail();
+  }
+  if (platform === "SoundCloud") {
+    return getSoundCloudThumbnail();
+  }
+  if (platform === "Apple Music") {
+    return getAppleMusicThumbnail();
   }
   return null;
 };
