@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout, refreshUser } from "@/store/slices/authSlice";
-import { fetchUserPlaylists, fetchSavedPlaylists } from "@/store/slices/playlistSlice";
+import { fetchUserPlaylists, fetchSavedPlaylists, isCacheValid, invalidateUserPlaylists, invalidateSavedPlaylists } from "@/store/slices/playlistSlice";
 import { Music2 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 import { PlaylistGridSkeleton } from "@/components/skeletons";
@@ -18,17 +18,32 @@ const ProfilePage = () => {
   const { message } = App.useApp();
   
   const { user } = useAppSelector((state) => state.auth);
-  const { userPlaylists, savedPlaylists, isLoading } = useAppSelector((state) => state.playlists);
+  const { 
+    userPlaylists, 
+    savedPlaylists, 
+    isLoading,
+    userPlaylistsLastFetched,
+    savedPlaylistsLastFetched,
+    currentUserId
+  } = useAppSelector((state) => state.playlists);
   const isLoggedIn = !!user;
 
   const currentPlaylists = activeTab === "playlists" ? userPlaylists : savedPlaylists;
 
-  const fetchData = useCallback(() => {
-    if (isLoggedIn && user?.id) {
+  // Only fetch if cache is invalid or user changed
+  const fetchData = useCallback((force = false) => {
+    if (!isLoggedIn || !user?.id) return;
+    
+    const userChanged = currentUserId !== user.id;
+    
+    if (force || userChanged || !isCacheValid(userPlaylistsLastFetched)) {
       dispatch(fetchUserPlaylists(user.id));
+    }
+    
+    if (force || !isCacheValid(savedPlaylistsLastFetched)) {
       dispatch(fetchSavedPlaylists());
     }
-  }, [isLoggedIn, user?.id, dispatch]);
+  }, [isLoggedIn, user?.id, dispatch, userPlaylistsLastFetched, savedPlaylistsLastFetched, currentUserId]);
 
   useEffect(() => {
     fetchData();
@@ -40,7 +55,10 @@ const ProfilePage = () => {
     setIsRefreshing(true);
     try {
       await dispatch(refreshUser()).unwrap();
-      fetchData();
+      // Force invalidate cache and refetch
+      dispatch(invalidateUserPlaylists());
+      dispatch(invalidateSavedPlaylists());
+      fetchData(true);
       message.success("Profile refreshed!");
     } catch (error) {
       message.error("Failed to refresh");
