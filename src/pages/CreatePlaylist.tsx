@@ -280,7 +280,7 @@ const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => 
           />
           <label
             htmlFor="thumbnail-upload"
-            className="flex items-center gap-1.5 px-2 py-1 bg-muted hover:bg-muted/80 rounded-md cursor-pointer transition-colors text-xs"
+             className="flex items-center gap-1.5 px-2 py-1.5 bg-muted hover:bg-muted/80 rounded-[8px] cursor-pointer transition-colors text-xs"
           >
             <Upload className="w-3 h-3" />
             {thumbnailFile ? 'Change' : 'Upload'}
