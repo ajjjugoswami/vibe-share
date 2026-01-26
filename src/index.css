@@ -422,3 +422,39 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
 }
+
+/* Mobile touch optimization */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure buttons and links are immediately responsive */
+  button,
+  a,
+  [role="button"],
+  .cursor-pointer {
+    touch-action: manipulation;
+  }
+  
+  /* Remove hover delay */
+  .hover\:bg-secondary:hover,
+  .hover\:bg-secondary\/80:hover,
+  .group:hover .group-hover\:opacity-100 {
+    transition-delay: 0ms !important;
+  }
+}
+
+/* Improve tap targets */
+@layer utilities {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
