@@ -1,14 +1,12 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button, Empty, Typography } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchFeedPlaylists, resetFeedPagination, isCacheValid } from "@/store/slices/playlistSlice";
 import TopNav from "./TopNav";
 import PlaylistPost, { PlaylistPostData } from "./PlaylistPost";
-import SwipeablePlaylist from "./SwipeablePlaylist";
 import { FeedSkeleton, FeedCardSkeleton } from "@/components/skeletons";
-import { triggerHaptic } from "@/hooks/useHaptic";
 
 const { Text } = Typography;
 
@@ -23,8 +21,6 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   const { feedPlaylists, isLoading, isLoadingMore, error, feedPage, hasMoreFeed, feedLastFetched } = useAppSelector((state) => state.playlists);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [focusedIndex, setFocusedIndex] = useState(0);
-  const playlistRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Only fetch if cache is invalid or no data
   useEffect(() => {
@@ -68,6 +64,7 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
   };
 
   const transformedPlaylists: PlaylistPostData[] = feedPlaylists.map(playlist => {
+    
     return {
       id: playlist.id,
       username: playlist.username || playlist.user?.username || 'unknown',
@@ -88,43 +85,6 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       createdAt: playlist.createdAt
     };
   });
-
-  const handleSwipeToPrev = useCallback(() => {
-    if (focusedIndex > 0) {
-      const newIndex = focusedIndex - 1;
-      setFocusedIndex(newIndex);
-      playlistRefs.current[newIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [focusedIndex]);
-
-  const handleSwipeToNext = useCallback(() => {
-    if (focusedIndex < transformedPlaylists.length - 1) {
-      const newIndex = focusedIndex + 1;
-      setFocusedIndex(newIndex);
-      playlistRefs.current[newIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [focusedIndex, transformedPlaylists.length]);
-
-  // Track which playlist is in view
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute('data-index') || '0');
-            setFocusedIndex(index);
-          }
-        });
-      },
-      { threshold: 0.6 }
-    );
-
-    playlistRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
-  }, [transformedPlaylists.length]);
 
   return (
     <div className="min-h-screen">
@@ -154,41 +114,17 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
         
         {!error && (
           <>
-            <div className="divide-y divide-border/30 relative">
-              {/* Swipe Navigation Indicators */}
-              {focusedIndex > 0 && (
-                <div className="fixed left-2 top-1/2 -translate-y-1/2 z-30 md:hidden pointer-events-none">
-                  <div className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-muted-foreground animate-pulse">
-                    <ChevronLeft className="w-4 h-4" />
-                  </div>
-                </div>
-              )}
-              {focusedIndex < transformedPlaylists.length - 1 && (
-                <div className="fixed right-2 top-1/2 -translate-y-1/2 z-30 md:hidden pointer-events-none">
-                  <div className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-muted-foreground animate-pulse">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </div>
-              )}
-              
+            <div className="divide-y divide-border/30">
               {transformedPlaylists.map((playlist, index) => (
                 <div 
-                  key={playlist.id}
-                  ref={(el) => { playlistRefs.current[index] = el; }}
-                  data-index={index}
+                  key={playlist.id} 
                   className="animate-fade-in"
                   style={{ animationDelay: `${Math.min(index, 5) * 60}ms` }}
                 >
-                  <SwipeablePlaylist
-                    onSwipeLeft={handleSwipeToNext}
-                    onSwipeRight={handleSwipeToPrev}
-                    enabled={true}
-                  >
-                    <PlaylistPost 
-                      {...playlist} 
-                      onClick={() => handlePlaylistClick(playlist)}
-                    />
-                  </SwipeablePlaylist>
+                  <PlaylistPost 
+                    {...playlist} 
+                    onClick={() => handlePlaylistClick(playlist)}
+                  />
                 </div>
               ))}
             </div>
