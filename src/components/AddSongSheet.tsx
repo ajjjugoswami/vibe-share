@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link2, Loader2, Music, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { detectPlatform, getYouTubeThumbnail, getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
+import { detectPlatform, getPlatformThumbnail, getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 import { SongLink } from "@/contexts/PlaylistContext";
 
 interface AddSongSheetProps {
@@ -55,21 +55,24 @@ const AddSongSheet = ({ isOpen, onClose, onAdd }: AddSongSheetProps) => {
 
       const platform = detectPlatform(url);
       
-      if (platform === "YouTube") {
-        setThumbnail(getYouTubeThumbnail(url));
-        
-        if (!autoFetched) {
-          setIsFetching(true);
-          const info = await fetchYouTubeInfo(url);
-          if (info) {
-            setTitle(info.title);
-            setArtist(info.author);
-            setAutoFetched(true);
-          }
-          setIsFetching(false);
-        }
+      // Set thumbnail for supported platforms
+      const platformThumbnail = getPlatformThumbnail(url);
+      if (platformThumbnail) {
+        setThumbnail(platformThumbnail);
       } else {
         setThumbnail(null);
+      }
+      
+      // Auto-fetch info for YouTube
+      if (platform === "YouTube" && !autoFetched) {
+        setIsFetching(true);
+        const info = await fetchYouTubeInfo(url);
+        if (info) {
+          setTitle(info.title);
+          setArtist(info.author);
+          setAutoFetched(true);
+        }
+        setIsFetching(false);
       }
     };
 
