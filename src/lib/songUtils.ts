@@ -28,6 +28,21 @@ export const getYouTubeThumbnail = (url: string): string | null => {
   return null;
 };
 
+export const getSpotifyThumbnail = (): string => {
+  return "https://res.cloudinary.com/dkt6vvcdo/image/upload/v1769432574/spotify-playlist-featured_rbxrle.jpg";
+};
+
+export const getPlatformThumbnail = (url: string): string | null => {
+  const platform = detectPlatform(url);
+  if (platform === "YouTube") {
+    return getYouTubeThumbnail(url);
+  }
+  if (platform === "Spotify") {
+    return getSpotifyThumbnail();
+  }
+  return null;
+};
+
 export const getPlatformColor = (platform: string) => {
   switch (platform) {
     case "YouTube": return "bg-red-500/20 text-red-400";
