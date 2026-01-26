@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink, Edit, Link2, Play, Clock, Music2, BookmarkCheck } from "lucide-react";
+import { ArrowLeft, Heart, Share2, MoreHorizontal, Bookmark, ExternalLink, Edit, Link2, Play, Clock, Music2, BookmarkCheck, Copy } from "lucide-react";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist } from "@/store/slices/playlistSlice";
@@ -68,6 +68,12 @@ const ViewPlaylist = () => {
   const handleOpenExternal = (e: React.MouseEvent, song: SongLink) => {
     e.stopPropagation();
     window.open(song.url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleCopyLink = (e: React.MouseEvent, song: SongLink) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(song.url);
+    toast.success("Link copied!");
   };
 
   const handleLike = async () => {
@@ -140,6 +146,23 @@ const ViewPlaylist = () => {
     });
   };
 
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatTotalDuration = (songs: SongLink[]) => {
+    const totalSeconds = songs.reduce((acc, song) => acc + (song.duration || 180), 0); // Default 3 min per song
+    const hours = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    
+    if (hours > 0) {
+      return `${hours} hr ${mins} min`;
+    }
+    return `${mins} min`;
+  };
+
   if (loading) {
     return <PlaylistDetailSkeleton />;
   }
@@ -185,7 +208,7 @@ const ViewPlaylist = () => {
         {/* Hero Section */}
         <div className="relative">
           {/* Background Gradient */}
-          <div className={`absolute inset-0 h-48 bg-gradient-to-b ${playlist.coverGradient} opacity-20`} />
+          <div className={`absolute inset-0 h-56 bg-gradient-to-b ${playlist.coverGradient} opacity-15`} />
           
           <div className="relative px-4 pt-6 pb-4">
             <div className="flex gap-4">
@@ -206,34 +229,34 @@ const ViewPlaylist = () => {
               
               {/* Info */}
               <div className="flex-1 min-w-0 py-1">
-                <h1 className="text-xl md:text-2xl font-bold mb-1 truncate">{playlist.title}</h1>
+                <h1 className="text-xl md:text-2xl font-bold mb-1.5 truncate">{playlist.title}</h1>
                 
                 {/* Creator */}
                 <button 
                   onClick={() => navigate(`/user/${playlist.user?.username || playlist.username}`)}
-                  className="flex items-center gap-2 mb-2 hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2 mb-3 hover:opacity-80 transition-opacity"
                 >
                   <UserAvatar 
                     avatarUrl={playlist.userAvatar || playlist.user?.avatarUrl} 
-                    size={20} 
+                    size={22} 
                     className="ring-1 ring-border"
                   />
-                  <span className="text-sm text-muted-foreground">@{playlist.user?.username || playlist.username}</span>
+                  <span className="text-sm text-muted-foreground font-medium">@{playlist.user?.username || playlist.username}</span>
                 </button>
 
-                {/* Stats */}
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                {/* Stats with Duration */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Music2 className="w-3.5 h-3.5" />
                     {playlist.songs.length} songs
                   </span>
                   <span className="flex items-center gap-1">
-                    <Heart className="w-3.5 h-3.5" />
-                    {likeCount} likes
+                    <Clock className="w-3.5 h-3.5" />
+                    {formatTotalDuration(playlist.songs)}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    {formatDate(playlist.createdAt)}
+                    <Heart className="w-3.5 h-3.5" />
+                    {likeCount} likes
                   </span>
                 </div>
               </div>
@@ -313,10 +336,15 @@ const ViewPlaylist = () => {
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-border/50 mx-4" />
+        <div className="h-px bg-border/50 mx-4 mb-4" />
 
-        {/* Songs List */}
-        <div className="px-4 py-4">
+        {/* Songs Masonry Grid */}
+        <div className="px-4 pb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold">Songs</h2>
+            <span className="text-xs text-muted-foreground">{playlist.songs.length} tracks</span>
+          </div>
+
           {playlist.songs.length === 0 ? (
             <div className="py-16 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-secondary/50 flex items-center justify-center">
@@ -331,23 +359,16 @@ const ViewPlaylist = () => {
               )}
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-3 space-y-3">
               {playlist.songs.map((song: SongLink, index: number) => (
                 <div 
                   key={song.id}
-                  className="group flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-secondary/50 transition-colors cursor-pointer"
+                  className="break-inside-avoid group bg-card rounded-2xl border border-border/40 overflow-hidden cursor-pointer hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 animate-fade-in"
+                  style={{ animationDelay: `${Math.min(index, 10) * 50}ms` }}
                   onClick={() => handlePlaySong(index)}
                 >
-                  {/* Number / Play */}
-                  <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm text-muted-foreground group-hover:hidden font-medium">
-                      {index + 1}
-                    </span>
-                    <Play className="w-4 h-4 hidden group-hover:block text-primary fill-current" />
-                  </div>
-                  
                   {/* Thumbnail */}
-                  <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-secondary">
+                  <div className="relative aspect-square">
                     {song.thumbnail ? (
                       <img 
                         src={song.thumbnail} 
@@ -356,29 +377,63 @@ const ViewPlaylist = () => {
                       />
                     ) : (
                       <div className={`w-full h-full flex items-center justify-center ${getPlatformColor(song.platform)}`}>
-                        <span className="text-lg">{getPlatformIcon(song.platform)}</span>
+                        <span className="text-5xl">{getPlatformIcon(song.platform)}</span>
+                      </div>
+                    )}
+                    
+                    {/* Play Overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-xl">
+                        <Play className="w-6 h-6 text-primary-foreground fill-current ml-0.5" />
+                      </div>
+                    </div>
+
+                    {/* Track Number Badge */}
+                    <div className="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                      <span className="text-[11px] font-bold text-white">{index + 1}</span>
+                    </div>
+
+                    {/* Duration Badge */}
+                    {song.duration && (
+                      <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm">
+                        <span className="text-[10px] font-medium text-white">{formatDuration(song.duration)}</span>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{song.title}</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${getPlatformColor(song.platform)}`}>
+                  <div className="p-3">
+                    {/* Platform Badge */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide ${getPlatformColor(song.platform)}`}>
                         {song.platform}
                       </span>
                     </div>
+
+                    {/* Title & Artist */}
+                    <p className="text-sm font-semibold truncate mb-0.5 group-hover:text-primary transition-colors">
+                      {song.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate mb-3">{song.artist}</p>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={(e) => handleOpenExternal(e, song)}
+                        className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-secondary/80 hover:bg-secondary text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Open
+                      </button>
+                      <button 
+                        onClick={(e) => handleCopyLink(e, song)}
+                        className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-secondary/80 hover:bg-secondary text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        Copy
+                      </button>
+                    </div>
                   </div>
-                  
-                  {/* Actions */}
-                  <button 
-                    onClick={(e) => handleOpenExternal(e, song)}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
                 </div>
               ))}
             </div>
