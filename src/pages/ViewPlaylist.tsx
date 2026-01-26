@@ -327,15 +327,15 @@ const ViewPlaylist = () => {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 mt-5">
+          {/* Actions - Compact inline */}
+          <div className="flex items-center gap-1.5 mt-4">
             {isOwn && (
               <Button 
                 size="sm" 
                 onClick={handleEdit} 
-                className="gap-2 rounded-md px-4 h-9 touch-manipulation"
+                className="gap-1.5 rounded-full px-3 h-8 text-xs touch-manipulation"
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3.5 h-3.5" />
                 Edit
               </Button>
             )}
@@ -343,38 +343,38 @@ const ViewPlaylist = () => {
             <button
               type="button"
               onClick={handleLike}
-              className={`flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium transition-all duration-300 active:scale-95 touch-manipulation ${
+              className={`flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium transition-all duration-300 active:scale-95 touch-manipulation ${
                 isLiked 
-                  ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25" 
-                  : "bg-secondary hover:bg-secondary/80 active:bg-secondary text-foreground"
+                  ? "bg-red-500/90 text-white" 
+                  : "bg-secondary hover:bg-secondary/80 text-foreground"
               }`}
             >
-              <Heart className={`w-4 h-4 transition-transform ${isLiked ? "fill-current scale-110" : ""}`} />
+              <Heart className={`w-3.5 h-3.5 transition-transform ${isLiked ? "fill-current" : ""}`} />
               {likeCount}
             </button>
             
             <button
               type="button"
               onClick={handleShare}
-              className="w-9 h-9 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary flex items-center justify-center transition-colors touch-manipulation"
+              className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors touch-manipulation"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-3.5 h-3.5" />
             </button>
             
             {!isOwn && (
               <button
                 type="button"
                 onClick={handleSave}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 touch-manipulation ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 touch-manipulation ${
                   isSaved 
-                    ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25" 
-                    : "bg-secondary hover:bg-secondary/80 active:bg-secondary text-foreground"
+                    ? "bg-primary text-white" 
+                    : "bg-secondary hover:bg-secondary/80 text-foreground"
                 }`}
               >
                 {isSaved ? (
-                  <BookmarkCheck className="w-4 h-4 scale-110" />
+                  <BookmarkCheck className="w-3.5 h-3.5" />
                 ) : (
-                  <Bookmark className="w-4 h-4" />
+                  <Bookmark className="w-3.5 h-3.5" />
                 )}
               </button>
             )}
