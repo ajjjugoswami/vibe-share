@@ -269,30 +269,27 @@ const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => 
           ))}
         </div>
 
-        {/* Thumbnail Upload */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Custom Thumbnail (Optional)</label>
-          <div className="flex items-center gap-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleThumbnailSelect}
-              className="hidden"
-              id="thumbnail-upload"
-            />
-            <label
-              htmlFor="thumbnail-upload"
-              className="flex items-center gap-2 px-3 py-2 bg-muted hover:bg-muted/80 rounded-lg cursor-pointer transition-colors text-sm"
-            >
-              <Upload className="w-4 h-4" />
-              {thumbnailFile ? 'Change Image' : 'Upload Image'}
-            </label>
-            {thumbnailFile && (
-              <span className="text-xs text-muted-foreground">
-                {thumbnailFile.name}
-              </span>
-            )}
-          </div>
+        {/* Compact Thumbnail Upload */}
+        <div className="flex items-center gap-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleThumbnailSelect}
+            className="hidden"
+            id="thumbnail-upload"
+          />
+          <label
+            htmlFor="thumbnail-upload"
+            className="flex items-center gap-1.5 px-2 py-1 bg-muted hover:bg-muted/80 rounded-md cursor-pointer transition-colors text-xs"
+          >
+            <Upload className="w-3 h-3" />
+            {thumbnailFile ? 'Change' : 'Upload'}
+          </label>
+          {thumbnailFile && (
+            <span className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+              {thumbnailFile.name}
+            </span>
+          )}
         </div>
 
         {/* Compact Tags */}
