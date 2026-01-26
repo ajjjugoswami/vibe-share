@@ -107,22 +107,22 @@ const AddSongSheet = ({ isOpen, onClose, onAdd }: AddSongSheetProps) => {
         onClick={onClose}
       />
       
-      {/* Compact Bottom Sheet */}
-      <div className="relative bg-background rounded-t-2xl border-t border-border/50 shadow-2xl max-w-lg mx-auto">
+      {/* Bottom Sheet */}
+      <div className="relative bg-background rounded-t-2xl border-t border-border/50 shadow-2xl max-w-lg mx-auto min-h-[320px]">
         {/* Drag Handle */}
-        <div className="flex justify-center pt-3 pb-2">
+        <div className="flex justify-center pt-4 pb-3">
           <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
         </div>
 
-        {/* Compact Header */}
-        <div className="flex items-center justify-between px-4 pb-3">
-          <span className="font-semibold text-sm">Add Song</span>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pb-4">
+          <span className="font-semibold">Add Song</span>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-7 px-2 text-xs"
+              className="h-8 px-3 text-sm"
             >
               Cancel
             </Button>
@@ -130,15 +130,15 @@ const AddSongSheet = ({ isOpen, onClose, onAdd }: AddSongSheetProps) => {
               size="sm"
               onClick={handleSubmit}
               disabled={!isValid || isFetching}
-              className="h-7 px-3 text-xs rounded-md"
+              className="h-8 px-4 rounded-md"
             >
-              {isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : "Add"}
+              {isFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
             </Button>
           </div>
         </div>
 
-        {/* Compact Form */}
-        <div className="px-4 pb-4 space-y-3">
+        {/* Form */}
+        <div className="px-4 pb-6 space-y-4">
           {/* URL Input with inline preview */}
           <div className="relative">
             <Input
