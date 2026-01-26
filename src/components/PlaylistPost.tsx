@@ -5,6 +5,7 @@ import { Typography, Dropdown, App } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist, savePlaylist, unsavePlaylist } from "@/store/slices/playlistSlice";
 import UserAvatar from "@/components/UserAvatar";
+import { triggerHaptic } from "@/hooks/useHaptic";
 
 const { Text } = Typography;
 
@@ -80,6 +81,8 @@ const PlaylistPost = ({
     e.stopPropagation();
     if (isLiking) return;
 
+    triggerHaptic('light');
+
     if (!user) {
       navigate("/sign-in");
       return;
@@ -108,6 +111,8 @@ const PlaylistPost = ({
     e.stopPropagation();
     if (isSaving) return;
 
+    triggerHaptic('medium');
+
     if (!user) {
       navigate("/sign-in");
       return;
@@ -134,6 +139,7 @@ const PlaylistPost = ({
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    triggerHaptic('light');
     const shareUrl = `${window.location.origin}/playlist/${id}`;
     const shareText = `Check out "${playlistName}" playlist!`;
     

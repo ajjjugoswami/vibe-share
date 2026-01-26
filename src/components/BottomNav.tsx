@@ -2,6 +2,7 @@ import { Home, Search, Plus, User } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
+import { triggerHaptic } from "@/hooks/useHaptic";
 
 const BottomNav = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -9,6 +10,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
 
   const handleCreateClick = () => {
+    triggerHaptic('medium');
     navigate(isLoggedIn ? "/playlist/create" : "/sign-in");
   };
 
