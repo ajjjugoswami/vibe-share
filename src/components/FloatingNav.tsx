@@ -1,4 +1,4 @@
-import { Home, Search, Plus, User } from "lucide-react";
+import { Home, Search, Plus, User, Download } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
@@ -14,6 +14,7 @@ const FloatingNav = () => {
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/search", icon: Search, label: "Search" },
+    { to: "/install", icon: Download, label: "Install" },
     { to: "/profile", icon: User, label: "Profile" },
   ];
 
