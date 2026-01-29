@@ -1,20 +1,47 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import MainLayout from "./MainLayout";
 import PageTransition from "./PageTransition";
-import Feed from "@/pages/Feed";
-import Discover from "@/pages/Discover";
-import Search from "@/pages/Search";
-import Profile from "@/pages/Profile";
-import UserProfile from "@/pages/UserProfile";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
-import CreatePlaylist from "@/pages/CreatePlaylist";
-import Settings from "@/pages/Settings";
-import EditPlaylist from "@/pages/EditPlaylist";
-import EditProfile from "@/pages/EditProfile";
-import ViewPlaylist from "@/pages/ViewPlaylist";
-import NotFound from "@/pages/NotFound";
+import {
+  FeedSkeleton,
+  DiscoverSkeleton,
+  SearchResultsSkeleton,
+  ProfileSkeleton,
+  UserProfileSkeleton,
+  CreatePlaylistSkeleton,
+  SettingsSkeleton,
+  PlaylistDetailSkeleton,
+  AuthSkeleton,
+} from "@/components/skeletons";
+
+// Lazy load pages for better code splitting
+const Feed = lazy(() => import("@/pages/Feed"));
+const Discover = lazy(() => import("@/pages/Discover"));
+const Search = lazy(() => import("@/pages/Search"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const UserProfile = lazy(() => import("@/pages/UserProfile"));
+const SignIn = lazy(() => import("@/pages/SignIn"));
+const SignUp = lazy(() => import("@/pages/SignUp"));
+const CreatePlaylist = lazy(() => import("@/pages/CreatePlaylist"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const EditPlaylist = lazy(() => import("@/pages/EditPlaylist"));
+const EditProfile = lazy(() => import("@/pages/EditProfile"));
+const ViewPlaylist = lazy(() => import("@/pages/ViewPlaylist"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+
+// Wrapper component for lazy loaded pages with skeleton fallback
+const LazyPage = ({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode;
+  fallback: React.ReactNode;
+}) => (
+  <Suspense fallback={<div className="animate-fade-in">{fallback}</div>}>
+    {children}
+  </Suspense>
+);
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -26,7 +53,9 @@ const AnimatedRoutes = () => {
           path="/sign-in"
           element={
             <PageTransition>
-              <SignIn />
+              <LazyPage fallback={<AuthSkeleton />}>
+                <SignIn />
+              </LazyPage>
             </PageTransition>
           }
         />
@@ -34,7 +63,9 @@ const AnimatedRoutes = () => {
           path="/sign-up"
           element={
             <PageTransition>
-              <SignUp />
+              <LazyPage fallback={<AuthSkeleton />}>
+                <SignUp />
+              </LazyPage>
             </PageTransition>
           }
         />
@@ -44,7 +75,9 @@ const AnimatedRoutes = () => {
             path="/"
             element={
               <PageTransition>
-                <Feed />
+                <LazyPage fallback={<FeedSkeleton count={3} />}>
+                  <Feed />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -52,7 +85,9 @@ const AnimatedRoutes = () => {
             path="/discover"
             element={
               <PageTransition>
-                <Discover />
+                <LazyPage fallback={<DiscoverSkeleton />}>
+                  <Discover />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -60,7 +95,9 @@ const AnimatedRoutes = () => {
             path="/search"
             element={
               <PageTransition>
-                <Search />
+                <LazyPage fallback={<SearchResultsSkeleton type="mixed" count={5} />}>
+                  <Search />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -68,7 +105,9 @@ const AnimatedRoutes = () => {
             path="/profile"
             element={
               <PageTransition>
-                <Profile />
+                <LazyPage fallback={<ProfileSkeleton />}>
+                  <Profile />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -76,7 +115,9 @@ const AnimatedRoutes = () => {
             path="/user/:username"
             element={
               <PageTransition>
-                <UserProfile />
+                <LazyPage fallback={<UserProfileSkeleton />}>
+                  <UserProfile />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -84,7 +125,9 @@ const AnimatedRoutes = () => {
             path="/playlist/create"
             element={
               <PageTransition>
-                <CreatePlaylist />
+                <LazyPage fallback={<CreatePlaylistSkeleton />}>
+                  <CreatePlaylist />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -92,7 +135,9 @@ const AnimatedRoutes = () => {
             path="/settings"
             element={
               <PageTransition>
-                <Settings />
+                <LazyPage fallback={<SettingsSkeleton />}>
+                  <Settings />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -100,7 +145,9 @@ const AnimatedRoutes = () => {
             path="/edit-profile"
             element={
               <PageTransition>
-                <EditProfile />
+                <LazyPage fallback={<ProfileSkeleton />}>
+                  <EditProfile />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -108,7 +155,9 @@ const AnimatedRoutes = () => {
             path="/playlist/:id"
             element={
               <PageTransition>
-                <ViewPlaylist />
+                <LazyPage fallback={<PlaylistDetailSkeleton />}>
+                  <ViewPlaylist />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -116,7 +165,9 @@ const AnimatedRoutes = () => {
             path="/playlist/:id/edit"
             element={
               <PageTransition>
-                <EditPlaylist />
+                <LazyPage fallback={<PlaylistDetailSkeleton />}>
+                  <EditPlaylist />
+                </LazyPage>
               </PageTransition>
             }
           />
@@ -126,7 +177,9 @@ const AnimatedRoutes = () => {
           path="*"
           element={
             <PageTransition>
-              <NotFound />
+              <LazyPage fallback={<div className="min-h-screen" />}>
+                <NotFound />
+              </LazyPage>
             </PageTransition>
           }
         />
