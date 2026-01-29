@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Button, message, Modal, Typography } from "antd";
-import { ArrowLeft, Check, Palette, Shield, Trash2, Volume2 } from "lucide-react";
+import { ArrowLeft, Check, Download, Palette, Shield, Trash2, Volume2 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setSoundEnabled } from "@/store/slices/uiSlice";
 import useTheme, { themes, ThemeColor } from "@/hooks/useTheme";
 import { Switch } from "@/components/ui/switch";
+import usePWAInstall from "@/hooks/usePWAInstall";
 
 const { Title, Text } = Typography;
 
@@ -14,6 +15,7 @@ const Settings = () => {
   const currentUser = useAppSelector((s) => s.auth.user);
   const soundEnabled = useAppSelector((s) => s.ui.soundEnabled);
   const { theme, setTheme } = useTheme();
+  const { isInstallable, isInstalled } = usePWAInstall();
 
   const handleChangePassword = () => {
     message.info("Change password coming soon!");
@@ -94,7 +96,33 @@ const Settings = () => {
                 onCheckedChange={(checked) => dispatch(setSoundEnabled(checked))}
               />
             </div>
+        </div>
+
+        {/* Install App Section */}
+        {!isInstalled && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Download className="w-4 h-4 text-primary" />
+              <Text strong className="text-sm">Install App</Text>
+            </div>
+            <div className="bg-secondary/50 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Text className="block text-sm">Add to Home Screen</Text>
+                  <Text type="secondary" className="text-xs">Install the app for a better experience</Text>
+                </div>
+                <Button 
+                  type="primary" 
+                  size="small" 
+                  onClick={() => navigate('/install')}
+                  className="!rounded-[10px] !h-8"
+                >
+                  {isInstallable ? 'Install' : 'Learn More'}
+                </Button>
+              </div>
+            </div>
           </div>
+        )}
         </div>
 
         {/* Account Section */}
