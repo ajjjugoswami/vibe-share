@@ -54,7 +54,7 @@ const AnimatedRoutes = () => {
           path="/sign-in"
           element={
             <PageTransition>
-              <LazyPage fallback={<AuthSkeleton />}>
+              <LazyPage fallback={<div className="min-h-screen" />}>
                 <SignIn />
               </LazyPage>
             </PageTransition>
@@ -64,7 +64,7 @@ const AnimatedRoutes = () => {
           path="/sign-up"
           element={
             <PageTransition>
-              <LazyPage fallback={<AuthSkeleton />}>
+              <LazyPage fallback={<div className="min-h-screen" />}>
                 <SignUp />
               </LazyPage>
             </PageTransition>
@@ -96,7 +96,7 @@ const AnimatedRoutes = () => {
             path="/search"
             element={
               <PageTransition>
-                <LazyPage fallback={<SearchResultsSkeleton type="mixed" count={5} />}>
+                <LazyPage fallback={<div className="min-h-screen" />}>
                   <Search />
                 </LazyPage>
               </PageTransition>
