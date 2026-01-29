@@ -4,17 +4,21 @@ import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
 import { triggerHaptic } from "@/hooks/useHaptic";
 import { useClickSound } from "@/hooks/useClickSound";
+import usePWAInstall from "@/hooks/usePWAInstall";
 
 const FloatingNav = () => {
   const { user } = useAppSelector((state) => state.auth);
   const isLoggedIn = !!user;
   const navigate = useNavigate();
   const { playSound } = useClickSound();
+  const { isInstallable, isInstalled } = usePWAInstall();
+  
+  const showInstallBadge = isInstallable && !isInstalled;
 
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/search", icon: Search, label: "Search" },
-    { to: "/install", icon: Download, label: "Install" },
+    { to: "/install", icon: Download, label: "Install", showBadge: showInstallBadge },
     { to: "/profile", icon: User, label: "Profile" },
   ];
 
@@ -39,14 +43,19 @@ const FloatingNav = () => {
             >
               {({ isActive }) => (
                 <>
-                  <Icon 
-                    className={cn(
-                      "w-5 h-5 transition-colors",
-                      isActive ? "text-primary" : "text-muted-foreground"
-                    )} 
-                    strokeWidth={isActive ? 2.5 : 2} 
-                    fill={isActive ? "currentColor" : "none"}
-                  />
+                  <div className="relative">
+                    <Icon 
+                      className={cn(
+                        "w-5 h-5 transition-colors",
+                        isActive ? "text-primary" : "text-muted-foreground"
+                      )} 
+                      strokeWidth={isActive ? 2.5 : 2} 
+                      fill={isActive ? "currentColor" : "none"}
+                    />
+                    {item.showBadge && (
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-pulse" />
+                    )}
+                  </div>
                   <span className={cn(
                     "text-[10px] font-medium transition-colors",
                     isActive ? "text-foreground" : "text-muted-foreground"
