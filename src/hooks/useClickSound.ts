@@ -1,9 +1,11 @@
 import { useCallback, useRef } from 'react';
+import { useAppSelector } from '@/store/hooks';
 
 type SoundType = 'click' | 'pop' | 'tap';
 
 export const useClickSound = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
+  const soundEnabled = useAppSelector((state) => state.ui.soundEnabled);
 
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
@@ -13,6 +15,9 @@ export const useClickSound = () => {
   }, []);
 
   const playSound = useCallback((type: SoundType = 'click') => {
+    // Check if sound is enabled
+    if (!soundEnabled) return;
+
     try {
       const ctx = getAudioContext();
       const oscillator = ctx.createOscillator();
@@ -54,7 +59,7 @@ export const useClickSound = () => {
       // Silently fail if audio is not supported
       console.warn('Audio not supported:', e);
     }
-  }, [getAudioContext]);
+  }, [getAudioContext, soundEnabled]);
 
-  return { playSound };
+  return { playSound, soundEnabled };
 };
