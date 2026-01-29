@@ -1,14 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { Button, message, Modal, Typography } from "antd";
-import { ArrowLeft, Check, Palette, Shield, Trash2 } from "lucide-react";
-import { useAppSelector } from "@/store/hooks";
+import { ArrowLeft, Check, Palette, Shield, Trash2, Volume2 } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { setSoundEnabled } from "@/store/slices/uiSlice";
 import useTheme, { themes, ThemeColor } from "@/hooks/useTheme";
+import { Switch } from "@/components/ui/switch";
 
 const { Title, Text } = Typography;
 
 const Settings = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.user);
+  const soundEnabled = useAppSelector((s) => s.ui.soundEnabled);
   const { theme, setTheme } = useTheme();
 
   const handleChangePassword = () => {
@@ -70,6 +74,26 @@ const Settings = () => {
                 )}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Sound Section */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Volume2 className="w-4 h-4 text-primary" />
+            <Text strong className="text-sm">Sound</Text>
+          </div>
+          <div className="bg-secondary/50 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Text className="block text-sm">Button Click Sounds</Text>
+                <Text type="secondary" className="text-xs">Play sounds on button interactions</Text>
+              </div>
+              <Switch
+                checked={soundEnabled}
+                onCheckedChange={(checked) => dispatch(setSoundEnabled(checked))}
+              />
+            </div>
           </div>
         </div>
 
