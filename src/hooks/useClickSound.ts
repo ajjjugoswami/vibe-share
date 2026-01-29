@@ -1,11 +1,10 @@
 import { useCallback, useRef } from 'react';
-import { useAppSelector } from '@/store/hooks';
+import { store } from '@/store';
 
 type SoundType = 'click' | 'pop' | 'tap';
 
 export const useClickSound = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
-  const soundEnabled = useAppSelector((state) => state.ui.soundEnabled);
 
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
@@ -15,7 +14,8 @@ export const useClickSound = () => {
   }, []);
 
   const playSound = useCallback((type: SoundType = 'click') => {
-    // Check if sound is enabled
+    // Check if sound is enabled from store (not a hook to avoid context issues)
+    const soundEnabled = store.getState().ui.soundEnabled;
     if (!soundEnabled) return;
 
     try {
@@ -59,7 +59,7 @@ export const useClickSound = () => {
       // Silently fail if audio is not supported
       console.warn('Audio not supported:', e);
     }
-  }, [getAudioContext, soundEnabled]);
+  }, [getAudioContext]);
 
-  return { playSound, soundEnabled };
+  return { playSound };
 };
