@@ -166,7 +166,6 @@ const PlaylistPost = ({
     : description;
 
   const menuItems = [
-    { key: 'report', label: 'Report' },
     { key: 'copyLink', label: 'Copy Link' },
   ];
 

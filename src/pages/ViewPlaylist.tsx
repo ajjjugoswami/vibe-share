@@ -255,7 +255,6 @@ const ViewPlaylist = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[140px]">
               <DropdownMenuItem onClick={handleShare}>Copy Link</DropdownMenuItem>
-              <DropdownMenuItem>Report</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
