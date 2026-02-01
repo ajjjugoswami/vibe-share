@@ -12,6 +12,25 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import AddSongSheet from "@/components/AddSongSheet";
 import SortableSongItem from "@/components/SortableSongItem";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 const suggestedTags = ["chill", "vibes", "workout", "study", "party", "roadtrip"];
 
@@ -36,18 +55,22 @@ type CreatePlaylistProps = {
     thumbnailFile?: File | null;
     removeThumbnail?: boolean;
   }) => Promise<void>;
+  confirmBeforeDelete?: boolean;
 };
 
-const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => {
+const CreatePlaylist = ({ initialData, onSubmit, confirmBeforeDelete = false }: CreatePlaylistProps = {}) => {
   const navigate = useNavigate();
   const { createPlaylist, addSongToPlaylist, addSongsToPlaylist } = usePlaylist();
   const user = useAppSelector((state) => state.auth.user);
   const isLoggedIn = !!user;
+  const isMobile = useIsMobile();
   
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [selectedGradient, setSelectedGradient] = useState(initialData?.coverGradient || gradients[0]);
   const [songs, setSongs] = useState<SongWithTempId[]>((initialData?.songs || []).map(s => ({...s, tempId: s.id || crypto.randomUUID()})));
+  const [songToDelete, setSongToDelete] = useState<{ tempId: string; title: string; id?: string } | null>(null);
+  const [isDeletingSong, setIsDeletingSong] = useState(false);
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [showAddSong, setShowAddSong] = useState(false);
@@ -91,7 +114,35 @@ const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => 
   };
 
   const handleRemoveSong = (tempId: string) => {
-    setSongs(songs.filter(s => s.tempId !== tempId));
+    if (confirmBeforeDelete) {
+      const song = songs.find(s => s.tempId === tempId);
+      if (song) {
+        setSongToDelete({ tempId, title: song.title, id: song.id });
+      }
+    } else {
+      setSongs(songs.filter(s => s.tempId !== tempId));
+    }
+  };
+
+  const confirmRemoveSong = async () => {
+    if (songToDelete) {
+      setIsDeletingSong(true);
+      try {
+        // If the song has an id, it's already saved in the database, so delete it
+        if (songToDelete.id) {
+          await playlistsAPI.deleteSong(songToDelete.id);
+          toast.success('Song removed');
+        }
+        // Remove from local state
+        setSongs(songs.filter(s => s.tempId !== songToDelete.tempId));
+        setSongToDelete(null);
+      } catch (err) {
+        console.error('Failed to delete song:', err);
+        toast.error('Failed to remove song');
+      } finally {
+        setIsDeletingSong(false);
+      }
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -387,6 +438,59 @@ const CreatePlaylist = ({ initialData, onSubmit }: CreatePlaylistProps = {}) => 
         onAdd={handleAddSong}
         existingSongs={songs}
       />
+
+      {/* Song Delete Confirmation */}
+      {isMobile ? (
+        <Sheet open={!!songToDelete} onOpenChange={(open) => !open && setSongToDelete(null)}>
+          <SheetContent side="top" className="max-h-[50vh] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Delete Song</SheetTitle>
+              <SheetDescription>
+                Are you sure you want to remove "{songToDelete?.title}" from this playlist?
+              </SheetDescription>
+            </SheetHeader>
+            <SheetFooter className="flex-row gap-2 mt-4">
+              <button
+                onClick={() => setSongToDelete(null)}
+                disabled={isDeletingSong}
+                className="flex-1 py-1 px-4 border border-border rounded-[8px] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRemoveSong}
+                disabled={isDeletingSong}
+                className="flex-1 py-1 px-4 bg-destructive text-destructive-foreground rounded-[8px] disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isDeletingSong && <Loader2 className="w-4 h-4 animate-spin" />}
+                Delete
+              </button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <AlertDialog open={!!songToDelete} onOpenChange={(open) => !open && setSongToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Song</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove "{songToDelete?.title}" from this playlist?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeletingSong}>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmRemoveSong}
+                disabled={isDeletingSong}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-[8px] disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeletingSong && <Loader2 className="w-4 h-4 animate-spin" />}
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
