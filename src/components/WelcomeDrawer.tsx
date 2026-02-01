@@ -2,34 +2,25 @@ import { useEffect, useState } from "react";
 import { X, Music2, Users, Heart, Share2, ArrowRight, ArrowLeft, Home, User, Plus, Search, Settings, Palette, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const WelcomeDrawer = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface WelcomeDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const WelcomeDrawer = ({ isOpen, onClose }: WelcomeDrawerProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 7;
 
-  useEffect(() => {
-    // Check if user has seen the welcome screen before
-    const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
-    
-    if (!hasSeenWelcome) {
-      // Small delay before showing the drawer for better UX
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
   const handleClose = () => {
-    setIsOpen(false);
-    localStorage.setItem("hasSeenWelcome", "true");
+    onClose();
+    setCurrentStep(0); // Reset to first step when closing
   };
 
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      setIsOpen(false);
+      handleClose();
       localStorage.setItem("hasSeenWelcome", "true");
     }
   };
@@ -75,7 +66,7 @@ const WelcomeDrawer = () => {
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className="absolute right-4 top-4 p-2 rounded-full hover:bg-secondary transition-colors z-10"
+            className="absolute right-4 top-4 p-2 rounded-full hover:bg-secondary transition-colors z-[100]"
           >
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
