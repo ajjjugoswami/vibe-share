@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import FloatingNav from "./FloatingNav";
+import WelcomeDrawer from "./WelcomeDrawer";
 
 const MainLayout = () => {
   return (
@@ -11,6 +12,9 @@ const MainLayout = () => {
       
       {/* Floating Navigation - Both Mobile & Desktop */}
       <FloatingNav />
+      
+      {/* Welcome Drawer - Shows on first visit */}
+      <WelcomeDrawer />
     </div>
   );
 };
