@@ -166,7 +166,7 @@ const MiniPlayer = ({ songs, currentIndex, onChangeIndex, onClose }: MiniPlayerP
           "fixed z-50 bg-card/95 backdrop-blur-xl border border-border/50 shadow-2xl transition-all overflow-hidden",
           isExpanded 
             ? "inset-3 md:inset-6 rounded-2xl" 
-            : "bottom-20 left-3 right-3 md:left-auto md:right-4 md:bottom-4 md:w-[360px] rounded-2xl",
+            : "bottom-24 left-3 right-3 md:left-auto md:right-4 md:bottom-4 md:w-[360px] rounded-2xl",
           isDragging && "transition-none"
         )}
         style={!isExpanded ? { transform: `translate(${position.x}px, ${position.y}px)` } : undefined}
