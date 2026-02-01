@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Link2, Loader2, X, Tag, Upload, Image } from "lucide-react";
+import { ArrowLeft, Plus, Link2, Loader2, X, Tag, Upload, Image, Lock, Globe } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { usePlaylist, SongLink } from "@/contexts/PlaylistContext";
@@ -45,6 +45,7 @@ type CreatePlaylistProps = {
     tags?: string[];
     songs?: SongLink[];
     thumbnailUrl?: string | null;
+    isPublic?: boolean;
   };
   onSubmit?: (payload: {
     title: string;
@@ -54,6 +55,7 @@ type CreatePlaylistProps = {
     songs: Array<Partial<SongLink> & { tempId?: string }>; // may include existing ids
     thumbnailFile?: File | null;
     removeThumbnail?: boolean;
+    isPublic: boolean;
   }) => Promise<void>;
   confirmBeforeDelete?: boolean;
 };
@@ -78,6 +80,7 @@ const CreatePlaylist = ({ initialData, onSubmit, confirmBeforeDelete = false }: 
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(initialData?.thumbnailUrl || null);
   const [removeThumbnail, setRemoveThumbnail] = useState(false);
+  const [isPublic, setIsPublic] = useState(initialData?.isPublic ?? true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -195,6 +198,7 @@ const CreatePlaylist = ({ initialData, onSubmit, confirmBeforeDelete = false }: 
       songs,
       thumbnailFile,
       removeThumbnail,
+      isPublic,
     };
 
     try {
@@ -209,7 +213,7 @@ const CreatePlaylist = ({ initialData, onSubmit, confirmBeforeDelete = false }: 
         description: payload.description,
         coverGradient: payload.coverGradient,
         tags: payload.tags,
-        isPublic: true
+        isPublic: payload.isPublic
       });
 
       // Add all new songs in a single batch request
@@ -377,6 +381,35 @@ const CreatePlaylist = ({ initialData, onSubmit, confirmBeforeDelete = false }: 
             ))}
           </div>
         )}
+
+        {/* Privacy Toggle */}
+        <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-border/40">
+          <div className="flex items-center gap-2">
+            {isPublic ? (
+              <Globe className="w-4 h-4 text-primary" />
+            ) : (
+              <Lock className="w-4 h-4 text-muted-foreground" />
+            )}
+            <div>
+              <p className="text-sm font-medium">{isPublic ? 'Public' : 'Private'}</p>
+              <p className="text-xs text-muted-foreground">
+                {isPublic ? 'Anyone can see this playlist' : 'Only you can see this playlist'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsPublic(!isPublic)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              isPublic ? 'bg-primary' : 'bg-muted-foreground/30'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isPublic ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Songs Section - Scrollable */}

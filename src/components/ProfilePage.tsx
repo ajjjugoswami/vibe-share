@@ -1,5 +1,5 @@
-import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3, Instagram, Twitter, Youtube, Music, Link2, RefreshCw } from "lucide-react";
-import { Button, Typography, Empty, App } from "antd";
+import { Settings, Grid3X3, Bookmark, Share2, LogOut, Plus, Edit3, Instagram, Twitter, Youtube, Music, Link2, RefreshCw, Lock } from "lucide-react";
+import { Button, Typography, Empty, App, Tabs } from "antd";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -28,7 +28,9 @@ const ProfilePage = () => {
   } = useAppSelector((state) => state.playlists);
   const isLoggedIn = !!user;
 
-  const currentPlaylists = activeTab === "playlists" ? userPlaylists : savedPlaylists;
+  const publicPlaylists = userPlaylists.filter(p => p.isPublic !== false);
+  const privatePlaylists = userPlaylists.filter(p => p.isPublic === false);
+  const currentPlaylists = activeTab === "playlists" ? publicPlaylists : activeTab === "private" ? privatePlaylists : savedPlaylists;
 
   // Only fetch if cache is invalid or user changed
   const fetchData = useCallback((force = false) => {
@@ -131,7 +133,10 @@ const ProfilePage = () => {
             <Title level={5} className="!mb-0">{user?.username}</Title>
             <Text type="secondary" className="text-[11px] leading-none">{user?.bio || 'No bio yet'}</Text>
             <div className="flex gap-4 mt-2">
-              <Text className="text-sm"><span className="font-semibold">{userPlaylists.length}</span> playlists</Text>
+              <Text className="text-sm"><span className="font-semibold">{publicPlaylists.length}</span> playlists</Text>
+              {privatePlaylists.length > 0 && (
+                <Text className="text-sm"><span className="font-semibold">{privatePlaylists.length}</span> private</Text>
+              )}
               <Text className="text-sm"><span className="font-semibold">{savedPlaylists.length}</span> saved</Text>
             </div>
           </div>
@@ -212,30 +217,56 @@ const ProfilePage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center justify-between mb-5">
-          <button
-            onClick={() => setActiveTab("playlists")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium transition-all duration-300 ${
-              activeTab === "playlists"
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
-            }`}
-          >
-            <Grid3X3 className="w-4 h-4" />
-            Playlists
-          </button>
-          <button
-            onClick={() => setActiveTab("saved")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium transition-all duration-300 ${
-              activeTab === "saved"
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
-            }`}
-          >
-            <Bookmark className="w-4 h-4" />
-            Saved
-          </button>
-        </div>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          className="mb-5 profile-tabs"
+          items={[
+            {
+              key: 'playlists',
+              label: (
+                <span className="flex items-center gap-1.5">
+                  <Grid3X3 className="w-4 h-4" />
+                  Public
+                </span>
+              ),
+            },
+            {
+              key: 'private',
+              label: (
+                <span className="flex items-center gap-1.5">
+                  <Lock className="w-4 h-4" />
+                  Private {privatePlaylists.length > 0 && `(${privatePlaylists.length})`}
+                </span>
+              ),
+            },
+            {
+              key: 'saved',
+              label: (
+                <span className="flex items-center gap-1.5">
+                  <Bookmark className="w-4 h-4" />
+                  Saved
+                </span>
+              ),
+            },
+          ]}
+        />
+        <style>{`
+          .profile-tabs .ant-tabs-nav {
+            margin-bottom: 0 !important;
+          }
+          .profile-tabs .ant-tabs-nav-list {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+          }
+          .profile-tabs .ant-tabs-tab {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            margin: 0 !important;
+          }
+        `}</style>
 
         {/* Content */}
         {isLoading ? (
@@ -244,7 +275,7 @@ const ProfilePage = () => {
           <Empty
             className="py-12"
             image={<Music2 className="w-10 h-10 mx-auto text-muted-foreground" />}
-            description={<Text type="secondary" className="text-sm">{activeTab === "playlists" ? "No playlists yet" : "No saved playlists"}</Text>}
+            description={<Text type="secondary" className="text-sm">{activeTab === "playlists" ? "No public playlists yet" : activeTab === "private" ? "No private playlists yet" : "No saved playlists"}</Text>}
           />
         ) : (
           <div className="grid grid-cols-2 gap-3">

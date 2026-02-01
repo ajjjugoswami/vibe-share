@@ -112,6 +112,7 @@ const EditPlaylist = () => {
         description: payload.description,
         coverGradient: payload.coverGradient,
         tags: payload.tags,
+        isPublic: payload.isPublic,
       });
 
       // Delete songs that were removed in the editor
@@ -181,6 +182,7 @@ const EditPlaylist = () => {
           tags: playlist.tags || [],
           songs: playlist.songs || [],
           thumbnailUrl: playlist.thumbnailUrl || null,
+          isPublic: playlist.isPublic ?? true,
         }}
         onSubmit={handleSubmit}
         confirmBeforeDelete={true}
