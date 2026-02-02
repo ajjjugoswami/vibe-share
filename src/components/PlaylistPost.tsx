@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { likePlaylist, unlikePlaylist, savePlaylist, unsavePlaylist } from "@/store/slices/playlistSlice";
 import UserAvatar from "@/components/UserAvatar";
 import { triggerHaptic } from "@/hooks/useHaptic";
+import ShareDrawer from "@/components/ShareDrawer";
 
 const { Text } = Typography;
 
@@ -61,6 +62,7 @@ const PlaylistPost = ({
   const [isSaving, setIsSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
 
   useEffect(() => {
     setIsLikedState(isLiked);
@@ -140,19 +142,7 @@ const PlaylistPost = ({
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic('light');
-    const shareUrl = `${window.location.origin}/playlist/${id}`;
-    const shareText = `Check out "${playlistName}" playlist!`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: playlistName, text: shareText, url: shareUrl });
-      } catch (err) {
-        console.log("Share cancelled");
-      }
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      message.success("Link copied to clipboard");
-    }
+    setShareDrawerOpen(true);
   };
 
   const formatNumber = (num: number) => {
@@ -314,6 +304,15 @@ const PlaylistPost = ({
           </p>
         )}
       </div>
+
+      {/* Share Drawer */}
+      <ShareDrawer
+        open={shareDrawerOpen}
+        onClose={() => setShareDrawerOpen(false)}
+        shareUrl={`${window.location.origin}/playlist/${id}`}
+        shareTitle="Share Playlist"
+        shareText={`Check out "${playlistName}" playlist!`}
+      />
     </article>
   );
 };
