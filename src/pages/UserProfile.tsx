@@ -316,7 +316,7 @@ const UserProfile = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {userPlaylists.map((playlist, index) => (
                 <motion.div 
                   key={playlist.id}
@@ -326,7 +326,7 @@ const UserProfile = () => {
                   onClick={() => navigate(`/playlist/${playlist.id}`)}
                   className="cursor-pointer group"
                 >
-                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-2 bg-secondary">
+                  <div className="relative aspect-square rounded-xl overflow-hidden mb-2 bg-secondary">
                     {playlist.thumbnailUrl || playlist.songs?.[0]?.thumbnail ? (
                       <img 
                         src={playlist.thumbnailUrl || playlist.songs[0].thumbnail} 
@@ -338,7 +338,6 @@ const UserProfile = () => {
                         <Music className="w-10 h-10 text-white/50" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                   </div>
                   <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
                     {playlist.title}

@@ -241,31 +241,32 @@ const ProfilePage = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-cols-2 gap-3">
             {currentPlaylists.map((playlist) => (
               <div 
                 key={playlist.id}
                 onClick={() => handlePlaylistClick(playlist.id)}
-                className="cursor-pointer group relative aspect-square"
+                className="cursor-pointer group"
               >
-                {playlist.thumbnailUrl ? (
-                  <img 
-                    src={playlist.thumbnailUrl} 
-                    alt={playlist.title} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className={`w-full h-full bg-gradient-to-br ${playlist.coverGradient || 'from-primary/20 to-primary/40'} flex items-center justify-center`}>
-                    <Music2 className="w-8 h-8 text-foreground/30" />
-                  </div>
-                )}
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-end opacity-0 group-hover:opacity-100">
-                  <div className="p-2 w-full">
-                    <p className="text-white text-xs font-medium truncate">{playlist.title}</p>
-                    <p className="text-white/70 text-[10px]">{playlist.songCount || playlist.songs.length} songs</p>
-                  </div>
+                <div className="relative aspect-square rounded-xl overflow-hidden mb-2 bg-secondary">
+                  {playlist.thumbnailUrl ? (
+                    <img 
+                      src={playlist.thumbnailUrl} 
+                      alt={playlist.title} 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className={`w-full h-full bg-gradient-to-br ${playlist.coverGradient || 'from-primary/20 to-primary/40'} flex items-center justify-center`}>
+                      <Music2 className="w-8 h-8 text-foreground/30" />
+                    </div>
+                  )}
                 </div>
+                <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                  {playlist.title}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {playlist.songCount || playlist.songs.length} songs
+                </p>
               </div>
             ))}
           </div>
