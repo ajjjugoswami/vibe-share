@@ -200,7 +200,7 @@ const PlaylistPost = ({
       {/* Cover */}
       <button 
         type="button"
-        className="relative w-full group rounded-2xl overflow-hidden mb-4 touch-manipulation text-left"
+        className="relative w-full group rounded-[14px] overflow-hidden mb-4 touch-manipulation text-left"
         onClick={onClick}
       >
         <div className="aspect-[4/3] w-full">
@@ -259,7 +259,7 @@ const PlaylistPost = ({
 
       {/* Info */}
       <div className="mb-3">
-        <h3 className="font-semibold text-base mb-1">{playlistName}</h3>
+        <h3 className="font-[600] text-[14px] mb-[6px]">{playlistName}</h3>
         {description && (
           <p className="text-sm text-muted-foreground">
             {showFullDescription ? description : truncatedDescription}
