@@ -173,69 +173,40 @@ const GlobalPlayer = () => {
               )}
             </div>
 
-            {/* Playback Controls */}
-            <div className="flex items-center justify-center gap-6 py-4 border-b border-border/50 bg-card/30 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={prevSong}
-                disabled={playerState.currentIndex === 0}
-                className="h-12 w-12 rounded-full hover:bg-muted disabled:opacity-30"
-              >
-                <SkipBack className="w-6 h-6" />
-              </Button>
-              
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground">
-                {isPlaying ? (
-                  <Pause className="w-7 h-7" />
-                ) : (
-                  <Play className="w-7 h-7 ml-1" />
-                )}
-              </div>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={nextSong}
-                disabled={playerState.currentIndex === playerState.songs.length - 1}
-                className="h-12 w-12 rounded-full hover:bg-muted disabled:opacity-30"
-              >
-                <SkipForward className="w-6 h-6" />
-              </Button>
-            </div>
-
             {/* Queue List */}
-            <div className="flex-1 min-h-0 flex flex-col">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 shrink-0">
-                <p className="text-sm font-medium">Up Next</p>
-                <p className="text-xs text-muted-foreground">
+            <div className="flex-1 min-h-0 flex flex-col bg-black/20">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-black/30 shrink-0">
+                <p className="text-sm font-medium text-white">Up Next</p>
+                <p className="text-xs text-white/60">
                   {playerState.currentIndex + 1} of {playerState.songs.length}
                 </p>
               </div>
               
               <ScrollArea className="flex-1">
-                <div className="p-2 space-y-1">
+                <div className="space-y-0">
                   {playerState.songs.map((song, index) => (
                     <button
                       key={song.id || index}
                       onClick={() => setCurrentIndex(index)}
                       className={cn(
-                        "w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all",
+                        "w-full flex items-center gap-3 px-3 py-2 text-left transition-colors",
                         index === playerState.currentIndex 
-                          ? "bg-primary/10 border border-primary/20" 
-                          : "hover:bg-muted/50 active:scale-[0.98]"
+                          ? "bg-white/10" 
+                          : "hover:bg-white/5"
                       )}
                     >
                       {/* Index / Playing Indicator */}
-                      <div className="w-6 shrink-0 flex justify-center">
+                      <div className="w-5 shrink-0 flex justify-center">
                         {index === playerState.currentIndex ? (
-                          <div className="flex items-end gap-0.5 h-4">
-                            <div className="w-0.5 bg-primary rounded-full animate-music-bar-1"></div>
-                            <div className="w-0.5 bg-primary rounded-full animate-music-bar-2"></div>
-                            <div className="w-0.5 bg-primary rounded-full animate-music-bar-3"></div>
+                          <div className="flex items-center justify-center">
+                            <div className="w-3 h-3 flex items-center gap-[2px]">
+                              <div className="w-[3px] h-2 bg-white rounded-full animate-music-bar-1"></div>
+                              <div className="w-[3px] h-2 bg-white rounded-full animate-music-bar-2"></div>
+                              <div className="w-[3px] h-2 bg-white rounded-full animate-music-bar-3"></div>
+                            </div>
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">{index + 1}</span>
+                          <span className="text-xs text-white/50">{index + 1}</span>
                         )}
                       </div>
                       
@@ -244,31 +215,26 @@ const GlobalPlayer = () => {
                         <img 
                           src={song.thumbnail} 
                           alt="" 
-                          className="w-12 h-12 rounded-lg object-cover shrink-0" 
+                          className="w-16 h-12 rounded object-cover shrink-0" 
                         />
                       ) : (
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${getPlatformColor(song.platform)}`}>
+                        <div className={`w-16 h-12 rounded flex items-center justify-center shrink-0 ${getPlatformColor(song.platform)}`}>
                           {getPlatformIcon(song.platform)}
                         </div>
                       )}
                       
                       {/* Song Info */}
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 py-1">
                         <p className={cn(
-                          "text-sm font-medium truncate",
-                          index === playerState.currentIndex && "text-primary"
+                          "text-[13px] font-normal leading-tight line-clamp-2 mb-1",
+                          index === playerState.currentIndex ? "text-white" : "text-white/90"
                         )}>
                           {song.title}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className="text-[12px] text-white/50 truncate leading-tight">
                           {song.artist}
                         </p>
                       </div>
-                      
-                      {/* Platform Badge */}
-                      <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full shrink-0">
-                        {song.platform}
-                      </span>
                     </button>
                   ))}
                 </div>

@@ -1,11 +1,9 @@
-import { X, ChevronUp, SkipBack, SkipForward, Music2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Music2 } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
+import { getPlatformColor } from "@/lib/songUtils";
 
 const MiniPlayerBar = () => {
-  const { playerState, expandPlayer, closePlayer, nextSong, prevSong } = usePlayer();
+  const { playerState, expandPlayer } = usePlayer();
 
   if (!playerState || playerState.isExpanded) return null;
 
@@ -13,86 +11,41 @@ const MiniPlayerBar = () => {
   if (!currentSong) return null;
 
   return (
-    <div className="fixed bottom-16 left-0 right-0 z-40 px-2 pb-2 md:bottom-4 md:left-auto md:right-4 md:px-0 md:w-[380px]">
-      <div 
-        className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden"
-        onClick={expandPlayer}
-      >
-        <div className="flex items-center gap-3 p-3 cursor-pointer">
-          {/* Thumbnail */}
-          {currentSong.thumbnail ? (
-            <img 
-              src={currentSong.thumbnail} 
-              alt="" 
-              className="w-12 h-12 rounded-xl object-cover shrink-0" 
-            />
-          ) : (
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${getPlatformColor(currentSong.platform)}`}>
-              {getPlatformIcon(currentSong.platform)}
+    <div 
+      className="fixed right-4 top-1/2 -translate-y-1/2 z-40 cursor-pointer group"
+      onClick={expandPlayer}
+    >
+      {/* Rotating Disc */}
+      <div className="relative">
+        {/* Outer Ring */}
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 p-1 shadow-2xl shadow-primary/20 group-hover:scale-105 transition-transform">
+          {/* Inner Disc */}
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-card to-muted border-2 border-primary/30 overflow-hidden relative animate-spin-slow">
+            {/* Center Hole */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-background border-2 border-primary/50 z-10" />
             </div>
-          )}
-
-          {/* Song Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {/* Playing Indicator */}
-              <div className="flex items-end gap-0.5 h-3 shrink-0">
-                <div className="w-0.5 bg-primary rounded-full animate-music-bar-1"></div>
-                <div className="w-0.5 bg-primary rounded-full animate-music-bar-2"></div>
-                <div className="w-0.5 bg-primary rounded-full animate-music-bar-3"></div>
+            
+            {/* Thumbnail or Icon */}
+            {currentSong.thumbnail ? (
+              <img 
+                src={currentSong.thumbnail} 
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className={`w-full h-full flex items-center justify-center ${getPlatformColor(currentSong.platform)}`}>
+                <Music2 className="w-8 h-8 text-white/80" />
               </div>
-              <p className="text-sm font-medium truncate">{currentSong.title}</p>
-            </div>
-            <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={prevSong}
-              disabled={playerState.currentIndex === 0}
-              className="h-9 w-9 rounded-full hover:bg-muted disabled:opacity-30"
-            >
-              <SkipBack className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={nextSong}
-              disabled={playerState.currentIndex === playerState.songs.length - 1}
-              className="h-9 w-9 rounded-full hover:bg-muted disabled:opacity-30"
-            >
-              <SkipForward className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={expandPlayer}
-              className="h-9 w-9 rounded-full hover:bg-muted"
-            >
-              <ChevronUp className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={closePlayer}
-              className="h-9 w-9 rounded-full hover:bg-muted"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            )}
           </div>
         </div>
-
-        {/* Progress Indicator */}
-        <div className="h-0.5 bg-muted">
-          <div 
-            className="h-full bg-primary transition-all duration-300"
-            style={{ 
-              width: `${((playerState.currentIndex + 1) / playerState.songs.length) * 100}%` 
-            }}
-          />
+        
+        {/* Playing Indicator Dots */}
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-end gap-0.5">
+          <div className="w-1 h-1 bg-primary rounded-full animate-music-bar-1"></div>
+          <div className="w-1 h-1 bg-primary rounded-full animate-music-bar-2"></div>
+          <div className="w-1 h-1 bg-primary rounded-full animate-music-bar-3"></div>
         </div>
       </div>
     </div>
