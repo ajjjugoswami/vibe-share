@@ -7,8 +7,10 @@ import { PlaylistProvider } from "./contexts/PlaylistContext";
 import { SocialProvider } from "./contexts/SocialContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { WelcomeProvider } from "./contexts/WelcomeContext";
+import { PlayerProvider } from "./contexts/PlayerContext";
 import AuthInitializer from "./components/AuthInitializer";
 import AnimatedRoutes from "./components/AnimatedRoutes";
+import GlobalPlayer from "./components/GlobalPlayer";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +35,10 @@ const App = () => (
             <WelcomeProvider>
               <PlaylistProvider>
                 <SocialProvider>
-                  <AnimatedRoutes />
+                  <PlayerProvider>
+                    <AnimatedRoutes />
+                    <GlobalPlayer />
+                  </PlayerProvider>
                 </SocialProvider>
               </PlaylistProvider>
             </WelcomeProvider>
