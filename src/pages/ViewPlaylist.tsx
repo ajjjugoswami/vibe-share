@@ -8,7 +8,7 @@ import { likePlaylist, unlikePlaylist } from "@/store/slices/playlistSlice";
 import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import MiniPlayer from "@/components/MiniPlayer";
+import PlayerDrawer from "@/components/PlayerDrawer";
 import UserAvatar from "@/components/UserAvatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClickSound } from "@/hooks/useClickSound";
@@ -507,15 +507,14 @@ const ViewPlaylist = () => {
         </div>
       </div>
 
-      {/* Mini Player */}
-      {activeSongIndex !== null && playlist.songs.length > 0 && (
-        <MiniPlayer
-          songs={playlist.songs}
-          currentIndex={activeSongIndex}
-          onChangeIndex={setActiveSongIndex}
-          onClose={() => setActiveSongIndex(null)}
-        />
-      )}
+      {/* Player Drawer */}
+      <PlayerDrawer
+        open={activeSongIndex !== null}
+        onOpenChange={(open) => !open && setActiveSongIndex(null)}
+        songs={playlist.songs}
+        currentIndex={activeSongIndex ?? 0}
+        onChangeIndex={setActiveSongIndex}
+      />
     </div>
   );
 };
