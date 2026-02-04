@@ -57,11 +57,27 @@ const Player = () => {
   } = usePlayer();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const currentSongRef = useRef<HTMLButtonElement>(null);
 
   const currentSong = getCurrentSong();
   const embedUrl = currentSong
     ? getEmbedUrl(currentSong.url, currentSong.platform)
     : null;
+
+  // Auto-scroll to currently playing song on mount
+  useEffect(() => {
+    if (currentSongRef.current) {
+      // Small delay to ensure DOM is ready and ScrollArea is rendered
+      const timer = setTimeout(() => {
+        currentSongRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [playerState?.currentIndex]); // Re-run when current song changes
 
   // Media Session API for background/lock screen controls
   useEffect(() => {
@@ -286,6 +302,7 @@ const Player = () => {
               )}
               {playerState.songs.map((song, index) => (
                 <button
+                  ref={index === playerState.currentIndex && !isPlayingFromTemporary ? currentSongRef : null}
                   key={song.id || index}
                   onClick={() => setCurrentIndex(index)}
                   className={cn(
