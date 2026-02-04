@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { message } from "antd";
 import UserAvatar from "@/components/UserAvatar";
 import { UserProfileSkeleton, PlaylistGridSkeleton } from "@/components/skeletons";
+import ShareDrawer from "@/components/ShareDrawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,8 @@ const UserProfile = () => {
   const [loadingPlaylists, setLoadingPlaylists] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
+  const [shareData, setShareData] = useState({ title: "", url: "", text: "" });
   const fetchingPlaylistsRef = useRef(false);
   
   const isOwnProfile = currentUser?.username?.toLowerCase() === username?.toLowerCase();
@@ -105,12 +108,12 @@ const UserProfile = () => {
 
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/user/${username}`;
-    if (navigator.share) {
-      navigator.share({ title: `@${username}`, url: shareUrl });
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      message.success("Profile link copied!");
-    }
+    setShareData({
+      title: \"Share Profile\",
+      url: shareUrl,
+      text: `Check out @${username} on Vibe Share`
+    });
+    setShareDrawerOpen(true);
   };
 
   const handleFollow = () => {
@@ -285,6 +288,14 @@ const UserProfile = () => {
           )}
         </motion.div>
       </div>
+
+      <ShareDrawer
+        open={shareDrawerOpen}
+        onClose={() => setShareDrawerOpen(false)}
+        shareUrl={shareData.url}
+        shareTitle={shareData.title}
+        shareText={shareData.text}
+      />
     </div>
   );
 };

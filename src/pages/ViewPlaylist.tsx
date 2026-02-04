@@ -12,6 +12,7 @@ import { message } from "antd";
 import UserAvatar from "@/components/UserAvatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClickSound } from "@/hooks/useClickSound";
+import ShareDrawer from "@/components/ShareDrawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,8 @@ const ViewPlaylist = () => {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
+  const [shareData, setShareData] = useState({ title: "", url: "", text: "" });
   const fetchingRef = useRef(false);
   const isSaved = savedPlaylists.some(p => p.id === id);
   const isOwn = playlist?.user?._id === user?.id;
@@ -95,12 +98,12 @@ const ViewPlaylist = () => {
   const handleShareSong = (e: React.MouseEvent, song: SongLink) => {
     e.stopPropagation();
     playSound('click');
-    if (navigator.share) {
-      navigator.share({ title: song.title, url: song.url });
-    } else {
-      navigator.clipboard.writeText(song.url);
-      message.success("Link copied!");
-    }
+    setShareData({
+      title: `Share Song`,
+      url: song.url,
+      text: `Check out "${song.title}" by ${song.artist}`
+    });
+    setShareDrawerOpen(true);
   };
 
   const handleLike = async () => {
@@ -156,12 +159,12 @@ const ViewPlaylist = () => {
     
     const shareUrl = `${window.location.origin}/playlist/${id}`;
     
-    if (navigator.share) {
-      navigator.share({ title: playlist.title, url: shareUrl });
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      message.success("Link copied!");
-    }
+    setShareData({
+      title: "Share Playlist",
+      url: shareUrl,
+      text: `Check out "${playlist.title}" by ${playlist.user?.username || 'Unknown'}`
+    });
+    setShareDrawerOpen(true);
   };
 
   const handleEdit = () => {
@@ -508,6 +511,14 @@ const ViewPlaylist = () => {
           )}
         </div>
       </div>
+
+      <ShareDrawer
+        open={shareDrawerOpen}
+        onClose={() => setShareDrawerOpen(false)}
+        shareUrl={shareData.url}
+        shareTitle={shareData.title}
+        shareText={shareData.text}
+      />
     </div>
   );
 };

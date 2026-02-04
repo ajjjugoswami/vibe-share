@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { PlaylistData } from "./PlaylistCard";
 import { usePlaylist } from "../contexts/PlaylistContext";
 import { useAppSelector } from "../store/hooks";
+import ShareDrawer from "@/components/ShareDrawer";
 
 interface SongLink {
   title: string;
@@ -78,6 +79,8 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
   const [isSaved, setIsSaved] = useState(playlist.isSaved || false);
   const [isLiking, setIsLiking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
+  const [shareData, setShareData] = useState({ title: "", url: "", text: "" });
 
   const handleOpenLink = (song: SongLink, index: number) => {
     console.log("[SONG_LINK_OPENED]", {
@@ -142,21 +145,22 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
   };
 
   const handleShare = () => {
-    const shareText = `Check out "${playlist.playlistName}" by ${playlist.username}\n\nSongs:\n${allSongs.map((s, i) => `${i + 1}. ${s.title} - ${s.artist}: ${s.url}`).join("\n")}`;
+    const shareUrl = `${window.location.origin}/playlist/${playlist.id}`;
+    const shareText = `Check out \"${playlist.playlistName}\" by ${playlist.username}\\n\\nSongs:\\n${allSongs.map((s, i) => `${i + 1}. ${s.title} - ${s.artist}: ${s.url}`).join(\"\\n\")}`;
     
-    console.log("[PLAYLIST_SHARE]", {
+    console.log(\"[PLAYLIST_SHARE]\", {
       playlistId: playlist.id,
       playlistName: playlist.playlistName,
       username: playlist.username,
       timestamp: new Date().toISOString()
     });
 
-    if (navigator.share) {
-      navigator.share({ title: playlist.playlistName, text: shareText });
-    } else {
-      navigator.clipboard.writeText(shareText);
-      console.log("[SHARE_COPIED_TO_CLIPBOARD]", { timestamp: new Date().toISOString() });
-    }
+    setShareData({
+      title: \"Share Playlist\",
+      url: shareUrl,
+      text: shareText
+    });
+    setShareDrawerOpen(true);
   };
 
   const handleClose = () => {
@@ -275,6 +279,14 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
           </div>
         </div>
       </div>
+
+      <ShareDrawer
+        open={shareDrawerOpen}
+        onClose={() => setShareDrawerOpen(false)}
+        shareUrl={shareData.url}
+        shareTitle={shareData.title}
+        shareText={shareData.text}
+      />
     </div>
   );
 };
