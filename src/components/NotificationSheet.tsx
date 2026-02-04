@@ -13,6 +13,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { notificationsAPI } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
 import UserAvatar from './UserAvatar';
+import { cn } from '@/lib/utils';
+import NotificationSkeleton from './skeletons/NotificationSkeleton';
 
 interface Notification {
   _id: string;
@@ -35,9 +37,11 @@ interface Notification {
 interface NotificationSheetProps {
   unreadCount: number;
   onUnreadCountChange: (count: number) => void;
+  isLoggedIn?: boolean;
+  onNotLoggedInClick?: () => void;
 }
 
-const NotificationSheet = ({ unreadCount, onUnreadCountChange }: NotificationSheetProps) => {
+const NotificationSheet = ({ unreadCount, onUnreadCountChange, isLoggedIn = true, onNotLoggedInClick }: NotificationSheetProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,47 +104,60 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange }: NotificationShe
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-[1.5rem] transition-all duration-300 active:scale-95 hover:bg-foreground/5 flex-shrink-0">
+        <button 
+          onClick={(e) => {
+            if (!isLoggedIn && onNotLoggedInClick) {
+              e.preventDefault();
+              onNotLoggedInClick();
+            }
+          }}
+          className="relative flex flex-col items-center gap-1 px-4 py-1.5 rounded-[1.5rem] transition-all duration-300 active:scale-95 hover:bg-foreground/5 flex-shrink-0"
+        >
           <div className="relative">
-            <Bell className={`w-5 h-5 transition-all duration-300 ${ unreadCount > 0 ? 'text-primary animate-in zoom-in-50 duration-200' : 'text-muted-foreground' }`} 
+            <Bell 
+              className={cn(
+                "w-5 h-5 transition-all duration-300",
+                unreadCount > 0 ? "text-primary" : "text-muted-foreground"
+              )} 
               strokeWidth={unreadCount > 0 ? 2.5 : 2}
               fill={unreadCount > 0 ? "currentColor" : "none"}
             />
-            {unreadCount > 0 && (
+            {unreadCount > 0 && isLoggedIn && (
               <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-background">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </div>
-          <span className={`text-[10px] font-medium transition-all duration-300 whitespace-nowrap ${unreadCount > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
+          <span className={cn(
+            "text-[10px] font-medium transition-all duration-300 whitespace-nowrap",
+            unreadCount > 0 ? "text-foreground" : "text-muted-foreground"
+          )}>
             Alerts
           </span>
         </button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md">
-        <SheetHeader>
+      <SheetContent side="right" className="w-full sm:max-w-md p-0">
+        <SheetHeader className="px-4 py-4 border-b">
           <div className="flex items-center justify-between">
-            <SheetTitle>Notifications</SheetTitle>
+            <SheetTitle className="text-lg font-semibold">Notifications</SheetTitle>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleMarkAllAsRead}
-                className="text-xs"
+                className="text-xs text-primary hover:text-primary/80 hover:bg-transparent font-semibold"
               >
                 Mark all as read
               </Button>
             )}
           </div>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
+        <ScrollArea className="h-[calc(100vh-5rem)]">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
+            <NotificationSkeleton />
           ) : error ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-              <p className="text-destructive mb-3">{error}</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+              <p className="text-destructive mb-4 text-sm">{error}</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -150,32 +167,38 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange }: NotificationShe
               </Button>
             </div>
           ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Bell className="w-12 h-12 text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">No notifications yet</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-20 h-20 rounded-full border-2 border-muted flex items-center justify-center mb-4">
+                <Bell className="w-10 h-10 text-muted-foreground" strokeWidth={1.5} />
+              </div>
+              <p className="text-sm font-medium">No notifications yet</p>
+              <p className="text-xs text-muted-foreground mt-1">You'll see notifications here when someone interacts with your playlists</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y">
               {notifications.map((notification) => (
                 <div
                   key={notification._id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`flex gap-3 p-3 rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors ${
-                    !notification.isRead ? 'bg-secondary/30' : ''
-                  }`}
+                  className={cn(
+                    "flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-muted/30 active:bg-muted/50",
+                    !notification.isRead && "bg-primary/5"
+                  )}
                 >
                   <UserAvatar
                     avatarUrl={notification.actorId.avatarUrl}
-                    size={40}
+                    size={44}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm">
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <p className="text-sm leading-5">
                       <span className="font-semibold">
                         {notification.actorId.username}
                       </span>{' '}
-                      {getNotificationText(notification)}{' '}
-                      <span className="font-semibold">
-                        "{notification.playlistId.title}"
+                      <span className="text-muted-foreground">
+                        {getNotificationText(notification)}
+                      </span>{' '}
+                      <span className="font-medium">
+                        {notification.playlistId.title}
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -185,7 +208,7 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange }: NotificationShe
                     </p>
                   </div>
                   {!notification.isRead && (
-                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full mt-2.5 flex-shrink-0"></div>
                   )}
                 </div>
               ))}

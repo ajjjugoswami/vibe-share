@@ -68,15 +68,18 @@ const FloatingNav = ({ unreadCount = 0, onUnreadCountChange = () => {} }: Floati
           );
         })}
         
-        {/* Notification Bell - Only show when logged in */}
-        {isLoggedIn && (
-          <NotificationSheet 
-            unreadCount={unreadCount}
-            onUnreadCountChange={onUnreadCountChange}
-          />
-        )}
+        {/* Notification Bell - Always show */}
+        <NotificationSheet 
+          unreadCount={unreadCount}
+          onUnreadCountChange={onUnreadCountChange}
+          isLoggedIn={isLoggedIn}
+          onNotLoggedInClick={() => {
+            playSound('tap');
+            triggerHaptic('light');
+            navigate('/sign-in');
+          }}
+        />
         
-        {/* Create Button */}
         <button
           onClick={() => {
             playSound('tap');
