@@ -509,14 +509,6 @@ export const notificationsAPI = {
     return handleResponse(response);
   },
 
-  markAsRead: async (notificationId: string) => {
-    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    });
-    return handleResponse(response);
-  },
-
   markAllAsRead: async () => {
     const response = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
       method: 'POST',

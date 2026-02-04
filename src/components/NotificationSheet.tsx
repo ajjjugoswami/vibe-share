@@ -79,17 +79,10 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange }: NotificationShe
 
   const handleNotificationClick = async (notification: Notification) => {
     try {
-      if (!notification.isRead) {
-        await notificationsAPI.markAsRead(notification._id);
-        setNotifications(prev =>
-          prev.map(n => n._id === notification._id ? { ...n, isRead: true } : n)
-        );
-        onUnreadCountChange(Math.max(0, unreadCount - 1));
-      }
       setOpen(false);
       navigate(`/playlist/${notification.playlistId._id}`);
     } catch (error) {
-      console.error('Failed to mark as read:', error);
+      console.error('Failed to navigate:', error);
     }
   };
 
