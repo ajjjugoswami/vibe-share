@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { notificationsAPI } from '@/lib/api';
 
-const POLLING_INTERVAL = 30000; // 30 seconds
+const POLLING_INTERVAL = 60000; // 30 seconds
 
 export const useNotificationPolling = (isAuthenticated: boolean) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
+  
   useEffect(() => {
     if (!isAuthenticated) {
       if (intervalRef.current) {
