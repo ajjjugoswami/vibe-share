@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { HelpCircle, ArrowLeft, Settings, Share2, RefreshCw, LogOut } from "lucide-react";
+import { HelpCircle, ArrowLeft, Settings, Share2, RefreshCw, LogOut, MoreHorizontal } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { logout, refreshUser } from "@/store/slices/authSlice";
 import { invalidateUserPlaylists, invalidateSavedPlaylists } from "@/store/slices/playlistSlice";
@@ -8,6 +8,12 @@ import UserAvatar from "./UserAvatar";
 import { cn } from "@/lib/utils";
 import { message } from "antd";
 import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TopNavProps {
   onShareClick?: () => void;
@@ -80,19 +86,42 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
           {isProfilePage && (
             <span className="font-semibold text-sm">@{user?.username}</span>
           )}
-          {isPlaylistPage && (
-            <span className="text-sm font-medium">Playlist</span>
-          )}
-          {isSettingsPage && (
-            <span className="text-sm font-medium">Settings</span>
-          )}
-          {isEditProfilePage && (
-            <span className="text-sm font-medium">Edit Profile</span>
+          {(isSettingsPage || isEditProfilePage) && (
+            <span className="text-sm font-medium">
+              {isSettingsPage ? "Settings" : "Edit Profile"}
+            </span>
           )}
         </div>
 
+        {/* Center - Playlist Title */}
+        {isPlaylistPage && (
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <span className="text-sm font-medium">Playlist</span>
+          </div>
+        )}
+
         {/* Right Side */}
         <div className="flex items-center gap-1">
+          {isPlaylistPage && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 -mr-2 hover:bg-secondary rounded-full transition-colors">
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[140px]">
+                <DropdownMenuItem onClick={() => {
+                  const currentPath = location.pathname;
+                  const playlistId = currentPath.split('/').pop();
+                  const shareUrl = `${window.location.origin}/playlist/${playlistId}`;
+                  navigator.clipboard.writeText(shareUrl);
+                  message.success("Link copied!");
+                }}>
+                  Share Playlist
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           {showProfileActions && (
             <>
               <button
