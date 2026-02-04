@@ -1,7 +1,7 @@
-import { useEffect, useRef, useCallback } from "react";
-import { X, ExternalLink, SkipBack, SkipForward, Pause, Play, Music2, ChevronDown } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { X, ExternalLink, Music2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerPortal, DrawerOverlay } from "@/components/ui/drawer";
+import { Drawer, DrawerPortal, DrawerOverlay } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { usePlayer } from "@/contexts/PlayerContext";
@@ -36,7 +36,6 @@ const getEmbedUrl = (url: string, platform: string): string | null => {
 const GlobalPlayer = () => {
   const { 
     playerState, 
-    isPlaying,
     setCurrentIndex, 
     nextSong, 
     prevSong, 
@@ -51,7 +50,7 @@ const GlobalPlayer = () => {
 
   // Media Session API for background/lock screen controls
   useEffect(() => {
-    if (!playerState?.isExpanded || !currentSong) return;
+    if (!playerState || !currentSong) return;
 
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
@@ -73,7 +72,7 @@ const GlobalPlayer = () => {
         navigator.mediaSession.setActionHandler('nexttrack', null);
       }
     };
-  }, [playerState?.isExpanded, currentSong, prevSong, nextSong, playerState?.playlistTitle]);
+  }, [currentSong, prevSong, nextSong, playerState?.playlistTitle]);
 
   const handleOpenExternal = () => {
     if (currentSong) {
