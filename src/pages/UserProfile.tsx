@@ -109,7 +109,7 @@ const UserProfile = () => {
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/user/${username}`;
     setShareData({
-      title: \"Share Profile\",
+      title: "Share Profile",
       url: shareUrl,
       text: `Check out @${username} on Vibe Share`
     });
@@ -127,7 +127,7 @@ const UserProfile = () => {
 
   if (error || (!userProfile && !isOwnProfile)) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <div className=" flex flex-col items-center justify-center gap-4">
         <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
           <Users className="w-10 h-10 text-muted-foreground" />
         </div>

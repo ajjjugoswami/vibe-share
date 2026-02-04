@@ -237,7 +237,7 @@ const ViewPlaylist = () => {
   }
 
   return (
-    <div className="pb-28">
+    <div  >
       <div className="max-w-lg mx-auto">
         {/* Hero Section - No Gradient */}
         <div className="px-4 pt-6 pb-4">

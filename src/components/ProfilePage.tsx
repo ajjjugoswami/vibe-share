@@ -83,7 +83,7 @@ const ProfilePage = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
+      <div className="  flex flex-col items-center justify-center gap-4 p-4">
         <UserAvatar avatarUrl={user?.avatarUrl} size={64} className="bg-secondary" />
         <h2 className="text-lg font-semibold">Sign in to see your profile</h2>
         <p className="text-sm text-muted-foreground">Create and manage your playlists</p>
