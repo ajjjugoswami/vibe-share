@@ -83,8 +83,9 @@ const GlobalPlayer = () => {
 
   return (
     <>
-      {/* Hidden Player - Always mounted to maintain playback */}
-      <div className="fixed -top-[9999px] -left-[9999px] w-[1px] h-[1px] overflow-hidden">
+      {/* COMMENTED OUT: Hidden Player - Always mounted to maintain playback */}
+      {/* This was causing duplicate playback - keeping only the visible iframe */}
+      {/* <div className="fixed -top-[9999px] -left-[9999px] w-[1px] h-[1px] overflow-hidden">
         {embedUrl && (
           <iframe
             ref={iframeRef}
@@ -95,10 +96,10 @@ const GlobalPlayer = () => {
             title={currentSong?.title}
           />
         )}
-      </div>
+      </div> */}
 
-      {/* Mini Player Bar (when minimized) */}
-      <MiniPlayerBar />
+      {/* COMMENTED OUT: Mini Player Bar (when minimized) */}
+      {/* <MiniPlayerBar /> */}
 
       {/* Full Player Modal (when expanded) */}
       {playerState.isExpanded && (
@@ -133,14 +134,14 @@ const GlobalPlayer = () => {
                 >
                   <ExternalLink className="w-4 h-4" />
                 </Button>
-                <Button 
+                {/* <Button 
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 hover:bg-muted/50"
                   onClick={minimizePlayer}
                 >
                   <ChevronDown className="w-4 h-4" />
-                </Button>
+                </Button> */}
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -152,11 +153,12 @@ const GlobalPlayer = () => {
               </div>
             </div>
 
-            {/* Player Area - Visual only, actual playback in hidden iframe */}
+            {/* Player Area - Actual playback happens here */}
             <div className="w-full aspect-video bg-black shrink-0">
               {embedUrl ? (
                 <iframe
-                  key={`visible-${currentSong?.id || playerState.currentIndex}`}
+                  ref={iframeRef}
+                  key={currentSong?.id || playerState.currentIndex}
                   src={embedUrl}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
