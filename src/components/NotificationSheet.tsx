@@ -111,29 +111,21 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange, isLoggedIn = true
               onNotLoggedInClick();
             }
           }}
-          className="relative flex flex-col items-center gap-1 px-4 py-1.5 rounded-[1.5rem] transition-all duration-300 active:scale-95 hover:bg-foreground/5 flex-shrink-0"
+          className="relative flex items-center justify-center p-2.5 rounded-full transition-all duration-200 active:scale-90 hover:bg-foreground/5 flex-shrink-0"
         >
-          <div className="relative">
-            <Bell 
-              className={cn(
-                "w-5 h-5 transition-all duration-300",
-                unreadCount > 0 ? "text-primary" : "text-muted-foreground"
-              )} 
-              strokeWidth={unreadCount > 0 ? 2.5 : 2}
-              fill={unreadCount > 0 ? "currentColor" : "none"}
-            />
-            {unreadCount > 0 && isLoggedIn && (
-              <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-background">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </div>
-          <span className={cn(
-            "text-[10px] font-medium transition-all duration-300 whitespace-nowrap",
-            unreadCount > 0 ? "text-foreground" : "text-muted-foreground"
-          )}>
-            Alerts
-          </span>
+          <Bell 
+            className={cn(
+              "w-6 h-6 transition-colors duration-200",
+              unreadCount > 0 ? "text-primary" : "text-muted-foreground"
+            )} 
+            strokeWidth={unreadCount > 0 ? 2.5 : 2}
+            fill={unreadCount > 0 ? "currentColor" : "none"}
+          />
+          {unreadCount > 0 && isLoggedIn && (
+            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center border border-background">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-md p-0">
