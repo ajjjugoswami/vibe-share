@@ -153,27 +153,7 @@ const UserProfile = () => {
   const hasSocialLinks = displayProfile.socialLinks && Object.values(displayProfile.socialLinks).some(link => link);
 
   return (
-    <div className="min-h-screen pb-28">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center justify-between px-4 h-14 max-w-2xl mx-auto">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <span className="font-semibold">@{displayProfile.username}</span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleShare}>Share Profile</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-
+    <div className="pb-28">
       <div className="max-w-lg mx-auto px-4 py-8">
         {/* Profile Hero */}
         <motion.div 

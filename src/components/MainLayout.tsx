@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
 import FloatingNav from "./FloatingNav";
 import WelcomeDrawer from "./WelcomeDrawer";
+import TopNav from "./TopNav";
 import { useWelcome } from "@/contexts/WelcomeContext";
 import { useNotificationPolling } from "@/hooks/useNotificationPolling";
 import { useAppSelector } from "@/store/hooks";
-import TopNav from "./TopNav";
 import { useEffect } from "react";
 import { message } from "antd";
 
@@ -23,8 +23,8 @@ const MainLayout = () => {
   }, [error, clearError]);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">    
-      {/* Sticky Top Navigation */}
+    <div className="h-screen flex flex-col overflow-hidden">
+      {/* Sticky Header */}
       <TopNav />
       
       {/* Scrollable Main Content */}

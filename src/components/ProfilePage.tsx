@@ -112,42 +112,9 @@ const ProfilePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
-        <div className="flex items-center justify-between px-4 h-11 max-w-lg mx-auto">
-          <span className="font-semibold text-sm">@{user?.username}</span>
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={handleRefresh} 
-              disabled={isRefreshing}
-              className="p-2 hover:bg-secondary/80 rounded-full transition-colors"
-            >
-              <RefreshCw className={cn("w-[18px] h-[18px]", isRefreshing && "animate-spin")} />
-            </button>
-            <button 
-              onClick={handleShareProfile}
-              className="p-2 hover:bg-secondary/80 rounded-full transition-colors"
-            >
-              <Share2 className="w-[18px] h-[18px]" />
-            </button>
-            <button 
-              onClick={() => navigate('/settings')}
-              className="p-2 hover:bg-secondary/80 rounded-full transition-colors"
-            >
-              <Settings className="w-[18px] h-[18px]" />
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="p-2 hover:bg-secondary/80 rounded-full transition-colors"
-            >
-              <LogOut className="w-[18px] h-[18px]" />
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-background">
       <div className="max-w-lg mx-auto px-4 py-5">
+        
         {/* Profile Info */}
         <div className="flex items-start gap-5 mb-5">
           <UserAvatar 
