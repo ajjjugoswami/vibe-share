@@ -101,10 +101,7 @@ const Player = () => {
     }
   };
 
-  const handleClose = () => {
-    closePlayer();
-    navigate(-1);
-  };
+ 
 
   if (!playerState) {
     navigate("/");
@@ -112,8 +109,8 @@ const Player = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Compact Header */}
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      {/* Compact Header - Fixed */}
       <div className="flex items-center justify-between px-3 py-2 bg-card border-b border-border/30 shrink-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <Button
@@ -147,20 +144,12 @@ const Player = () => {
           >
             <ExternalLink className="w-4 h-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-muted/50"
-            onClick={handleClose}
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          
         </div>
       </div>
 
-      {/* Player Area */}
-      <div className="w-full aspect-video bg-black shrink-0">
-        {embedUrl ? (
+      {/* Player Area - Fixed */}
+      <div className="w-full aspect-video bg-black shrink-0">{embedUrl ? (
           <iframe
             ref={iframeRef}
             key={currentSong?.id || playerState.currentIndex}
@@ -198,92 +187,92 @@ const Player = () => {
         )}
       </div>
 
-      {/* Tabs: Queue | Playlists */}
-      <Tabs defaultValue="queue" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="w-full grid grid-cols-2 bg-muted/30 border-y border-border/20 rounded-none h-10 shrink-0">
-          <TabsTrigger
-            value="queue"
-            className="text-xs gap-1.5 data-[state=active]:bg-background"
-          >
-            <List className="w-3.5 h-3.5" />
-            Queue
-          </TabsTrigger>
-          <TabsTrigger
-            value="playlists"
-            className="text-xs gap-1.5 data-[state=active]:bg-background"
-          >
-            <Music2 className="w-3.5 h-3.5" />
-            Saved Playlists
-          </TabsTrigger>
-        </TabsList>
+      {/* Tabs: Queue | Playlists - Fixed with scrollable content */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <Tabs defaultValue="queue" className="flex-1 flex flex-col min-h-0">
+          <TabsList className="w-full grid grid-cols-2 bg-muted/30 border-y border-border/20 rounded-none h-10 shrink-0">
+            <TabsTrigger
+              value="queue"
+              className="text-xs gap-1.5 data-[state=active]:bg-background"
+            >
+              <List className="w-3.5 h-3.5" />
+              Queue
+            </TabsTrigger>
+            <TabsTrigger
+              value="playlists"
+              className="text-xs gap-1.5 data-[state=active]:bg-background"
+            >
+              <Music2 className="w-3.5 h-3.5" />
+              Saved Playlists
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Queue Tab */}
-        <TabsContent value="queue" className="flex-1 min-h-0 mt-0">
-          <ScrollArea className="h-full">
-            {/* Now Playing from Temporary Playlist */}
-            {isPlayingFromTemporary && playerState.temporarySongs && (
-              <div className="border-b-2 border-primary/20 bg-gradient-to-b from-primary/5 to-transparent">
-                <div className="px-3 py-2 border-b border-border/30">
-                  <p className="text-xs font-medium text-primary">
-                    Now Playing from: {playerState.temporaryPlaylistTitle}
-                  </p>
-                </div>
-                {/* Show only current song from temporary playlist */}
-                <div className="bg-primary/10">
-                  <button
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left"
-                    disabled
-                  >
-                    {/* Playing Indicator */}
-                    <div className="w-5 shrink-0 flex justify-center">
-                      <div className="flex items-center gap-[2px]">
-                        <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-1"></div>
-                        <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-2"></div>
-                        <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-3"></div>
+          {/* Queue Tab - Scrollable */}
+          <TabsContent value="queue" className="flex-1 mt-0 overflow-hidden">
+            <ScrollArea className="h-full">{/* Now Playing from Temporary Playlist */}
+              {isPlayingFromTemporary && playerState.temporarySongs && (
+                <div className="border-b-2 border-primary/20 bg-gradient-to-b from-primary/5 to-transparent">
+                  <div className="px-3 py-2 border-b border-border/30">
+                    <p className="text-xs font-medium text-primary">
+                      Now Playing from: {playerState.temporaryPlaylistTitle}
+                    </p>
+                  </div>
+                  {/* Show only current song from temporary playlist */}
+                  <div className="bg-primary/10">
+                    <button
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left"
+                      disabled
+                    >
+                      {/* Playing Indicator */}
+                      <div className="w-5 shrink-0 flex justify-center">
+                        <div className="flex items-center gap-[2px]">
+                          <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-1"></div>
+                          <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-2"></div>
+                          <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-3"></div>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Thumbnail */}
-                    {playerState.temporarySongs[playerState.temporaryIndex]
-                      .thumbnail ? (
-                      <img
-                        src={
-                          playerState.temporarySongs[playerState.temporaryIndex]
-                            .thumbnail
-                        }
-                        alt=""
-                        className="w-12 h-9 rounded object-cover shrink-0"
-                      />
-                    ) : (
-                      <div
-                        className={`w-12 h-9 rounded flex items-center justify-center shrink-0 ${getPlatformColor(playerState.temporarySongs[playerState.temporaryIndex].platform)}`}
-                      >
-                        {getPlatformIcon(
-                          playerState.temporarySongs[playerState.temporaryIndex]
-                            .platform,
-                        )}
+                      {/* Thumbnail */}
+                      {playerState.temporarySongs[playerState.temporaryIndex]
+                        .thumbnail ? (
+                        <img
+                          src={
+                            playerState.temporarySongs[playerState.temporaryIndex]
+                              .thumbnail
+                          }
+                          alt=""
+                          className="w-12 h-9 rounded object-cover shrink-0"
+                        />
+                      ) : (
+                        <div
+                          className={`w-12 h-9 rounded flex items-center justify-center shrink-0 ${getPlatformColor(playerState.temporarySongs[playerState.temporaryIndex].platform)}`}
+                        >
+                          {getPlatformIcon(
+                            playerState.temporarySongs[playerState.temporaryIndex]
+                              .platform,
+                          )}
+                        </div>
+                      )}
+
+                      {/* Song Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-normal leading-tight line-clamp-2 text-foreground">
+                          {
+                            playerState.temporarySongs[playerState.temporaryIndex]
+                              .title
+                          }
+                        </p>
+                        <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
+                          {
+                            playerState.temporarySongs[playerState.temporaryIndex]
+                              .artist
+                          }
+                        </p>
                       </div>
-                    )}
-
-                    {/* Song Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-normal leading-tight line-clamp-2 text-foreground">
-                        {
-                          playerState.temporarySongs[playerState.temporaryIndex]
-                            .title
-                        }
-                      </p>
-                      <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
-                        {
-                          playerState.temporarySongs[playerState.temporaryIndex]
-                            .artist
-                        }
-                      </p>
-                    </div>
-                  </button>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Original Queue */}
             <div className={cn(isPlayingFromTemporary && "opacity-60")}>
@@ -358,21 +347,19 @@ const Player = () => {
                 </button>
               ))}
             </div>
-          </ScrollArea>
-        </TabsContent>
+            </ScrollArea>
+          </TabsContent>
 
-        {/* Playlists Tab */}
-        <TabsContent value="playlists" className="flex-1 min-h-0 mt-0">
-          <PlaylistsTab
-            onPlayPlaylist={(songs, startIndex, playlistId, playlistTitle) => {
-              playTemporarySongs(songs, startIndex, playlistId, playlistTitle);
-            }}
-          />
-        </TabsContent>
-      </Tabs>
-
-      {/* Safe Area for Mobile */}
-      <div className="h-safe-area-inset-bottom shrink-0" />
+          {/* Playlists Tab - Scrollable */}
+          <TabsContent value="playlists" className="flex-1 mt-0 overflow-hidden">
+            <PlaylistsTab
+              onPlayPlaylist={(songs, startIndex, playlistId, playlistTitle) => {
+                playTemporarySongs(songs, startIndex, playlistId, playlistTitle);
+              }}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
