@@ -27,6 +27,7 @@ const MiniPlayerBar = () => {
   }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
     const touch = e.touches[0];
     dragStartRef.current = {
       x: touch.clientX,
@@ -38,6 +39,7 @@ const MiniPlayerBar = () => {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    e.stopPropagation();
     if (!isDragging) return;
     const touch = e.touches[0];
     const deltaX = touch.clientX - dragStartRef.current.x;
@@ -50,6 +52,8 @@ const MiniPlayerBar = () => {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (!isDragging) return;
     setIsDragging(false);
     
@@ -64,6 +68,8 @@ const MiniPlayerBar = () => {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     dragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
