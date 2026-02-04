@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { notificationsAPI } from '@/lib/api';
 
-const POLLING_INTERVAL = 60000; // 30 seconds
+const POLLING_INTERVAL = 90000; // 90 seconds
 
 export const useNotificationPolling = (isAuthenticated: boolean) => {
   const [unreadCount, setUnreadCount] = useState(0);

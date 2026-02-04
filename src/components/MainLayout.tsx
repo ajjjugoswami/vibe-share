@@ -23,7 +23,7 @@ const MainLayout = () => {
   }, [error, clearError]);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen-mobile flex flex-col overflow-hidden">
       {/* Sticky Header */}
       <TopNav />
       
