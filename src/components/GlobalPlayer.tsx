@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { X, ExternalLink, Music2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerPortal, DrawerOverlay } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { usePlayer } from "@/contexts/PlayerContext";
@@ -80,43 +79,56 @@ const GlobalPlayer = () => {
     }
   };
 
-  const handleDrawerChange = (open: boolean) => {
-    if (!open) {
-      minimizePlayer();
-    }
-  };
-
   if (!playerState) return null;
 
   return (
     <>
+      {/* Hidden Player - Always mounted to maintain playback */}
+      <div className="fixed -top-[9999px] -left-[9999px] w-[1px] h-[1px] overflow-hidden">
+        {embedUrl && (
+          <iframe
+            ref={iframeRef}
+            key={`hidden-${currentSong?.id || playerState.currentIndex}`}
+            src={embedUrl}
+            className="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            title={currentSong?.title}
+          />
+        )}
+      </div>
+
       {/* Mini Player Bar (when minimized) */}
       <MiniPlayerBar />
 
-      {/* Full Player Drawer (when expanded) */}
-      <Drawer open={playerState.isExpanded} onOpenChange={handleDrawerChange} modal={false}>
-        <DrawerPortal>
-          <DrawerOverlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
-          <div className="fixed inset-x-0 bottom-0 top-0 z-50 flex flex-col bg-background md:inset-x-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:h-[90vh] md:w-[480px] md:max-h-[800px] md:rounded-2xl md:border md:shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-card/50 backdrop-blur-xl shrink-0">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                {/* Now Playing Indicator */}
-                <div className="flex items-end gap-0.5 h-4 shrink-0">
-                  <div className="w-0.5 bg-primary rounded-full animate-music-bar-1"></div>
-                  <div className="w-0.5 bg-primary rounded-full animate-music-bar-2"></div>
-                  <div className="w-0.5 bg-primary rounded-full animate-music-bar-3"></div>
+      {/* Full Player Modal (when expanded) */}
+      {playerState.isExpanded && (
+        <div className="fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={minimizePlayer}
+          />
+          
+          {/* Player Content */}
+          <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col bg-background md:inset-x-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:h-[85vh] md:w-[440px] md:max-h-[700px] md:rounded-xl md:border md:border-border/50">
+            {/* Compact Header */}
+            <div className="flex items-center justify-between px-3 py-2 bg-card border-b border-border/30 shrink-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="flex items-end gap-[2px] h-3 shrink-0">
+                  <div className="w-[3px] bg-primary rounded-sm animate-music-bar-1"></div>
+                  <div className="w-[3px] bg-primary rounded-sm animate-music-bar-2"></div>
+                  <div className="w-[3px] bg-primary rounded-sm animate-music-bar-3"></div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold truncate">{currentSong?.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">{currentSong?.artist}</p>
+                  <p className="text-sm font-medium truncate leading-tight">{currentSong?.title}</p>
+                  <p className="text-xs text-muted-foreground truncate leading-tight">{currentSong?.artist}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center shrink-0">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-9 w-9 hover:bg-muted rounded-full"
+                  className="h-8 w-8 hover:bg-muted/50"
                   onClick={handleOpenExternal}
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -124,28 +136,27 @@ const GlobalPlayer = () => {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-9 w-9 hover:bg-muted rounded-full"
+                  className="h-8 w-8 hover:bg-muted/50"
                   onClick={minimizePlayer}
                 >
-                  <ChevronDown className="w-5 h-5" />
+                  <ChevronDown className="w-4 h-4" />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-9 w-9 hover:bg-muted rounded-full"
+                  className="h-8 w-8 hover:bg-muted/50"
                   onClick={closePlayer}
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-            {/* Player Area */}
+            {/* Player Area - Visual only, actual playback in hidden iframe */}
             <div className="w-full aspect-video bg-black shrink-0">
               {embedUrl ? (
                 <iframe
-                  ref={iframeRef}
-                  key={currentSong?.id || playerState.currentIndex}
+                  key={`visible-${currentSong?.id || playerState.currentIndex}`}
                   src={embedUrl}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -153,98 +164,95 @@ const GlobalPlayer = () => {
                   title={currentSong?.title}
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-6 bg-gradient-to-b from-muted/50 to-muted">
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${currentSong ? getPlatformColor(currentSong.platform) : 'bg-muted'}`}>
-                    <Music2 className="w-10 h-10" />
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-b from-card to-muted">
+                  <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${currentSong ? getPlatformColor(currentSong.platform) : 'bg-muted'}`}>
+                    <Music2 className="w-8 h-8" />
                   </div>
                   <div className="text-center">
-                    <p className="font-medium">{currentSong?.title}</p>
-                    <p className="text-sm text-muted-foreground">{currentSong?.artist}</p>
+                    <p className="font-medium text-sm">{currentSong?.title}</p>
+                    <p className="text-xs text-muted-foreground">{currentSong?.artist}</p>
                   </div>
-                  <p className="text-muted-foreground text-center text-sm max-w-[280px]">
+                  <p className="text-muted-foreground text-center text-xs max-w-[240px]">
                     This platform doesn't support in-app playback
                   </p>
-                  <Button onClick={handleOpenExternal} className="gap-2">
-                    <ExternalLink className="w-4 h-4" />
+                  <Button size="sm" onClick={handleOpenExternal} className="gap-1.5 h-8 text-xs">
+                    <ExternalLink className="w-3 h-3" />
                     Open in {currentSong?.platform}
                   </Button>
                 </div>
               )}
             </div>
 
-            {/* Queue List */}
-            <div className="flex-1 min-h-0 flex flex-col bg-black/20">
-              <div className="flex items-center justify-between px-4 py-2.5 bg-black/30 shrink-0">
-                <p className="text-sm font-medium text-white">Up Next</p>
-                <p className="text-xs text-white/60">
-                  {playerState.currentIndex + 1} of {playerState.songs.length}
-                </p>
-              </div>
-              
-              <ScrollArea className="flex-1">
-                <div className="space-y-0">
-                  {playerState.songs.map((song, index) => (
-                    <button
-                      key={song.id || index}
-                      onClick={() => setCurrentIndex(index)}
-                      className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2 text-left transition-colors",
-                        index === playerState.currentIndex 
-                          ? "bg-white/10" 
-                          : "hover:bg-white/5"
-                      )}
-                    >
-                      {/* Index / Playing Indicator */}
-                      <div className="w-5 shrink-0 flex justify-center">
-                        {index === playerState.currentIndex ? (
-                          <div className="flex items-center justify-center">
-                            <div className="w-3 h-3 flex items-center gap-[2px]">
-                              <div className="w-[3px] h-2 bg-white rounded-full animate-music-bar-1"></div>
-                              <div className="w-[3px] h-2 bg-white rounded-full animate-music-bar-2"></div>
-                              <div className="w-[3px] h-2 bg-white rounded-full animate-music-bar-3"></div>
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-white/50">{index + 1}</span>
-                        )}
-                      </div>
-                      
-                      {/* Thumbnail */}
-                      {song.thumbnail ? (
-                        <img 
-                          src={song.thumbnail} 
-                          alt="" 
-                          className="w-16 h-12 rounded object-cover shrink-0" 
-                        />
-                      ) : (
-                        <div className={`w-16 h-12 rounded flex items-center justify-center shrink-0 ${getPlatformColor(song.platform)}`}>
-                          {getPlatformIcon(song.platform)}
-                        </div>
-                      )}
-                      
-                      {/* Song Info */}
-                      <div className="flex-1 min-w-0 py-1">
-                        <p className={cn(
-                          "text-[13px] font-normal leading-tight line-clamp-2 mb-1",
-                          index === playerState.currentIndex ? "text-white" : "text-white/90"
-                        )}>
-                          {song.title}
-                        </p>
-                        <p className="text-[12px] text-white/50 truncate leading-tight">
-                          {song.artist}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </ScrollArea>
+            {/* Queue Header */}
+            <div className="flex items-center justify-between px-3 py-2 bg-muted/30 border-y border-border/20 shrink-0">
+              <p className="text-xs font-medium">Queue</p>
+              <p className="text-xs text-muted-foreground">
+                {playerState.currentIndex + 1} / {playerState.songs.length}
+              </p>
             </div>
 
-            {/* Safe Area Padding for Mobile */}
-            <div className="h-safe-area-inset-bottom bg-background shrink-0" />
+            {/* Queue List */}
+            <ScrollArea className="flex-1 min-h-0">
+              <div>
+                {playerState.songs.map((song, index) => (
+                  <button
+                    key={song.id || index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-3 py-2 text-left transition-colors border-b border-border/10",
+                      index === playerState.currentIndex 
+                        ? "bg-primary/10" 
+                        : "hover:bg-muted/30"
+                    )}
+                  >
+                    {/* Index / Playing Indicator */}
+                    <div className="w-5 shrink-0 flex justify-center">
+                      {index === playerState.currentIndex ? (
+                        <div className="flex items-center gap-[2px]">
+                          <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-1"></div>
+                          <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-2"></div>
+                          <div className="w-[2px] h-2 bg-primary rounded-sm animate-music-bar-3"></div>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">{index + 1}</span>
+                      )}
+                    </div>
+                    
+                    {/* Thumbnail */}
+                    {song.thumbnail ? (
+                      <img 
+                        src={song.thumbnail} 
+                        alt="" 
+                        className="w-12 h-9 rounded object-cover shrink-0" 
+                      />
+                    ) : (
+                      <div className={`w-12 h-9 rounded flex items-center justify-center shrink-0 ${getPlatformColor(song.platform)}`}>
+                        {getPlatformIcon(song.platform)}
+                      </div>
+                    )}
+                    
+                    {/* Song Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "text-xs font-normal leading-tight line-clamp-2",
+                        index === playerState.currentIndex ? "text-foreground" : "text-foreground/80"
+                      )}>
+                        {song.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
+                        {song.artist}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Safe Area for Mobile */}
+            <div className="h-safe-area-inset-bottom shrink-0" />
           </div>
-        </DrawerPortal>
-      </Drawer>
+        </div>
+      )}
     </>
   );
 };
