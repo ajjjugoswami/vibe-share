@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   X,
@@ -58,15 +58,16 @@ const Player = () => {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentSongRef = useRef<HTMLButtonElement>(null);
+  const [activeTab, setActiveTab] = useState("queue");
 
   const currentSong = getCurrentSong();
   const embedUrl = currentSong
     ? getEmbedUrl(currentSong.url, currentSong.platform)
     : null;
 
-  // Auto-scroll to currently playing song on mount
+  // Auto-scroll to currently playing song on mount and when switching to queue tab
   useEffect(() => {
-    if (currentSongRef.current) {
+    if (currentSongRef.current && activeTab === "queue") {
       // Small delay to ensure DOM is ready and ScrollArea is rendered
       const timer = setTimeout(() => {
         currentSongRef.current?.scrollIntoView({
@@ -77,7 +78,7 @@ const Player = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [playerState?.currentIndex]); // Re-run when current song changes
+  }, [playerState?.currentIndex, activeTab]); // Re-run when current song changes or tab switches
 
   // Media Session API for background/lock screen controls
   useEffect(() => {
@@ -205,7 +206,7 @@ const Player = () => {
 
       {/* Tabs: Queue | Playlists - Fixed with scrollable content */}
       <div className="flex-1 flex flex-col min-h-0">
-        <Tabs defaultValue="queue" className="flex-1 flex flex-col min-h-0">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <TabsList className="w-full grid grid-cols-2 bg-muted/30 border-y border-border/20 rounded-none h-10 shrink-0">
             <TabsTrigger
               value="queue"
