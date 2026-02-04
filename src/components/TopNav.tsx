@@ -33,7 +33,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   const isUserProfilePage = location.pathname.startsWith('/user/');
   const isSettingsPage = location.pathname === '/settings';
   const isEditProfilePage = location.pathname === '/edit-profile';
-  const isCreatePlaylistPage = location.pathname === '/create-playlist';
+  const isCreatePlaylistPage = location.pathname === '/playlist/create';
   const isSearchPage = location.pathname === '/search';
   const isFeedPage = location.pathname === '/' || location.pathname === '/feed';
 
