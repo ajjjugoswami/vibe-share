@@ -66,9 +66,24 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Outfit', 'Inter', sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 100%;
+    position: relative;
+  }
+
+  #root {
+    min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .safe-area-bottom {
@@ -329,6 +344,17 @@
 
   .animate-glow {
     animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  /* Mobile-friendly height classes */
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+
+  .h-screen-safe {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
   }
 }
 

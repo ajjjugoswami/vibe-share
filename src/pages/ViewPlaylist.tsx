@@ -194,13 +194,13 @@ const ViewPlaylist = () => {
     return (
       <div className="min-h-screen pb-28">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
-          <div className="flex items-center justify-between px-4 h-12 max-w-4xl mx-auto">
+          <div className="flex items-center justify-between px-4 h-12 max-w-lg mx-auto">
             <Skeleton className="w-8 h-8 rounded-full" />
             <Skeleton className="w-16 h-4" />
             <Skeleton className="w-8 h-8 rounded-full" />
           </div>
         </header>
-        <div className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="max-w-lg mx-auto px-4 pt-6">
           <div className="flex gap-4 mb-6">
             <Skeleton className="w-28 h-28 md:w-36 md:h-36 rounded-2xl flex-shrink-0" />
             <div className="flex-1 py-1">
@@ -247,7 +247,7 @@ const ViewPlaylist = () => {
     <div className="min-h-screen pb-28">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="flex items-center justify-between px-4 h-12 max-w-4xl mx-auto">
+        <div className="flex items-center justify-between px-4 h-12 max-w-lg mx-auto">
           <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -265,7 +265,7 @@ const ViewPlaylist = () => {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-lg mx-auto">
         {/* Hero Section - No Gradient */}
         <div className="px-4 pt-6 pb-4">
           <div className="flex gap-4">

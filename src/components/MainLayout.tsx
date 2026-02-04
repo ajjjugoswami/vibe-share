@@ -23,7 +23,7 @@ const MainLayout = () => {
   }, [error, clearError]);
 
   return (
-    <div className="min-h-screen bg-background">    
+    <div className="bg-background overflow-x-hidden">    
       {/* Main Content */}
       <div className="pb-24">
         <Outlet />
