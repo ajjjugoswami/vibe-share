@@ -23,9 +23,12 @@ const MainLayout = () => {
   }, [error, clearError]);
 
   return (
-    <div className="bg-background overflow-x-hidden">    
-      {/* Main Content */}
-      <div className="pb-24">
+    <div className="h-screen flex flex-col overflow-hidden">    
+      {/* Sticky Top Navigation */}
+      <TopNav />
+      
+      {/* Scrollable Main Content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24">
         <Outlet />
       </div>
       

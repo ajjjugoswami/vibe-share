@@ -15,7 +15,7 @@ const TopNav = ({ onShareClick, isLoggedIn }: TopNavProps) => {
   const { openWelcome } = useWelcome();
 
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/30">
+    <header className="bg-background/80 backdrop-blur-xl border-b border-border/30">
       <div className="flex items-center justify-between px-4 h-10 max-w-lg mx-auto">
         <div className="flex items-center gap-2">
  
