@@ -4,8 +4,14 @@ import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/store/hooks";
 import { triggerHaptic } from "@/hooks/useHaptic";
 import { useClickSound } from "@/hooks/useClickSound";
+import NotificationSheet from "./NotificationSheet";
 
-const FloatingNav = () => {
+interface FloatingNavProps {
+  unreadCount?: number;
+  onUnreadCountChange?: (count: number) => void;
+}
+
+const FloatingNav = ({ unreadCount = 0, onUnreadCountChange = () => {} }: FloatingNavProps) => {
   const { user } = useAppSelector((state) => state.auth);
   const isLoggedIn = !!user;
   const navigate = useNavigate();
@@ -19,7 +25,7 @@ const FloatingNav = () => {
 
   return (
     <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(600px,calc(100vw-2rem))]">
-      <div className="flex w-full items-center justify-between gap-1 px-2.5 py-1.5 rounded-[2.25rem] bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl">
+      <div className="flex w-full items-center justify-around gap-0.5 px-2 py-1.5 rounded-[2.25rem] bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -33,7 +39,7 @@ const FloatingNav = () => {
               }}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-1 px-6 py-1.5 rounded-[1.5rem] transition-all duration-300 active:scale-95",
+                  "flex flex-col items-center gap-1 px-4 py-1.5 rounded-[1.5rem] transition-all duration-300 active:scale-95 flex-shrink-0",
                   isActive
                     ? "bg-foreground/5"
                     : "hover:bg-foreground/5"
@@ -51,7 +57,7 @@ const FloatingNav = () => {
                     fill={isActive ? "currentColor" : "none"}
                   />
                   <span className={cn(
-                    "text-[10px] font-medium transition-all duration-300",
+                    "text-[10px] font-medium transition-all duration-300 whitespace-nowrap",
                     isActive ? "text-foreground animate-in fade-in-50 slide-in-from-bottom-1 duration-200" : "text-muted-foreground"
                   )}>
                     {item.label}
@@ -62,6 +68,14 @@ const FloatingNav = () => {
           );
         })}
         
+        {/* Notification Bell - Only show when logged in */}
+        {isLoggedIn && (
+          <NotificationSheet 
+            unreadCount={unreadCount}
+            onUnreadCountChange={onUnreadCountChange}
+          />
+        )}
+        
         {/* Create Button */}
         <button
           onClick={() => {
@@ -69,7 +83,7 @@ const FloatingNav = () => {
             triggerHaptic('medium');
             navigate(isLoggedIn ? "/playlist/create" : "/sign-in");
           }}
-          className="w-11 h-11 ml-1 rounded-full bg-primary flex items-center justify-center text-primary-foreground transition-all duration-200 hover:scale-110 hover:rotate-90 active:scale-95 shadow-lg animate-pulse-slow"
+          className="w-11 h-11 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground transition-all duration-200 hover:scale-110 hover:rotate-90 active:scale-95 shadow-lg animate-pulse-slow"
         >
           <Plus className="w-5 h-5 transition-transform duration-200" strokeWidth={2.5} />
         </button>
