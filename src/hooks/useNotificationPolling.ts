@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { notificationsAPI } from '@/lib/api';
 import { playNotificationSound } from '@/utils/notificationSound';
 
-const POLLING_INTERVAL = 90000; // 90 seconds
+const POLLING_INTERVAL = 500000; // 90 seconds
 
 export const useNotificationPolling = (isAuthenticated: boolean) => {
   const [unreadCount, setUnreadCount] = useState(0);
