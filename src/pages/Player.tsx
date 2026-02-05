@@ -155,7 +155,7 @@ const Player = () => {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="max-w-lg mx-auto h-screen bg-background flex flex-col overflow-hidden">
       {/* Compact Header */}
       <div className="flex items-center justify-between px-3 py-2 bg-card border-b border-border/30 shrink-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
