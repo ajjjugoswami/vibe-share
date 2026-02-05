@@ -599,7 +599,27 @@
   .animate-spin-slow {
     animation: spin-slow 8s linear infinite;
   }
+
+  /* Custom notification message animation */
+  .custom-notification-message {
+    animation: slideInDown 0.3s ease-out;
+  }
+
+  .custom-notification-message .ant-message-notice-content {
+    background: white;
+    border-radius: 8px;
+    padding: 10px 16px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .custom-notification-message .ant-message-success .anticon {
+    color: #10b981;
+  }
 }
+
 
 @keyframes spin-slow {
   from {
@@ -607,5 +627,16 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
