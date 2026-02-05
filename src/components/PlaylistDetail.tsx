@@ -91,7 +91,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
       songArtist: song.artist,
       platform: song.platform,
       url: song.url,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
     window.open(song.url, "_blank", "noopener,noreferrer");
   };
@@ -146,19 +146,19 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
 
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/playlist/${playlist.id}`;
-    const shareText = `Check out \"${playlist.playlistName}\" by ${playlist.username}\\n\\nSongs:\\n${allSongs.map((s, i) => `${i + 1}. ${s.title} - ${s.artist}: ${s.url}`).join(\"\\n\")}`;
-    
-    console.log(\"[PLAYLIST_SHARE]\", {
+    const shareText = `Check out "${playlist.playlistName}" by ${playlist.username}`;
+
+    console.log("[PLAYLIST_SHARE]", {
       playlistId: playlist.id,
       playlistName: playlist.playlistName,
       username: playlist.username,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     setShareData({
-      title: \"Share Playlist\",
+      title: "Share Playlist",
       url: shareUrl,
-      text: shareText
+      text: shareText,
     });
     setShareDrawerOpen(true);
   };
@@ -167,7 +167,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
     console.log("[PLAYLIST_CLOSED]", {
       playlistId: playlist.id,
       playlistName: playlist.playlistName,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
     onClose();
   };
@@ -193,7 +193,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
           <div className="flex flex-col md:flex-row gap-6 mb-8">
             {/* Cover */}
             <div className={`w-full md:w-48 aspect-square rounded-xl bg-gradient-to-br ${playlist.playlistCover} flex-shrink-0`} />
-            
+
             {/* Info */}
             <div className="flex-1">
               <p className="text-sm text-muted-foreground mb-1">Playlist</p>
@@ -201,7 +201,7 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
               <p className="text-muted-foreground text-sm mb-4">
                 {playlist.description || "A curated collection of song links"}
               </p>
-              
+
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
                 <span className="font-medium text-foreground">{playlist.username}</span>
                 <span>•</span>
@@ -212,8 +212,8 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
 
               {/* Actions */}
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={handleLike}
                   disabled={isLiking}
@@ -221,8 +221,8 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
                 >
                   <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={handleSave}
                   disabled={isSaving}
@@ -240,15 +240,15 @@ const PlaylistDetail = ({ playlist, onClose }: PlaylistDetailProps) => {
           {/* Songs List */}
           <div className="space-y-2">
             {allSongs.map((song, index) => (
-              <div 
+              <div
                 key={index}
                 onClick={() => handleOpenLink(song, index)}
                 className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group transition-colors hover:bg-secondary"
               >
                 {/* Thumbnail or Platform Icon */}
                 {song.thumbnail ? (
-                  <img 
-                    src={song.thumbnail} 
+                  <img
+                    src={song.thumbnail}
                     alt={song.title}
                     className="w-14 h-14 rounded object-cover flex-shrink-0"
                   />
