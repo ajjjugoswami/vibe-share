@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 import { PlaylistsTab } from "@/components/player/PlaylistsTab";
-import SwipeableQueueItem from "@/components/SwipeableQueueItem";
+import QueueItem from "@/components/SwipeableQueueItem";
 import { triggerHaptic } from "@/hooks/useHaptic";
 
 const getEmbedUrl = (url: string, platform: string): string | null => {
@@ -57,17 +57,12 @@ const Player = () => {
     playTemporarySongs,
     getCurrentSong,
     isPlayingFromTemporary,
-    removeSongFromQueue,
   } = usePlayer();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentSongRef = useRef<HTMLButtonElement>(null);
   const [activeTab, setActiveTab] = useState("queue");
   const prevTabRef = useRef(activeTab);
-
-  // Swipe down to minimize
-  const swipeStartRef = useRef<number | null>(null);
-  const [swipeOffset, setSwipeOffset] = useState(0);
 
   const currentSong = getCurrentSong();
   const embedUrl = currentSong
@@ -157,56 +152,15 @@ const Player = () => {
     }
   };
 
-  // Swipe down gesture handlers
-  const handleHeaderTouchStart = (e: React.TouchEvent) => {
-    swipeStartRef.current = e.touches[0].clientY;
-  };
-
-  const handleHeaderTouchMove = (e: React.TouchEvent) => {
-    if (swipeStartRef.current === null) return;
-    const diff = e.touches[0].clientY - swipeStartRef.current;
-    if (diff > 0) {
-      setSwipeOffset(Math.min(diff, 100));
-    }
-  };
-
-  const handleHeaderTouchEnd = () => {
-    if (swipeOffset > 60) {
-      triggerHaptic("medium");
-      navigate(-1);
-    }
-    setSwipeOffset(0);
-    swipeStartRef.current = null;
-  };
-
-  const handleRemoveSong = (index: number) => {
-    if (removeSongFromQueue) {
-      removeSongFromQueue(index);
-      triggerHaptic("success");
-    }
-  };
-
   if (!playerState) {
     navigate("/");
     return null;
   }
 
   return (
-    <div 
-      className="max-w-lg mx-auto h-screen bg-background flex flex-col overflow-hidden"
-      style={{
-        transform: `translateY(${swipeOffset}px)`,
-        opacity: 1 - swipeOffset / 200,
-        transition: swipeOffset === 0 ? "all 0.2s ease-out" : "none",
-      }}
-    >
-      {/* Compact Header with swipe-down gesture */}
-      <div 
-        className="flex items-center justify-between px-3 py-2 bg-card border-b border-border/30 shrink-0 relative"
-        onTouchStart={handleHeaderTouchStart}
-        onTouchMove={handleHeaderTouchMove}
-        onTouchEnd={handleHeaderTouchEnd}
-      >
+    <div className="max-w-lg mx-auto h-screen bg-background flex flex-col overflow-hidden">
+      {/* Compact Header */}
+      <div className="flex items-center justify-between px-3 py-2 bg-card border-b border-border/30 shrink-0 relative">
         {/* Swipe indicator */}
         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-muted-foreground/30" />
         
@@ -315,13 +269,6 @@ const Player = () => {
           <TabsContent value="queue" className="flex-1 mt-0 overflow-hidden">
             <ScrollArea className="h-full">
               {/* Swipe hint */}
-              {playerState.songs.length > 0 && (
-                <div className="px-3 py-1.5 bg-muted/20 border-b border-border/20">
-                  <p className="text-[10px] text-muted-foreground text-center">
-                    ← Swipe left on a song to remove it
-                  </p>
-                </div>
-              )}
               
               {/* Now Playing from Temporary Playlist */}
               {isPlayingFromTemporary && playerState.temporarySongs && (
@@ -331,11 +278,10 @@ const Player = () => {
                       Now Playing from: {playerState.temporaryPlaylistTitle}
                     </p>
                   </div>
-                  <SwipeableQueueItem
+                  <QueueItem
                     song={playerState.temporarySongs[playerState.temporaryIndex]}
                     index={playerState.temporaryIndex}
                     isActive={true}
-                    isTemporary={true}
                     onSelect={() => {}}
                   />
                 </div>
@@ -352,14 +298,13 @@ const Player = () => {
                   </div>
                 )}
                 {playerState.songs.map((song, index) => (
-                  <SwipeableQueueItem
+                  <QueueItem
                     key={song.id || index}
                     innerRef={index === playerState.currentIndex && !isPlayingFromTemporary ? currentSongRef : undefined}
                     song={song}
                     index={index}
                     isActive={index === playerState.currentIndex && !isPlayingFromTemporary}
                     onSelect={() => setCurrentIndex(index)}
-                    onRemove={playerState.songs.length > 1 ? () => handleRemoveSong(index) : undefined}
                   />
                 ))}
               </div>
