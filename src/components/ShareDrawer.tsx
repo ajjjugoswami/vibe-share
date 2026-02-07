@@ -192,27 +192,7 @@ const ShareDrawer = ({
           </div>
         </div>
 
-        {/* Copy Link Section */}
-        <div className="px-5 py-4">
-          <div className="flex items-center gap-2 bg-[#2a2a2a] rounded-lg px-3 py-2 border border-white/10">
-            <input
-              type="text"
-              value={shareUrl}
-              readOnly
-              className="flex-1 bg-transparent text-sm text-white/60 outline-none"
-            />
-            <button
-              onClick={copyLink}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                linkCopied
-                  ? "bg-green-500/20 text-green-400"
-                  : "bg-primary text-white hover:bg-primary/90"
-              }`}
-            >
-              {linkCopied ? "Copied!" : "Copy"}
-            </button>
-          </div>
-        </div>
+       
       </div>
     </Drawer>
   );
