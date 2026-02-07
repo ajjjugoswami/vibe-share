@@ -1,5 +1,5 @@
 import { Heart, Share2, Bookmark, MoreHorizontal, Play, Music2, BookmarkCheck } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typography, Dropdown, App } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -63,8 +63,6 @@ const PlaylistPost = ({
   const [imageError, setImageError] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
-  const [showLikeAnimation, setShowLikeAnimation] = useState(false);
-  const lastTapRef = useRef<number>(0);
 
   useEffect(() => {
     setIsLikedState(isLiked);
@@ -81,13 +79,11 @@ const PlaylistPost = ({
   const firstSongThumbnail = coverImage;
   const showThumbnail = firstSongThumbnail && !imageError;
 
-  const handleLike = async (e?: React.MouseEvent, skipAnimation = false) => {
-    if (e) e.stopPropagation();
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isLiking) return;
 
-    if (!skipAnimation) {
-      triggerHaptic('light');
-    }
+    triggerHaptic('light');
 
     if (!user) {
       navigate("/sign-in");
@@ -113,24 +109,6 @@ const PlaylistPost = ({
     }
   };
 
-  // Double-tap to like (Instagram-style)
-  const handleDoubleTap = (e: React.MouseEvent) => {
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapRef.current;
-    
-    if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
-      e.stopPropagation();
-      if (!isLikedState && user) {
-        setShowLikeAnimation(true);
-        triggerHaptic('medium');
-        handleLike(undefined, true);
-        setTimeout(() => setShowLikeAnimation(false), 800);
-      }
-    } else {
-      lastTapRef.current = now;
-    }
-  };
-
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isSaving) return;
@@ -145,14 +123,13 @@ const PlaylistPost = ({
     // Optimistic update
     const wasSaved = isSavedState;
     setIsSavedState(!wasSaved);
+    message.success(wasSaved ? "Removed from saved" : "Saved to collection");
 
     try {
       if (wasSaved) {
         await dispatch(unsavePlaylist(id)).unwrap();
-        message.success("Removed from saved");
       } else {
         await dispatch(savePlaylist(id)).unwrap();
-        message.success("Saved to collection");
       }
     } catch (error) {
       // Revert on error
@@ -174,68 +151,54 @@ const PlaylistPost = ({
     return num.toString();
   };
 
-  const truncatedDescription = description && description.length > 120 
-    ? description.slice(0, 120) + "..." 
+  const truncatedDescription = description && description.length > 100 
+    ? description.slice(0, 100) + "..." 
     : description;
 
   const menuItems = [
-    { 
-      key: 'copyLink', 
-      label: 'Copy Link', 
-      onClick: () => {
-        navigator.clipboard.writeText(`${window.location.origin}/playlist/${id}`);
-        message.success("Link copied!");
-      }
-    },
+    { key: 'copyLink', label: 'Copy Link' },
   ];
 
   return (
-    <article className="bg-background">
+    <article className="p-4 transition-colors active:bg-secondary/30">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 pt-3 pb-2.5">
+      <div className="flex items-center justify-between mb-4">
         <button 
           type="button"
-          className="flex items-center gap-2.5 group touch-manipulation text-left flex-1 min-w-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/user/${username}`);
-          }}
+          className="flex items-center gap-3 group touch-manipulation text-left"
+          onClick={() => navigate(`/user/${username}`)}
         >
-          <UserAvatar avatarUrl={userAvatar} size={32} className="ring-1 ring-border/20" />
-          <div className="min-w-0">
-            <Text strong className="text-sm block group-active:text-primary/80 transition-colors truncate">
-              {username}
-            </Text>
+          <div className="relative">
+            <div className="absolute -inset-0.5 bg-gradient-to-br from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
+            <UserAvatar avatarUrl={userAvatar} size={40} className="relative bg-secondary" />
+          </div>
+          <div>
+            <Text strong className="text-sm block group-hover:text-primary transition-colors">{username}</Text>
+            <Text type="secondary" className="text-xs">{totalSongs} songs</Text>
           </div>
         </button>
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
           <button 
             type="button"
-            className="p-2 -mr-2 rounded-full hover:bg-muted/50 active:bg-muted transition-colors touch-manipulation"
-            onClick={(e) => e.stopPropagation()}
-            aria-label="More options"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary active:bg-secondary/80 transition-colors touch-manipulation"
           >
-            <MoreHorizontal className="w-5 h-5" />
+            <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
           </button>
         </Dropdown>
       </div>
 
-      {/* Cover Image */}
+      {/* Cover */}
       <button 
         type="button"
-        className="relative w-full group overflow-hidden touch-manipulation text-left"
-        onClick={(e) => {
-          handleDoubleTap(e);
-          onClick();
-        }}
+        className="relative w-full group rounded-[10px] overflow-hidden mb-3 touch-manipulation text-left"
+        onClick={onClick}
       >
-        <div className="aspect-square w-full bg-muted">
+        <div className="aspect-square w-full">
           {showThumbnail ? (
             <img 
               src={firstSongThumbnail}
               alt={playlistName}
-              className="w-full h-full object-cover select-none"
-              draggable={false}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               crossOrigin="anonymous"
               onError={(e) => {
                 console.error('Image failed to load:', firstSongThumbnail, e);
@@ -244,51 +207,68 @@ const PlaylistPost = ({
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${playlistCover} flex items-center justify-center`}>
-              <div className="text-center text-white/90">
-                <Music2 className="w-20 h-20 mx-auto mb-3 opacity-80" strokeWidth={1.5} />
-                <p className="text-base font-semibold">{totalSongs} tracks</p>
+              <div className="text-center text-white/70">
+                <Music2 className="w-16 h-16 mx-auto mb-2" />
+                <p className="text-lg font-medium">{totalSongs} songs</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Double-tap like animation */}
-        {showLikeAnimation && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-            <Heart 
-              className="w-28 h-28 text-white fill-white animate-[ping_0.8s_ease-out]" 
-              strokeWidth={0}
-            />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Play button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
+            <Play className="w-7 h-7 text-background ml-1" fill="currentColor" />
           </div>
-        )}
+        </div>
+
+        {/* Song count */}
+        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="flex items-center gap-2">
+            {songs.slice(0, 3).map((song, i) => (
+              song.thumbnail && (
+                <img 
+                  key={i}
+                  src={song.thumbnail}
+                  alt={song.title}
+                  className="w-10 h-10 rounded-lg object-cover border-2 border-white/20"
+                />
+              )
+            ))}
+            {songs.length > 3 && (
+              <div className="w-10 h-10 rounded-lg bg-black/50 backdrop-blur-sm flex items-center justify-center text-white text-xs font-medium">
+                +{songs.length - 3}
+              </div>
+            )}
+          </div>
+        </div>
       </button>
 
       {/* Actions - Instagram style */}
-      <div className="flex items-center justify-between px-3 pt-2.5 pb-2">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-4">
           <button 
             type="button"
             onClick={handleLike}
             disabled={isLiking}
-            className={`transition-all duration-200 touch-manipulation active:scale-90 ${
-              isLikedState ? "text-red-500" : "text-foreground"
+            className={`flex items-center gap-1.5 transition-all duration-200 touch-manipulation active:scale-90 ${
+              isLikedState ? "text-red-500" : "text-foreground hover:text-muted-foreground"
             } ${isLiking ? "opacity-50" : ""}`}
-            aria-label={isLikedState ? "Unlike" : "Like"}
           >
             <Heart 
-              className={`w-7 h-7 transition-all duration-200 ${
-                isLikedState ? "fill-current scale-110" : ""
-              }`}
-              strokeWidth={isLikedState ? 2.5 : 2}
+              className={`w-[22px] h-[22px] transition-transform duration-200 ${isLikedState ? "fill-current" : ""}`} 
             />
+            <Text strong className="text-sm">{formatNumber(likeCount)}</Text>
           </button>
           <button 
             type="button"
             onClick={handleShare}
-            className="text-foreground transition-all duration-200 active:scale-90 touch-manipulation"
-            aria-label="Share"
+            className="text-foreground hover:text-muted-foreground transition-colors duration-200 active:scale-90 touch-manipulation"
           >
-            <Share2 className="w-[26px] h-[26px]" strokeWidth={2} />
+            <Share2 className="w-[22px] h-[22px]" />
           </button>
         </div>
         <button 
@@ -296,50 +276,33 @@ const PlaylistPost = ({
           onClick={handleSave}
           disabled={isSaving}
           className={`transition-all duration-200 touch-manipulation active:scale-90 ${
-            isSavedState ? "text-foreground" : "text-foreground"
+            isSavedState ? "text-foreground" : "text-foreground hover:text-muted-foreground"
           } ${isSaving ? "opacity-50" : ""}`}
-          aria-label={isSavedState ? "Unsave" : "Save"}
         >
           {isSavedState ? (
-            <BookmarkCheck className="w-7 h-7 fill-current" strokeWidth={2} />
+            <BookmarkCheck className="w-[22px] h-[22px] fill-current" />
           ) : (
-            <Bookmark className="w-7 h-7" strokeWidth={2} />
+            <Bookmark className="w-[22px] h-[22px]" />
           )}
         </button>
       </div>
 
-      {/* Likes count */}
-      <div className="px-3 pb-1.5">
-        <Text strong className="text-sm">
-          {formatNumber(likeCount)} {likeCount === 1 ? 'like' : 'likes'}
-        </Text>
-      </div>
-
       {/* Title and Description */}
-      <div className="px-3 pb-3">
-        <div className="mb-0.5">
-          <Text strong className="text-sm mr-2">{username}</Text>
-          <Text className="text-sm">{playlistName}</Text>
-        </div>
+      <div className="mb-1">
+        <h3 className="font-semibold text-[15px] mb-1">{playlistName}</h3>
         {description && (
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-foreground">
             {showFullDescription ? description : truncatedDescription}
-            {description.length > 120 && (
+            {description.length > 100 && (
               <button 
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setShowFullDescription(!showFullDescription); 
-                }}
-                className="text-muted-foreground/70 ml-1 font-medium hover:text-muted-foreground"
+                onClick={(e) => { e.stopPropagation(); setShowFullDescription(!showFullDescription); }}
+                className="text-muted-foreground ml-1 hover:text-foreground"
               >
                 {showFullDescription ? "less" : "more"}
               </button>
             )}
           </p>
         )}
-        <Text type="secondary" className="text-xs block mt-1">
-          {totalSongs} {totalSongs === 1 ? 'song' : 'songs'}
-        </Text>
       </div>
 
       {/* Share Drawer */}
@@ -348,7 +311,7 @@ const PlaylistPost = ({
         onClose={() => setShareDrawerOpen(false)}
         shareUrl={`${window.location.origin}/playlist/${id}`}
         shareTitle="Share Playlist"
-        shareText={`Check out "${playlistName}" on VibeShare!`}
+        shareText={`Check out "${playlistName}" playlist!`}
       />
     </article>
   );
