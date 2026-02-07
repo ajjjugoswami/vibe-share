@@ -248,7 +248,7 @@ const CreatePlaylist = ({ initialData, onSubmit, onDelete, confirmBeforeDelete =
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-10">
       {/* Main Content */}
       <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
         {/* Cover + Title Row */}
