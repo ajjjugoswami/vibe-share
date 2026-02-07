@@ -182,7 +182,7 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange, isLoggedIn = true
                     size={44}
                   />
                   <div className="flex-1 min-w-0 pt-0.5">
-                    <p className="text-sm leading-5">
+                    <p className="text-sm leading-5 break-words">
                       <span className="font-semibold">
                         {notification.actorId.username}
                       </span>{' '}
@@ -193,7 +193,7 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange, isLoggedIn = true
                         {notification.playlistId.title}
                       </span>
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[11px] text-muted-foreground/80 mt-1.5 font-medium">
                       {formatDistanceToNow(new Date(notification.createdAt), {
                         addSuffix: true,
                       })}
