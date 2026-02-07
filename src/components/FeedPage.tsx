@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { RefreshCw } from "lucide-react";
-import { Button, Empty, Typography } from "antd";
+import { RefreshCw, Music2 } from "lucide-react";
+import { Button, Typography } from "antd";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchFeedPlaylists, resetFeedPagination, isCacheValid } from "@/store/slices/playlistSlice";
 import PlaylistPost, { PlaylistPostData } from "./PlaylistPost";
@@ -116,19 +116,24 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
       progress={progress}
       shouldTrigger={shouldTrigger}
     >
-      <div>
+      <div className="pb-20">
         <div className="max-w-lg mx-auto">
           {isLoading && feedPlaylists.length > 0 && (
-            <div className="px-4 py-4">
+            <div className="py-3">
               <FeedCardSkeleton />
             </div>
           )}
           
           {error && (
-            <div className="text-center py-12 px-4 animate-fade-in">
-              <div className="glass rounded-2xl p-6">
-                <Text type="danger" className="block mb-3 text-sm">{error}</Text>
-                <Button size="small" onClick={handleRefresh} icon={<RefreshCw className="w-3 h-3" />} className="!rounded-lg !h-8">
+            <div className="text-center py-16 px-4 animate-fade-in">
+              <div className="bg-card rounded-2xl p-8 border border-border/50">
+                <Text type="danger" className="block mb-4 text-sm">{error}</Text>
+                <Button 
+                  size="small" 
+                  onClick={handleRefresh} 
+                  icon={<RefreshCw className="w-3.5 h-3.5" />} 
+                  className="!rounded-full !h-9 !px-6"
+                >
                   Try Again
                 </Button>
               </div>
@@ -141,12 +146,12 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
           
           {!error && (
             <>
-              <div className="divide-y divide-border/30">
+              <div className="divide-y divide-border/10">
                 {transformedPlaylists.map((playlist, index) => (
                   <div 
                     key={playlist.id} 
                     className="animate-fade-in"
-                    style={{ animationDelay: `${Math.min(index, 5) * 60}ms` }}
+                    style={{ animationDelay: `${Math.min(index, 5) * 50}ms` }}
                   >
                     <PlaylistPost 
                       {...playlist} 
@@ -157,30 +162,38 @@ const FeedPage = ({ onShareClick, isLoggedIn }: FeedPageProps) => {
               </div>
               
               {transformedPlaylists.length === 0 && !isLoading && (
-                <Empty
-                  className="py-16"
-                  description={
-                    <div className="mt-2">
-                      <Text strong className="block mb-1">No playlists yet</Text>
-                      <Text type="secondary" className="text-sm">Be the first to share!</Text>
-                    </div>
-                  }
-                >
-                  <Button size="small" onClick={onShareClick} className="!rounded-[8px] px-4 !h-8">
+                <div className="flex flex-col items-center justify-center py-20 px-4">
+                  <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-6">
+                    <Music2 className="w-10 h-10 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No playlists yet</h3>
+                  <Text type="secondary" className="text-sm mb-6 text-center max-w-xs">
+                    Be the first to share amazing music with the community!
+                  </Text>
+                  <Button 
+                    size="middle" 
+                    onClick={onShareClick} 
+                    className="!rounded-full !h-10 !px-8 !font-medium"
+                    type="primary"
+                  >
                     Create Playlist
                   </Button>
-                </Empty>
+                </div>
               )}
               
               {transformedPlaylists.length > 0 && hasMoreFeed && (
-                <div ref={loadMoreRef} className="px-4 py-4">
+                <div ref={loadMoreRef} className="py-3">
                   {isLoadingMore && <FeedCardSkeleton />}
                 </div>
               )}
 
               {transformedPlaylists.length > 0 && !hasMoreFeed && (
-                <div className="text-center py-8">
-                  <Text type="secondary" className="text-sm">You're all caught up!</Text>
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30">
+                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                    <Text type="secondary" className="text-xs font-medium">You're all caught up!</Text>
+                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                  </div>
                 </div>
               )}
             </>
