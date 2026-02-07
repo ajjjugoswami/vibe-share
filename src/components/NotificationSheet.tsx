@@ -129,8 +129,8 @@ const NotificationSheet = ({ unreadCount, onUnreadCountChange, isLoggedIn = true
         </button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-md p-0">
-        <SheetHeader className="px-4 py-4 border-b">
-          <div className="flex items-center justify-between">
+        <SheetHeader className="px-4 py-2 border-b">
+          <div className="flex items-center justify-between pr-8">
             <SheetTitle className="text-lg font-semibold">Notifications</SheetTitle>
             {unreadCount > 0 && (
               <Button
