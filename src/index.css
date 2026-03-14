@@ -219,15 +219,23 @@
 @layer components {
   /* Modern glass effects */
   .glass {
-    @apply bg-card/60 backdrop-blur-2xl border border-white/5;
+    @apply bg-card/60 backdrop-blur-2xl border border-border/20;
   }
 
   .glass-strong {
-    @apply bg-card/80 backdrop-blur-3xl border border-white/10;
+    @apply bg-card/80 backdrop-blur-3xl border border-border/30;
   }
 
   .glass-subtle {
-    @apply bg-card/40 backdrop-blur-xl border border-white/5;
+    @apply bg-card/40 backdrop-blur-xl border border-border/10;
+  }
+
+  .light .glass {
+    @apply bg-card/70 backdrop-blur-2xl border border-border/40;
+  }
+
+  .light .glass-strong {
+    @apply bg-card/90 backdrop-blur-3xl border border-border/50;
   }
 
   /* Gradient border */
