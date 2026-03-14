@@ -26,7 +26,7 @@ const Settings = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.user);
   const soundEnabled = useAppSelector((s) => s.ui.soundEnabled);
-  const { theme, setTheme, customColor, setCustomColor } = useTheme();
+  const { theme, setTheme, customColor, setCustomColor, mode, setMode } = useTheme();
   const { isInstallable, isInstalled } = usePWAInstall();
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
