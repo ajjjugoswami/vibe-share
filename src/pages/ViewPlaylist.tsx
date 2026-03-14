@@ -536,7 +536,7 @@ const ViewPlaylist = () => {
                               : "bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          <Bookmark className={`w-3 h-3 ${savedSongIds.has(song._id || song.id) ? "fill-current" : ""}`} />
+                          <Bookmark className={`w-3 h-3 ${savedSongIds.has((song as any)._id || song.id) ? "fill-current" : ""}`} />
                         </button>
                       )}
                       <button 
