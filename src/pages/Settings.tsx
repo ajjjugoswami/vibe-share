@@ -9,6 +9,8 @@ import {
   Trash2,
   Volume2,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setSoundEnabled } from "@/store/slices/uiSlice";
@@ -24,7 +26,7 @@ const Settings = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.auth.user);
   const soundEnabled = useAppSelector((s) => s.ui.soundEnabled);
-  const { theme, setTheme, customColor, setCustomColor } = useTheme();
+  const { theme, setTheme, customColor, setCustomColor, mode, setMode } = useTheme();
   const { isInstallable, isInstalled } = usePWAInstall();
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
@@ -52,6 +54,34 @@ const Settings = () => {
   return (
     <div>
       <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Appearance Mode */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            {mode === 'dark' ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-primary" />}
+            <Text strong className="text-sm">Appearance</Text>
+          </div>
+          <div className="bg-secondary/50 rounded-xl p-1 flex gap-1">
+            <button
+              onClick={() => setMode('dark')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                mode === 'dark' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Moon className="w-4 h-4" />
+              Dark
+            </button>
+            <button
+              onClick={() => setMode('light')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                mode === 'light' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Sun className="w-4 h-4" />
+              Light
+            </button>
+          </div>
+        </div>
+
         {/* Theme Section */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">

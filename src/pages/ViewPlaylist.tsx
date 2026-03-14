@@ -70,7 +70,7 @@ const ViewPlaylist = () => {
       if (!isLoggedIn) return;
       try {
         const response = await playlistsAPI.getSavedSongs({ limit: 1000 });
-        const savedIds = new Set(
+        const savedIds = new Set<string>(
           (response.data?.songs || []).map((saved: any) => saved.songId?._id || saved.songId)
         );
         setSavedSongIds(savedIds);
@@ -531,12 +531,12 @@ const ViewPlaylist = () => {
                           type="button"
                           onClick={(e) => handleSaveSong(e, song)}
                           className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors touch-manipulation ${
-                            savedSongIds.has(song._id || song.id)
+                            savedSongIds.has((song as any)._id || song.id)
                               ? "bg-primary/90 text-primary-foreground hover:bg-primary"
                               : "bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          <Bookmark className={`w-3 h-3 ${savedSongIds.has(song._id || song.id) ? "fill-current" : ""}`} />
+                          <Bookmark className={`w-3 h-3 ${savedSongIds.has((song as any)._id || song.id) ? "fill-current" : ""}`} />
                         </button>
                       )}
                       <button 
