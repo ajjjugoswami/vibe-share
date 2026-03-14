@@ -70,7 +70,7 @@ const ViewPlaylist = () => {
       if (!isLoggedIn) return;
       try {
         const response = await playlistsAPI.getSavedSongs({ limit: 1000 });
-        const savedIds = new Set(
+        const savedIds = new Set<string>(
           (response.data?.songs || []).map((saved: any) => saved.songId?._id || saved.songId)
         );
         setSavedSongIds(savedIds);
