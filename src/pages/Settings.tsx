@@ -9,6 +9,8 @@ import {
   Trash2,
   Volume2,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { setSoundEnabled } from "@/store/slices/uiSlice";
