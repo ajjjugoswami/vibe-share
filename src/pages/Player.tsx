@@ -72,6 +72,9 @@ const Player = () => {
   const currentSongRef = useRef<HTMLButtonElement>(null);
   const [activeTab, setActiveTab] = useState("queue");
   const prevTabRef = useRef(activeTab);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>("off");
+  const [shuffleEnabled, setShuffleEnabled] = useState(false);
+  const prevTabRef = useRef(activeTab);
 
   const currentSong = getCurrentSong();
   const embedUrl = currentSong
