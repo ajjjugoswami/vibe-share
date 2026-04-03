@@ -17,6 +17,7 @@ import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 import { PlaylistsTab } from "@/components/player/PlaylistsTab";
 import QueueItem from "@/components/SwipeableQueueItem";
 import { triggerHaptic } from "@/hooks/useHaptic";
+import PlayerControls, { RepeatMode } from "@/components/player/PlayerControls";
 
 const getEmbedUrl = (url: string, platform: string): string | null => {
   if (platform === "YouTube") {
