@@ -29,6 +29,7 @@ const ViewPlaylist = lazy(() => import("@/pages/ViewPlaylist"));
 const Install = lazy(() => import("@/pages/Install"));
 const Player = lazy(() => import("@/pages/Player"));
 const SavedSongs = lazy(() => import("@/pages/SavedSongs"));
+const ContactSupport = lazy(() => import("@/pages/ContactSupport"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 // Wrapper component for lazy loaded pages with skeleton fallback
@@ -179,6 +180,16 @@ const AnimatedRoutes = () => {
               <PageTransition>
                 <LazyPage fallback={<div className="min-h-screen" />}>
                   <SavedSongs />
+                </LazyPage>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/contact-support"
+            element={
+              <PageTransition>
+                <LazyPage fallback={<SettingsSkeleton />}>
+                  <ContactSupport />
                 </LazyPage>
               </PageTransition>
             }
