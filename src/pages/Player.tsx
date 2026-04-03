@@ -371,6 +371,45 @@ const Player = () => {
             </ScrollArea>
           </TabsContent>
 
+          {/* Lyrics Tab */}
+          <TabsContent value="lyrics" className="flex-1 mt-0 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="flex flex-col items-center justify-center px-6 py-12 text-center min-h-[300px]">
+                {/* Song info */}
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
+                  <Mic2 className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-base font-semibold mb-1">{currentSong?.title}</h3>
+                <p className="text-sm text-muted-foreground mb-6">{currentSong?.artist}</p>
+                
+                {/* Placeholder lyrics */}
+                <div className="space-y-4 w-full max-w-xs">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground/60 italic">♪ ♪ ♪</p>
+                    <p className="text-sm text-muted-foreground/40">Lyrics are not available yet</p>
+                    <p className="text-sm text-muted-foreground/40">for this track</p>
+                    <p className="text-sm text-muted-foreground/60 italic">♪ ♪ ♪</p>
+                  </div>
+                  
+                  {/* Animated placeholder lines */}
+                  <div className="space-y-3 pt-4">
+                    <div className="h-3 bg-muted/50 rounded-full w-full animate-pulse" />
+                    <div className="h-3 bg-muted/40 rounded-full w-4/5 mx-auto animate-pulse [animation-delay:150ms]" />
+                    <div className="h-3 bg-muted/50 rounded-full w-full animate-pulse [animation-delay:300ms]" />
+                    <div className="h-3 bg-muted/30 rounded-full w-3/5 mx-auto animate-pulse [animation-delay:450ms]" />
+                    <div className="h-3 bg-muted/40 rounded-full w-4/5 mx-auto animate-pulse [animation-delay:600ms]" />
+                    <div className="h-3 bg-muted/50 rounded-full w-full animate-pulse [animation-delay:750ms]" />
+                    <div className="h-3 bg-muted/30 rounded-full w-2/3 mx-auto animate-pulse [animation-delay:900ms]" />
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground/50 mt-8">
+                  Lyrics support coming soon
+                </p>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
           {/* Playlists Tab */}
           <TabsContent value="playlists" className="flex-1 mt-0 overflow-hidden">
             <PlaylistsTab
