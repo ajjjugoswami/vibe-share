@@ -282,6 +282,18 @@ const Player = () => {
         )}
       </div>
 
+      {/* Player Controls Bar */}
+      <PlayerControls
+        repeatMode={repeatMode}
+        shuffleEnabled={shuffleEnabled}
+        onRepeatModeChange={setRepeatMode}
+        onShuffleChange={setShuffleEnabled}
+        onSleepTimerEnd={() => {
+          // Navigate away from player to stop playback
+          navigate(-1);
+        }}
+      />
+
       {/* Tabs: Queue | Playlists */}
       <div className="flex-1 flex flex-col min-h-0">
         <Tabs value={activeTab} onValueChange={(tab) => {
