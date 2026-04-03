@@ -301,7 +301,7 @@ const Player = () => {
           setActiveTab(tab);
           triggerHaptic("selection");
         }} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="w-full grid grid-cols-2 bg-muted/30 border-y border-border/20 rounded-none h-10 shrink-0">
+          <TabsList className="w-full grid grid-cols-3 bg-muted/30 border-y border-border/20 rounded-none h-10 shrink-0">
             <TabsTrigger
               value="queue"
               className="text-xs gap-1.5 data-[state=active]:bg-background"
@@ -310,11 +310,18 @@ const Player = () => {
               Queue
             </TabsTrigger>
             <TabsTrigger
+              value="lyrics"
+              className="text-xs gap-1.5 data-[state=active]:bg-background"
+            >
+              <Mic2 className="w-3.5 h-3.5" />
+              Lyrics
+            </TabsTrigger>
+            <TabsTrigger
               value="playlists"
               className="text-xs gap-1.5 data-[state=active]:bg-background"
             >
               <Music2 className="w-3.5 h-3.5" />
-              Saved Playlists
+              Playlists
             </TabsTrigger>
           </TabsList>
 
