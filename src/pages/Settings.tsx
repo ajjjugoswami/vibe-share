@@ -233,6 +233,32 @@ const Settings = () => {
             </Button>
           </div>
         </div>
+
+        {/* Contact Support */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <HeadphonesIcon className="w-4 h-4 text-primary" />
+            <Text strong className="text-sm">Support</Text>
+          </div>
+          <div className="bg-secondary/50 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Text className="block text-sm">Contact Support</Text>
+                <Text type="secondary" className="text-xs">
+                  Report issues or share feedback
+                </Text>
+              </div>
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => navigate("/contact-support")}
+                className="!rounded-[10px] !h-8"
+              >
+                Contact
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

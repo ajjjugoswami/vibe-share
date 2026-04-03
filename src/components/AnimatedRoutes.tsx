@@ -184,6 +184,16 @@ const AnimatedRoutes = () => {
               </PageTransition>
             }
           />
+          <Route
+            path="/contact-support"
+            element={
+              <PageTransition>
+                <LazyPage fallback={<SettingsSkeleton />}>
+                  <ContactSupport />
+                </LazyPage>
+              </PageTransition>
+            }
+          />
         </Route>
 
         <Route
