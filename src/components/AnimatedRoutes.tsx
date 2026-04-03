@@ -29,6 +29,7 @@ const ViewPlaylist = lazy(() => import("@/pages/ViewPlaylist"));
 const Install = lazy(() => import("@/pages/Install"));
 const Player = lazy(() => import("@/pages/Player"));
 const SavedSongs = lazy(() => import("@/pages/SavedSongs"));
+const ContactSupport = lazy(() => import("@/pages/ContactSupport"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 // Wrapper component for lazy loaded pages with skeleton fallback
