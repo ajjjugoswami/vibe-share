@@ -17,6 +17,7 @@ import { getPlatformColor, getPlatformIcon } from "@/lib/songUtils";
 import { PlaylistsTab } from "@/components/player/PlaylistsTab";
 import QueueItem from "@/components/SwipeableQueueItem";
 import { triggerHaptic } from "@/hooks/useHaptic";
+import PlayerControls, { RepeatMode } from "@/components/player/PlayerControls";
 
 const getEmbedUrl = (url: string, platform: string): string | null => {
   if (platform === "YouTube") {
@@ -71,6 +72,8 @@ const Player = () => {
   const currentSongRef = useRef<HTMLButtonElement>(null);
   const [activeTab, setActiveTab] = useState("queue");
   const prevTabRef = useRef(activeTab);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>("off");
+  const [shuffleEnabled, setShuffleEnabled] = useState(false);
 
   const currentSong = getCurrentSong();
   const embedUrl = currentSong
@@ -103,6 +106,35 @@ const Player = () => {
     }
   }, [playerState?.currentIndex, scrollToCurrentSong, activeTab]);
 
+  // Handle song end: repeat/shuffle logic
+  const handleSongEnd = useCallback(() => {
+    if (!playerState) return;
+    const songs = playerState.songs;
+    const idx = playerState.currentIndex;
+
+    if (repeatMode === "one") {
+      // Replay same song by re-setting the same index (forces iframe reload)
+      setCurrentIndex(idx);
+      return;
+    }
+
+    if (shuffleEnabled) {
+      const remaining = songs.filter((_, i) => i !== idx);
+      if (remaining.length > 0) {
+        const randomIdx = Math.floor(Math.random() * (songs.length - 1));
+        const newIdx = randomIdx >= idx ? randomIdx + 1 : randomIdx;
+        setCurrentIndex(newIdx);
+      }
+      return;
+    }
+
+    if (idx < songs.length - 1) {
+      nextSong();
+    } else if (repeatMode === "all") {
+      setCurrentIndex(0);
+    }
+  }, [playerState, repeatMode, shuffleEnabled, nextSong, setCurrentIndex]);
+
   // Listen for YouTube postMessage events for auto-advance
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -110,7 +142,7 @@ const Player = () => {
         try {
           const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
           if (data?.event === "onStateChange" && data?.info === 0) {
-            nextSong();
+            handleSongEnd();
           }
         } catch {
           // Ignore parse errors
@@ -120,7 +152,7 @@ const Player = () => {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [nextSong]);
+  }, [handleSongEnd]);
 
   // Media Session API for background/lock screen controls
   useEffect(() => {
@@ -249,6 +281,18 @@ const Player = () => {
           </div>
         )}
       </div>
+
+      {/* Player Controls Bar */}
+      <PlayerControls
+        repeatMode={repeatMode}
+        shuffleEnabled={shuffleEnabled}
+        onRepeatModeChange={setRepeatMode}
+        onShuffleChange={setShuffleEnabled}
+        onSleepTimerEnd={() => {
+          // Navigate away from player to stop playback
+          navigate(-1);
+        }}
+      />
 
       {/* Tabs: Queue | Playlists */}
       <div className="flex-1 flex flex-col min-h-0">
